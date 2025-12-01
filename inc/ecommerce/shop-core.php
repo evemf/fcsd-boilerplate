@@ -410,3 +410,102 @@ function fcsd_ajax_get_cart_content() {
 }
 add_action( 'wp_ajax_fcsd_get_cart_content', 'fcsd_ajax_get_cart_content' );
 add_action( 'wp_ajax_nopriv_fcsd_get_cart_content', 'fcsd_ajax_get_cart_content' );
+
+/**
+ * Filtros del archivo de productos (tienda)
+ * - Categoria (product_cat)
+ * - Color (meta _fcsd_product_colors)
+ * - Precio mínimo/máximo (meta _fcsd_price_regular)
+ */
+function fcsd_apply_shop_filters( $query ) {
+
+    // Sólo front-end, main query, archivo de productos
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+
+    if ( ! $query->is_post_type_archive( 'product' ) && $query->get( 'post_type' ) !== 'product' ) {
+        return;
+    }
+
+    $meta_query = (array) $query->get( 'meta_query' );
+    $tax_query  = (array) $query->get( 'tax_query' );
+
+    // -------------------------------
+    // Categoría de producto (product_cat)
+    // -------------------------------
+    if ( ! empty( $_GET['product_cat'] ) ) {
+        $cat_id = (int) $_GET['product_cat'];
+        if ( $cat_id > 0 ) {
+            $tax_query[] = [
+                'taxonomy' => 'product_cat',
+                'field'    => 'term_id',
+                'terms'    => $cat_id,
+            ];
+        }
+    }
+
+    // -------------------------------
+    // Color (array de hex en _fcsd_product_colors)
+    // Se guardan como array serializado, usamos LIKE
+    // -------------------------------
+    if ( ! empty( $_GET['color'] ) ) {
+        $color = sanitize_text_field( wp_unslash( $_GET['color'] ) );
+
+        // Normalizamos: aseguramos # delante
+        if ( $color[0] !== '#' ) {
+            $color = '#' . $color;
+        }
+
+        $meta_query[] = [
+            'key'     => '_fcsd_product_colors',
+            'value'   => $color,
+            'compare' => 'LIKE',
+        ];
+    }
+
+    // -------------------------------
+    // Rango de precio (usamos _fcsd_price_regular)
+    // -------------------------------
+    $price_min = isset( $_GET['price_min'] ) && $_GET['price_min'] !== ''
+        ? (float) $_GET['price_min']
+        : null;
+
+    $price_max = isset( $_GET['price_max'] ) && $_GET['price_max'] !== ''
+        ? (float) $_GET['price_max']
+        : null;
+
+    if ( $price_min !== null || $price_max !== null ) {
+        $price_filter = [
+            'key'     => '_fcsd_price_regular',
+            'type'    => 'NUMERIC',
+        ];
+
+        if ( $price_min !== null && $price_max !== null ) {
+            $price_filter['value']   = [ $price_min, $price_max ];
+            $price_filter['compare'] = 'BETWEEN';
+        } elseif ( $price_min !== null ) {
+            $price_filter['value']   = $price_min;
+            $price_filter['compare'] = '>=';
+        } elseif ( $price_max !== null ) {
+            $price_filter['value']   = $price_max;
+            $price_filter['compare'] = '<=';
+        }
+
+        $meta_query[] = $price_filter;
+    }
+
+    if ( ! empty( $meta_query ) ) {
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    if ( ! empty( $tax_query ) ) {
+        $query->set( 'tax_query', $tax_query );
+    }
+
+    // Opcional: ordenar por precio
+    // $query->set( 'meta_key', '_fcsd_price_regular' );
+    // $query->set( 'orderby', 'meta_value_num' );
+    // $query->set( 'order', 'ASC' );
+}
+add_action( 'pre_get_posts', 'fcsd_apply_shop_filters' );

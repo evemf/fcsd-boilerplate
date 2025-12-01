@@ -12,6 +12,11 @@ get_header(); ?>
         <?php post_type_archive_title(); ?>
     </h1>
 
+      <?php
+    // Navbar de filtros de la tienda
+    get_template_part( 'template-parts/shop/navbar', 'filters' );
+    ?>
+
     <div class="shop-grid row">
         <?php if ( have_posts() ) : ?>
             <?php while ( have_posts() ) : the_post(); ?>
