@@ -1621,6 +1621,19 @@ body.theme-dark .single-news .entry-footer {
 }
 
 /* ==============================
+   SERVICES page
+   ============================== */
+
+.service-card__header {
+  padding: 10px;
+}
+
+.service-card__title a {
+  color: white;
+  text-decoration: none;
+}
+
+/* ==============================
    SERVICES - HERO & FICHA TÈCNICA
    ============================== */
 

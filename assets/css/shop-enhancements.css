@@ -488,8 +488,9 @@ body.theme-dark .single-product .h4.mb-1 {
    ============================== */
 
 .cart-page,
-.checkout-page {
-  margin-top: 20px;
+.checkout-page,
+.shop-archive {
+  margin-top: 25px;
 }
 
 .cart-table {

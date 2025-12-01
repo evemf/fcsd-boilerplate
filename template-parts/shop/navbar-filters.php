@@ -5,7 +5,7 @@
  */
 
 // Valores seleccionados actualmente (para mantener el estado del filtro)
-$current_cat   = isset( $_GET['product_cat'] ) ? (int) $_GET['product_cat'] : 0;
+$current_cat   = isset( $_GET['shop_cat'] ) ? (int) $_GET['shop_cat'] : 0;
 $current_color = isset( $_GET['color'] ) ? sanitize_key( wp_unslash( $_GET['color'] ) ) : '';
 $price_min     = isset( $_GET['price_min'] ) ? (float) $_GET['price_min'] : '';
 $price_max     = isset( $_GET['price_max'] ) ? (float) $_GET['price_max'] : '';
@@ -56,8 +56,8 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                         <?php esc_html_e( 'Categoria', 'fcsd' ); ?>
                     </label>
                     <select id="shop-cat"
-                            name="product_cat"
-                            class="form-select form-select-sm">
+                        name="shop_cat"
+                        class="form-select form-select-sm">
                         <option value=""><?php esc_html_e( 'Totes', 'fcsd' ); ?></option>
                         <?php
                         $terms = get_terms(

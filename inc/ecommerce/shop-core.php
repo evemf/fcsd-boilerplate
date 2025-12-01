@@ -434,8 +434,8 @@ function fcsd_apply_shop_filters( $query ) {
     // -------------------------------
     // Categoría de producto (product_cat)
     // -------------------------------
-    if ( ! empty( $_GET['product_cat'] ) ) {
-        $cat_id = (int) $_GET['product_cat'];
+    if ( ! empty( $_GET['shop_cat'] ) ) {
+        $cat_id = (int) $_GET['shop_cat'];
         if ( $cat_id > 0 ) {
             $tax_query[] = [
                 'taxonomy' => 'product_cat',
@@ -444,6 +444,7 @@ function fcsd_apply_shop_filters( $query ) {
             ];
         }
     }
+
 
     // -------------------------------
     // Color (array de hex en _fcsd_product_colors)
@@ -474,6 +475,11 @@ function fcsd_apply_shop_filters( $query ) {
     $price_max = isset( $_GET['price_max'] ) && $_GET['price_max'] !== ''
         ? (float) $_GET['price_max']
         : null;
+
+    if ( $price_min === 0.0 && $price_max === 0.0 ) {
+        $price_min = null;
+        $price_max = null;
+    }
 
     if ( $price_min !== null || $price_max !== null ) {
         $price_filter = [
