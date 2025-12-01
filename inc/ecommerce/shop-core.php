@@ -509,3 +509,44 @@ function fcsd_apply_shop_filters( $query ) {
     // $query->set( 'order', 'ASC' );
 }
 add_action( 'pre_get_posts', 'fcsd_apply_shop_filters' );
+
+/**
+ * Colores disponibles para filtros de tienda
+ * slug => [ 'label' => '', 'hex' => '' ]
+ */
+function fcsd_get_shop_colors() {
+    return [
+        'black' => [
+            'label' => __( 'Negre', 'fcsd' ),
+            'hex'   => '#000000',
+        ],
+        'white' => [
+            'label' => __( 'Blanc', 'fcsd' ),
+            'hex'   => '#ffffff',
+        ],
+        'red' => [
+            'label' => __( 'Vermell', 'fcsd' ),
+            'hex'   => '#ff0000',
+        ],
+        'blue' => [
+            'label' => __( 'Blau', 'fcsd' ),
+            'hex'   => '#0000ff',
+        ],
+        'green' => [
+            'label' => __( 'Verd', 'fcsd' ),
+            'hex'   => '#008000',
+        ],
+        'yellow' => [
+            'label' => __( 'Groc', 'fcsd' ),
+            'hex'   => '#ffff00',
+        ],
+        'purple' => [
+            'label' => __( 'Porpra', 'fcsd' ),
+            'hex'   => '#800080',
+        ],
+        'orange' => [
+            'label' => __( 'Taronja', 'fcsd' ),
+            'hex'   => '#ffa500',
+        ],       
+    ];
+}

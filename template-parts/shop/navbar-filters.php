@@ -1,10 +1,21 @@
 <?php
+/**
+ * Navbar de filtros de la tienda
+ * Ubicación: template-parts/shop/navbar-filters.php
+ */
+
 // Valores seleccionados actualmente (para mantener el estado del filtro)
 $current_cat   = isset( $_GET['product_cat'] ) ? (int) $_GET['product_cat'] : 0;
-$current_color = isset( $_GET['color'] ) ? sanitize_text_field( wp_unslash( $_GET['color'] ) ) : '';
+$current_color = isset( $_GET['color'] ) ? sanitize_key( wp_unslash( $_GET['color'] ) ) : '';
 $price_min     = isset( $_GET['price_min'] ) ? (float) $_GET['price_min'] : '';
 $price_max     = isset( $_GET['price_max'] ) ? (float) $_GET['price_max'] : '';
 $search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+// Colores disponibles (si existe el helper en shop-core.php lo usamos)
+$shop_colors = [];
+if ( function_exists( 'fcsd_get_shop_colors' ) ) {
+    $shop_colors = fcsd_get_shop_colors();
+}
 ?>
 
 <nav class="shop-filters navbar navbar-expand-lg bg-body-tertiary mb-4 rounded-3 shadow-sm">
@@ -49,32 +60,65 @@ $search        = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s
                             class="form-select form-select-sm">
                         <option value=""><?php esc_html_e( 'Totes', 'fcsd' ); ?></option>
                         <?php
-                        $terms = get_terms( [
-                            'taxonomy'   => 'product_cat',
-                            'hide_empty' => true,
-                        ] );
+                        $terms = get_terms(
+                            [
+                                'taxonomy'   => 'product_cat',
+                                'hide_empty' => true,
+                            ]
+                        );
                         if ( ! is_wp_error( $terms ) ) :
-                            foreach ( $terms as $term ) : ?>
+                            foreach ( $terms as $term ) :
+                                ?>
                                 <option value="<?php echo esc_attr( $term->term_id ); ?>"
                                     <?php selected( $current_cat, $term->term_id ); ?>>
                                     <?php echo esc_html( $term->name ); ?>
                                 </option>
-                            <?php endforeach;
+                            <?php
+                            endforeach;
                         endif;
                         ?>
                     </select>
                 </div>
 
-                <!-- Color (hex) -->
-                <div class="d-flex flex-column" style="min-width:120px;">
-                    <label for="shop-color" class="form-label small mb-1">
+                <!-- Color (lista de colores predefinidos) -->
+                <div style="min-width:180px;">
+                    <label class="form-label small mb-1">
                         <?php esc_html_e( 'Color', 'fcsd' ); ?>
                     </label>
-                    <input type="color"
-                           id="shop-color"
-                           name="color"
-                           class="form-control form-control-color p-0"
-                           value="<?php echo esc_attr( $current_color ?: '#ffffff' ); ?>">
+
+                    <div class="d-flex flex-wrap gap-2">
+
+                        <!-- Opción: cualquier color -->
+                        <label class="btn btn-outline-secondary btn-sm mb-0">
+                            <input type="radio"
+                                   class="btn-check"
+                                   name="color"
+                                   value=""
+                                <?php checked( $current_color, '' ); ?>>
+                            <span><?php esc_html_e( 'Qualsevol', 'fcsd' ); ?></span>
+                        </label>
+
+                        <?php if ( ! empty( $shop_colors ) ) : ?>
+                            <?php foreach ( $shop_colors as $slug => $data ) : ?>
+                                <?php
+                                $hex   = isset( $data['hex'] ) ? $data['hex'] : '#000000';
+                                $label = isset( $data['label'] ) ? $data['label'] : $slug;
+                                ?>
+                                <label class="btn btn-outline-secondary btn-sm mb-0 d-flex align-items-center gap-2">
+                                    <input type="radio"
+                                           class="btn-check"
+                                           name="color"
+                                           value="<?php echo esc_attr( $slug ); ?>"
+                                        <?php checked( $current_color, $slug ); ?>>
+
+                                    <span class="d-inline-block rounded-circle"
+                                          style="width:14px;height:14px;background-color:<?php echo esc_attr( $hex ); ?>;"></span>
+
+                                    <span><?php echo esc_html( $label ); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Precio -->

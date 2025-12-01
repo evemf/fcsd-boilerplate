@@ -489,7 +489,7 @@ body.theme-dark .single-product .h4.mb-1 {
 
 .cart-page,
 .checkout-page {
-  margin: var(--space-2xl) 0;
+  margin-top: 20px;
 }
 
 .cart-table {
