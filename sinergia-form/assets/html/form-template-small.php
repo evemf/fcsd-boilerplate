@@ -64,16 +64,43 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const eventsData = /*__EVENTS_DATA__*/;  
+    // Los datos del evento se inyectan desde PHP (o se queda como [] si no hay datos)
+    const eventsData = /*__EVENTS_DATA__*/ [];
     const eventIdField = document.getElementById('event_id');
     const assignedUserIdField = document.getElementById('assigned_user_id');
-    
-    if (eventIdField && eventsData && eventsData.length > 0) {
-        eventIdField.value = eventsData[0].id || '';
+    const scheduleSlot = document.getElementById('schedule_slot');
+
+    function updateEventFieldsFromSelect(event) {
+        const select = event.target;
+        if (!select || select.selectedIndex < 0) {
+            return;
+        }
+
+        const selectedOption = select.selectedOptions[0];
+        if (!selectedOption) return;
+
+        const eventId = selectedOption.value;
+        const assignedUserId = selectedOption.getAttribute('data-assigned-user-id') || '';
+
+        if (eventIdField) {
+            eventIdField.value = eventId;
+        }
+        if (assignedUserIdField) {
+            assignedUserIdField.value = assignedUserId;
+        }
     }
-    
-    if (assignedUserIdField && eventsData && eventsData.length > 0) {
-        assignedUserIdField.value = eventsData[0].assigned_user_id || '';
-    } 
+
+    if (scheduleSlot) {
+        // Evitar posibles atributos inline antiguos
+        scheduleSlot.removeAttribute('onchange');
+
+        scheduleSlot.addEventListener('change', updateEventFieldsFromSelect);
+
+        // Si ya hay un valor seleccionado al cargar la página, actualizamos los campos ocultos
+        if (scheduleSlot.selectedIndex > 0) {
+            scheduleSlot.dispatchEvent(new Event('change'));
+        }
+    }
 });
 </script>
+

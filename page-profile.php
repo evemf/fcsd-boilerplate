@@ -482,36 +482,86 @@ function fcsd_profile_order_status($order){
         </section>
       </div>
 
-      <div class="tab-pane fade" id="tab-inscripciones" role="tabpanel" aria-labelledby="tab-inscripciones-button">
+     <div class="tab-pane fade" id="tab-inscripciones" role="tabpanel" aria-labelledby="tab-inscripciones-button">
         <section class="card account-card p-4 mb-4">
-          <h2 class="h5 mb-3"><?php esc_html_e('Inscripcions','fcsd'); ?></h2>
+          <h2 class="h5 mb-3"><?php esc_html_e( 'Inscripcions', 'fcsd' ); ?></h2>
 
-          <?php if ( empty($user_registrations) ) : ?>
-            <p class="mb-0 text-muted"><?php esc_html_e('No tens inscripcions encara.','fcsd'); ?></p>
+          <?php if ( empty( $user_registrations ) ) : ?>
+            <p class="mb-0 text-muted"><?php esc_html_e( 'No tens inscripcions encara.', 'fcsd' ); ?></p>
           <?php else : ?>
             <div class="table-responsive">
               <table class="table table-sm align-middle">
                 <thead>
                   <tr>
-                    <th><?php esc_html_e('Evento / Formación','fcsd'); ?></th>
-                    <th><?php esc_html_e('Fecha','fcsd'); ?></th>
-                    <th><?php esc_html_e('Estado','fcsd'); ?></th>
+                    <th><?php esc_html_e( 'Evento / Formació', 'fcsd' ); ?></th>
+                    <th><?php esc_html_e( 'Data', 'fcsd' ); ?></th>
+                    <th><?php esc_html_e( 'Estat inscripció', 'fcsd' ); ?></th>
+                    <th><?php esc_html_e( 'Estat esdeveniment', 'fcsd' ); ?></th>
                   </tr>
                 </thead>
                 <tbody>
-                  <?php foreach ( $user_registrations as $reg ) : ?>
+                  <?php foreach ( $user_registrations as $reg ) :
+
+                    $title     = isset( $reg['title'] ) ? trim( (string) $reg['title'] ) : '';
+                    $permalink = ! empty( $reg['permalink'] ) ? esc_url( $reg['permalink'] ) : '';
+
+                    $event_start = $reg['event_start'] ?? '';
+                    $event_end   = $reg['event_end'] ?? '';
+                    $display_date = $event_start && $event_end
+                      ? $event_start . ' – ' . $event_end
+                      : ( $event_start ?: ( $event_end ?: ( $reg['date'] ?? '' ) ) );
+
+                    // Estado inscripción
+                    $status_raw   = strtolower( trim( $reg['status'] ?? '' ) );
+                    $status_label = '';
+                    $status_class = 'badge bg-secondary';
+
+                    if ( $status_raw === '' ) {
+                      $status_label = __( 'Confirmat', 'fcsd' );
+                      $status_class = 'badge bg-success';
+                    } elseif ( in_array( $status_raw, [ 'confirmat', 'confirmada', 'confirmed', 'confirmado', 'confirmada crm' ] ) ) {
+                      $status_label = __( 'Confirmat', 'fcsd' );
+                      $status_class = 'badge bg-success';
+                    } elseif ( str_contains( $status_raw, 'espera' ) || str_contains( $status_raw, 'wait' ) || str_contains( $status_raw, 'pendent' ) || str_contains( $status_raw, 'pending' ) ) {
+                      $status_label = __( 'En espera', 'fcsd' );
+                      $status_class = 'badge bg-warning text-dark';
+                    } else {
+                      $status_label = ucwords( $status_raw );
+                    }
+
+                    // Estado evento
+                    $event_state       = $reg['event_state'] ?? '';
+                    $event_state_label = '';
+                    $event_state_class = 'badge bg-secondary';
+
+                    switch ( $event_state ) {
+                      case 'active':
+                        $event_state_label = __( 'Actiu', 'fcsd' );
+                        $event_state_class = 'badge bg-success';
+                        break;
+                      case 'finished':
+                        $event_state_label = __( 'Finalitzat', 'fcsd' );
+                        $event_state_class = 'badge bg-secondary';
+                        break;
+                      case 'upcoming':
+                        $event_state_label = __( 'Pendent', 'fcsd' );
+                        $event_state_class = 'badge bg-info text-dark';
+                        break;
+                    }
+                  ?>
                     <tr>
                       <td>
-                        <?php if ( !empty($reg['permalink']) ) : ?>
-                          <a href="<?php echo esc_url($reg['permalink']); ?>">
-                            <?php echo esc_html($reg['title']); ?>
+                        <?php if ( $permalink ) : ?>
+                          <a href="<?php echo $permalink; ?>">
+                            <?php echo esc_html( $title ); ?>
                           </a>
                         <?php else : ?>
-                          <?php echo esc_html($reg['title']); ?>
+                          <?php echo esc_html( $title ); ?>
                         <?php endif; ?>
                       </td>
-                      <td><?php echo esc_html($reg['date'] ?? ''); ?></td>
-                      <td><?php echo esc_html($reg['status'] ?? ''); ?></td>
+                      <td><?php echo esc_html( $display_date ); ?></td>
+                      <td><span class="<?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( $status_label ); ?></span></td>
+                      <td><span class="<?php echo esc_attr( $event_state_class ); ?>"><?php echo esc_html( $event_state_label ); ?></span></td>
                     </tr>
                   <?php endforeach; ?>
                 </tbody>
@@ -521,13 +571,14 @@ function fcsd_profile_order_status($order){
         </section>
       </div>
 
+
       <!-- TAB: COMPRES -->
       <div class="tab-pane fade" id="tab-compras" role="tabpanel" aria-labelledby="tab-compras-button">
         <section class="card account-card p-4 mb-4">
           <h2 class="h5 mb-3"><?php esc_html_e('Històric de compres','fcsd'); ?></h2>
 
           <?php if ( empty( $orders ) ) : ?>
-            <p class="mb-0 text-muted"><?php esc_html_e('Aún has fet cap compra.','fcsd'); ?></p>
+            <p class="mb-0 text-muted"><?php esc_html_e('Encara no has fet cap compra.','fcsd'); ?></p>
           <?php else : ?>
             <div class="table-responsive">
               <table class="table table-sm align-middle">

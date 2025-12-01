@@ -21,7 +21,7 @@ function fcsd_create_initial_pages_and_menus() {
         ),
         'intranet' => array(
             'title'   => 'Intranet',
-            'content' => '[fcsd_intranet]',
+            'content' => '',
         ),
         'esdeveniments' => array(
             'title'   => 'Esdeveniments',
@@ -83,6 +83,7 @@ function fcsd_create_initial_pages_and_menus() {
         'perfil-usuari' => 'page-profile.php',
         'cistella'      => 'page-cart.php',
         'checkout'      => 'page-checkout.php',
+        'intranet'      => 'page-intranet.php',
     );
 
     foreach ( $pages as $slug => $config ) {

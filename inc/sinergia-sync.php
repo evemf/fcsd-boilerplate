@@ -541,26 +541,73 @@ function fcsd_sinergia_get_normalized_user_registrations( $user_id, array $local
             continue;
         }
 
-        // Pot haver-hi o no ID d'esdeveniment a Sinergia
-        $event_id = isset( $r['stic_event_id_c'] ) ? trim( (string) $r['stic_event_id_c'] ) : '';
+        // -----------------------------
+        //   IDENTIFICAR EVENT SINERGIA
+        // -----------------------------
+        $event_id = '';
+        if ( ! empty( $r['stic_event_id_c'] ) ) {
+            $event_id = trim( (string) $r['stic_event_id_c'] );
+        } elseif ( ! empty( $r['event_id'] ) ) {
+            // per si a la payload ve amb una altra clau
+            $event_id = trim( (string) $r['event_id'] );
+        }
 
+        // Intentem trobar CPT event vinculat per ID de Sinergia
         $event_post_id = 0;
+
         if ( $event_id && function_exists( 'fcsd_sinergia_find_event_post_id_by_sinergia_id' ) ) {
             $event_post_id = (int) fcsd_sinergia_find_event_post_id_by_sinergia_id( $event_id );
         }
 
+        // Títol que ve de Sinergia (sovint: "NomCognoms – TítolEsdeveniment")
+        $raw_name = isset( $r['name'] ) ? trim( (string) $r['name'] ) : '';
+
+        // Si per ID no trobem res, intentem per títol
+        if ( ! $event_post_id && $raw_name ) {
+
+            // 1) Intentem buscar pel títol complet
+            $title_candidates = array( $raw_name );
+
+            // 2) Si porta " - " o " – ", ens quedem amb la part final (el nom de l'esdeveniment)
+            if ( preg_match( '/(.+)[\-–](.+)/u', $raw_name, $m ) ) {
+                $possible_title = trim( $m[2] );
+                if ( $possible_title && $possible_title !== $raw_name ) {
+                    $title_candidates[] = $possible_title;
+                }
+            }
+
+            $title_candidates = array_unique( $title_candidates );
+
+            foreach ( $title_candidates as $title_search ) {
+                $q = new WP_Query( array(
+                    'post_type'      => 'event',
+                    'post_status'    => 'publish',
+                    'posts_per_page' => 1,
+                    's'              => $title_search,
+                ) );
+
+                if ( ! empty( $q->posts ) ) {
+                    $event_post_id = (int) $q->posts[0]->ID;
+                    break;
+                }
+            }
+        }
+
+        // -----------------------------
+        //   TÍTOL I ENLLAÇ A MOSTRAR
+        // -----------------------------
         $title     = '';
         $permalink = '';
 
         if ( $event_post_id ) {
-            // Hi ha CPT vinculat → en fem servir el títol i enllaç
+            // Hi ha CPT vinculat → fem servir el títol i enllaç del post
             $title     = get_the_title( $event_post_id );
             $permalink = get_permalink( $event_post_id );
         }
 
         // Fallback: sense CPT, fem servir el nom que ve de Sinergia
-        if ( ! $title && ! empty( $r['name'] ) ) {
-            $title = $r['name'];
+        if ( ! $title && $raw_name ) {
+            $title = $raw_name;
         }
 
         // Si ni així tenim títol, no la mostrem
@@ -568,18 +615,86 @@ function fcsd_sinergia_get_normalized_user_registrations( $user_id, array $local
             continue;
         }
 
+        // Data de la inscripció (CRM)
         $date   = ! empty( $r['registration_date_c'] ) ? $r['registration_date_c'] : ( $r['date_modified'] ?? '' );
         $status = $r['status_c'] ?? '';
 
+        // --------------------------------
+        //   DATES I ESTAT DE L'ESDEVENIMENT
+        // --------------------------------
+        $event_start = '';
+        $event_end   = '';
+        $event_state = ''; // 'active', 'finished', 'upcoming' o buit
+
+        $raw_start = '';
+        $raw_end   = '';
+
+        // 1) Primer intent: metadades del CPT event (com a single-event.php)
+        if ( $event_post_id ) {
+            $raw_start = get_post_meta( $event_post_id, 'fcsd_event_start', true );
+            $raw_end   = get_post_meta( $event_post_id, 'fcsd_event_end', true );
+        }
+
+        // 2) Si al CPT no hi ha dates → fallback a la CACHÉ d'esdeveniments (taula local)
+        if ( ( ! $raw_start && ! $raw_end ) && $event_id && function_exists( 'fcsd_sinergia_get_cached_event_by_id' ) ) {
+            $event_data = fcsd_sinergia_get_cached_event_by_id( $event_id );
+            if ( is_array( $event_data ) ) {
+                if ( ! empty( $event_data['start_date'] ) ) {
+                    $raw_start = $event_data['start_date'];
+                }
+                if ( ! empty( $event_data['end_date'] ) ) {
+                    $raw_end = $event_data['end_date'];
+                }
+            }
+        }
+
+        // Dates que aniran directament al perfil
+        $event_start = $raw_start ?: '';
+        $event_end   = $raw_end   ?: '';
+
+        // 3) Calculem estat en funció de les dates
+        if ( $raw_start || $raw_end ) {
+            $now      = current_time( 'timestamp' );
+            $start_ts = $raw_start ? strtotime( $raw_start ) : false;
+            $end_ts   = $raw_end   ? strtotime( $raw_end )   : false;
+
+            if ( $start_ts && $end_ts ) {
+                if ( $now < $start_ts ) {
+                    $event_state = 'upcoming';
+                } elseif ( $now > $end_ts ) {
+                    $event_state = 'finished';
+                } else {
+                    $event_state = 'active';
+                }
+            } elseif ( $start_ts ) {
+                $event_state = ( $now < $start_ts ) ? 'upcoming' : 'active';
+            } elseif ( $end_ts ) {
+                $event_state = ( $now <= $end_ts ) ? 'active' : 'finished';
+            }
+        }
+
+        // -----------------------------
+        //   AFEGIM REGISTRE NORMALITZAT
+        // -----------------------------
         $out[] = array(
-            'title'     => $title,
-            'permalink' => $permalink, 
-            'date'      => $date,
-            'status'    => $status,
+            'title'       => $title,
+            'permalink'   => $permalink,
+            'date'        => $date,
+            'status'      => $status,
+            'event_start' => $event_start,
+            'event_end'   => $event_end,
+            'event_state' => $event_state,
         );
     }
 
     return $out;
 }
+
+
+
+
+
+
+
 
 

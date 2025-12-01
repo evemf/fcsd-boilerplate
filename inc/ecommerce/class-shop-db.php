@@ -89,16 +89,36 @@ class fcsd_Shop_DB {
         return $order_id;
     }
 
-    public static function get_orders_by_user( $user_id ) {
+    public static function get_orders_by_user( $user_id, $user_email = '' ) {
         global $wpdb;
 
         $orders_table = $wpdb->prefix . 'shop_orders';
 
+        $where  = [];
+        $params = [];
+
+        // Buscar por user_id si lo tenemos
+        if ( ! empty( $user_id ) ) {
+            $where[]  = 'user_id = %d';
+            $params[] = (int) $user_id;
+        }
+
+        // Además, buscar por email si lo tenemos
+        if ( ! empty( $user_email ) ) {
+            $where[]  = 'email = %s';
+            $params[] = $user_email;
+        }
+
+        // Si no hay ni id ni email, no buscamos nada
+        if ( empty( $where ) ) {
+            return [];
+        }
+
+        $sql = "SELECT * FROM {$orders_table} WHERE " . implode( ' OR ', $where ) . " ORDER BY created_at DESC";
+
         return $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$orders_table} WHERE user_id = %d ORDER BY created_at DESC",
-                $user_id
-            )
+            $wpdb->prepare( $sql, ...$params )
         );
     }
+
 }

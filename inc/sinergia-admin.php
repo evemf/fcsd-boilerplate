@@ -1106,6 +1106,7 @@ add_action('wp_ajax_fcsd_sinergia_sync_events', function(){
                 'status',
                 'price',
                 'assigned_user_name',
+                'assigned_user_id',
                 'date_modified',
             ],
             'max_results' => $page_size,
@@ -1130,22 +1131,38 @@ add_action('wp_ajax_fcsd_sinergia_sync_events', function(){
 
         $count = count($entries);
 
-        if ( $count ) {
+                if ( $count ) {
             foreach ( $entries as $entry ) {
                 $vals = [];
 
-                if ( ! empty($entry->name_value_list) ) {
+                if ( ! empty( $entry->name_value_list ) ) {
                     foreach ( $entry->name_value_list as $nv ) {
                         $vals[ $nv->name ] = $nv->value;
                     }
                 }
 
+                // ID de l'esdeveniment
                 $vals['id'] = $entry->id;
 
+                // 👇 Fallback robust: si no tenim assigned_user_id però sí username ("Assignat"),
+                // el resolenem via API d'usuaris de Sinergia.
+                if (
+                    empty( $vals['assigned_user_id'] )
+                    && ! empty( $vals['assigned_user_name'] )
+                    && function_exists( 'fcsd_sinergia_get_user_id_by_username' )
+                ) {
+                    $resolved = fcsd_sinergia_get_user_id_by_username( $vals['assigned_user_name'] );
+                    if ( ! empty( $resolved ) ) {
+                        $vals['assigned_user_id'] = $resolved;
+                    }
+                }
+
+                // Guardem a la taula de caché (payload JSON inclou assigned_user_id)
                 fcsd_sinergia_cache_upsert_event( $vals );
                 $total++;
             }
         }
+
 
         if ( ! isset($list->next_offset) ) {
             // Sin next_offset, asumimos que no hay más páginas

@@ -211,6 +211,7 @@ require_once FCSD_THEME_DIR . '/inc/template-tags.php';
 require_once FCSD_THEME_DIR . '/inc/setup-content.php';
 require_once FCSD_THEME_DIR . '/inc/auth.php';
 require_once FCSD_THEME_DIR . '/inc/setup.php';
+require_once FCSD_THEME_DIR . '/inc/intranet.php';
 require_once FCSD_THEME_DIR . '/inc/sinergia-api.php';
 require_once FCSD_THEME_DIR . '/inc/sinergia-cache.php';
 require_once FCSD_THEME_DIR . '/inc/sinergia-sync.php';

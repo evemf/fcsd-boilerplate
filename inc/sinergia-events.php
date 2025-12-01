@@ -91,3 +91,40 @@ add_action('save_post_event', function ( $post_id ) {
     update_post_meta( $post_id, 'fcsd_event_end',        $end );
     update_post_meta( $post_id, 'fcsd_event_price',      $price );
 });
+
+/**
+ * Devuelve todos los events que pertenecen a la misma formació
+ * que el $post_id dado. Incluye el propio $post_id.
+ */
+function fcsd_sinergia_get_grouped_events( $post_id ) {
+    $post_id = (int) $post_id;
+
+    $terms = wp_get_post_terms( $post_id, 'event_formation', [
+        'fields' => 'ids',
+    ] );
+
+    $args = [
+        'post_type'      => 'event',
+        'post_status'    => 'publish',
+        'posts_per_page' => -1,
+        'orderby'        => 'meta_value',
+        'meta_key'       => 'fcsd_event_start',
+        'order'          => 'ASC',
+    ];
+
+    if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
+        // Todos los events de la misma formació
+        $args['tax_query'] = [[
+            'taxonomy' => 'event_formation',
+            'field'    => 'term_id',
+            'terms'    => $terms,
+        ]];
+    } else {
+        // Sin formació → solo este event
+        $args['post__in'] = [ $post_id ];
+    }
+
+    $q = new WP_Query( $args );
+
+    return $q->posts;
+}

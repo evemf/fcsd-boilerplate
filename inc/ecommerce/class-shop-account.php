@@ -8,8 +8,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 class fcsd_Shop_Account {
 
     public static function get_user_orders( $user_id ) {
-        return fcsd_Shop_DB::get_orders_by_user( $user_id );
+        $user  = get_userdata( $user_id );
+        $email = '';
+
+        if ( $user && ! empty( $user->user_email ) ) {
+            $email = $user->user_email;
+        }
+
+        return fcsd_Shop_DB::get_orders_by_user( $user_id, $email );
     }
+
 
     public static function repeat_order( $order_id ) {
         if ( ! is_user_logged_in() ) {

@@ -258,3 +258,75 @@ function fcsd_sinergia_get_client() {
 
     return $client;
 }
+
+/**
+ * Retorna l'ID intern de Sinergia d'un usuari (Users.id) a partir del seu user_name.
+ *
+ * Es cacheja en transients per evitar crides repetides a l'API.
+ *
+ * @param string $username
+ * @return string ID de Sinergia o cadena buida si no es troba.
+ */
+function fcsd_sinergia_get_user_id_by_username( $username ) {
+    $username = trim( (string) $username );
+    if ( $username === '' ) {
+        return '';
+    }
+
+    $cache_key = 'fcsd_sinergia_user_id_' . md5( $username );
+    $cached    = get_transient( $cache_key );
+
+    if ( false !== $cached ) {
+        // Guardem també la caché negativa (cadena buida)
+        return (string) $cached;
+    }
+
+    $client = fcsd_sinergia_get_client();
+    if ( is_wp_error( $client ) ) {
+        // No fem cache d'això per poder reintentar més endavant
+        return '';
+    }
+
+    // Escapem com a mínim cometes per no rebentar la query
+    $safe_username = str_replace( array( "'", '"' ), array( "\\'", '' ), $username );
+
+    $params = array(
+        'module_name'   => 'Users',
+        'query'         => "users.user_name = '" . $safe_username . "' AND users.deleted = 0",
+        'order_by'      => '',
+        'offset'        => 0,
+        'select_fields' => array( 'id', 'user_name' ),
+        'max_results'   => 1,
+        'deleted'       => 0,
+    );
+
+    $result = $client->getEntryList( $params );
+
+    $id = '';
+
+    if ( is_object( $result ) && ! empty( $result->entry_list ) && is_array( $result->entry_list ) ) {
+        $first = $result->entry_list[0] ?? null;
+        if ( is_object( $first ) && ! empty( $first->id ) ) {
+            $id = (string) $first->id;
+        }
+    } elseif ( is_array( $result ) && ! empty( $result['entry_list'] ) && is_array( $result['entry_list'] ) ) {
+        $first = $result['entry_list'][0] ?? null;
+        if ( is_array( $first ) && ! empty( $first['id'] ) ) {
+            $id = (string) $first['id'];
+        } elseif ( is_object( $first ) && ! empty( $first->id ) ) {
+            $id = (string) $first->id;
+        }
+    }
+
+    if ( '' !== $id ) {
+        // Cache 7 dies
+        set_transient( $cache_key, $id, DAY_IN_SECONDS * 7 );
+        return $id;
+    }
+
+    // Cache negativa 1 dia per no martellejar l'API
+    set_transient( $cache_key, '', DAY_IN_SECONDS );
+
+    return '';
+}
+

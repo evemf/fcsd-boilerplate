@@ -40,11 +40,16 @@ while ( have_posts() ) :
             if ( is_array( $decoded ) ) {
                 $cached_event = $decoded;
 
-                if ( isset( $decoded['assigned_user_id'] ) ) {
-                    $assigned_user_id = $decoded['assigned_user_id'];
+                if ( ! empty( $decoded['assigned_user_id'] ) ) {
+                    $assigned_user_id = (string) $decoded['assigned_user_id'];
                 }
             }
         }
+    }
+
+    // Fallback global opcional: usuari per defecte si algun event no té assignat
+    if ( empty( $assigned_user_id ) && defined( 'FCSD_SINERGIA_DEFAULT_ASSIGNED_USER_ID' ) && FCSD_SINERGIA_DEFAULT_ASSIGNED_USER_ID ) {
+        $assigned_user_id = (string) FCSD_SINERGIA_DEFAULT_ASSIGNED_USER_ID;
     }
     ?>
 

@@ -18,16 +18,6 @@ add_action('init', function(){
         'rewrite' => ['slug' => 'area']
     ]);
 
-    register_post_type('event', [
-        'label' => __('Events', 'fcsd'),
-        'public' => true,
-        'menu_position' => 6,
-        'menu_icon' => 'dashicons-portfolio',
-        'supports' => ['title','editor','thumbnail','excerpt','page-attributes'],
-        'has_archive' => true,
-        'rewrite' => ['slug' => 'events']
-    ]);
-
     register_post_type('product', [
         'label' => __('Products', 'fcsd'),
         'public' => true,
@@ -76,5 +66,15 @@ add_action('init', function(){
         'rewrite'       => ['slug' => 'formacions-i-events'],
         'show_in_rest'  => true,
     ]);
+
+        register_taxonomy('event_formation', 'event', [
+        'label'             => __('Formacions', 'fcsd'),
+        'public'            => true,
+        'hierarchical'      => false,
+        'show_admin_column' => true,
+        'rewrite'           => ['slug' => 'formacions'],
+        'show_in_rest'      => true,
+    ]);
+
 });
 
