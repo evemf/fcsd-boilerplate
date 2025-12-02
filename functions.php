@@ -207,6 +207,7 @@ require_once FCSD_THEME_DIR . '/inc/customizer.php';
 require_once FCSD_THEME_DIR . '/inc/cpts.php';
 require_once FCSD_THEME_DIR . '/inc/services-areas.php';
 require_once FCSD_THEME_DIR . '/inc/service-meta.php';
+require_once FCSD_THEME_DIR . '/inc/transparency-meta.php';
 require_once FCSD_THEME_DIR . '/inc/template-tags.php';
 require_once FCSD_THEME_DIR . '/inc/setup-content.php';
 require_once FCSD_THEME_DIR . '/inc/auth.php';

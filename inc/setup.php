@@ -67,3 +67,13 @@ function fcsd_sinergia_maybe_install_tables() {
         fcsd_sinergia_install_tables();
     }
 }
+
+// Intentar aumentar límites de PHP desde WordPress (si el hosting lo permite).
+function fcsd_raise_upload_limits() {
+    @ini_set( 'upload_max_filesize', '64M' );
+    @ini_set( 'post_max_size', '64M' );
+    @ini_set( 'memory_limit', '128M' );
+    @ini_set( 'max_execution_time', '120' );
+    @ini_set( 'max_input_time', '120' );
+}
+add_action( 'init', 'fcsd_raise_upload_limits' );
