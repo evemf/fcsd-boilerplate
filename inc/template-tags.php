@@ -22,7 +22,7 @@ function fcsd_render_mega_quisom(){ ?>
         <div class="col-12 col-md-3">
           <h6 class="mega-title"><?php _e('La Fundació','fcsd'); ?></h6>
           <ul class="mega-list">
-            <li><a href="#"><?php _e('Missió i valors','fcsd'); ?></a></li>
+            <li><a href="/patronat"><?php _e('Patronat','fcsd'); ?></a></li>
             <li><a href="#"><?php _e('Equip','fcsd'); ?></a></li>
             <li><a href="#"><?php _e('Història','fcsd'); ?></a></li>
           </ul>
