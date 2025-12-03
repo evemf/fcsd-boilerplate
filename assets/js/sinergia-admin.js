@@ -302,39 +302,74 @@ jQuery(function ($) {
       return;
     }
 
+    var totalSaved     = 0;
+    var totalProcessed = 0;
+    var nextOffset     = 0;
+    var finished       = false;
+
     $('#contacts-sync-status').text('Sincronitzant contacts...');
-    $('#btn-sync-contacts').prop('disabled', true);
+    $('#btn-sync-contacts, #btn-sync-events').prop('disabled', true);
 
-    $.post(fcsdSinergiaAjax.ajax_url, {
-      action: 'fcsd_sinergia_sync_contacts',
-      nonce: fcsdSinergiaAjax.nonce
-    })
-    .done(function (res) {
-      if (res.success) {
-        $('#contacts-sync-status')
-          .text('Sincronització completada. Guardats: ' + res.data.saved + ' de ' + res.data.total)
-          .css('color', '#46b450');
+    function runContactsBatch() {
+      $.post(fcsdSinergiaAjax.ajax_url, {
+        action: 'fcsd_sinergia_sync_contacts',
+        nonce:  fcsdSinergiaAjax.nonce,
+        offset: nextOffset
+      })
+      .done(function (res) {
+        if (res && res.success) {
+          var data       = res.data || {};
+          var batchSaved = parseInt(data.saved, 10) || 0;
+          var batchCount = parseInt(data.batch_count, 10) || 0;
 
-        if (res.data.last_sync_human) {
-          $('#contacts-last-sync').text(res.data.last_sync_human);
+          totalSaved     += batchSaved;
+          totalProcessed += batchCount;
+
+          if (data.finished) {
+            finished = true;
+
+            $('#contacts-sync-status')
+              .text('Sincronització completada. Guardats: ' + totalSaved + ' de ' + (data.total || totalProcessed))
+              .css('color', '#46b450');
+
+            if (data.last_sync_human) {
+              $('#contacts-last-sync').text(data.last_sync_human);
+            }
+
+            loadContactsPage(1, $('#contact-search').val() || '');
+          } else {
+            nextOffset = parseInt(data.next_offset, 10) || (nextOffset + batchCount);
+
+            $('#contacts-sync-status')
+              .text('Sincronitzant contacts... (' + totalProcessed + ' processats)')
+              .css('color', '');
+
+            // Lançar el següent batch
+            runContactsBatch();
+          }
+        } else {
+          finished = true;
+          $('#contacts-sync-status')
+            .text((res && res.data && res.data.message) || 'Error en sincronitzar contacts.')
+            .css('color', '#d63638');
         }
-
-        loadContactsPage(1, $('#contact-search').val() || '');
-      } else {
+      })
+      .fail(function () {
+        finished = true;
         $('#contacts-sync-status')
-          .text(res.data.message || 'Error en sincronitzar contacts.')
+          .text('Error de connexió amb el servidor.')
           .css('color', '#d63638');
-      }
-    })
-    .fail(function () {
-      $('#contacts-sync-status')
-        .text('Error de connexió amb el servidor.')
-        .css('color', '#d63638');
-    })
-    .always(function () {
-      $('#btn-sync-contacts, #btn-sync-events').prop('disabled', false);
-    });
+      })
+      .always(function () {
+        if (finished) {
+          $('#btn-sync-contacts').prop('disabled', false);
+        }
+      });
+    }
+
+    runContactsBatch();
   });
+
 
   $('#btn-sync-events').on('click', function (e) {
     e.preventDefault();
@@ -373,7 +408,7 @@ jQuery(function ($) {
         .css('color', '#d63638');
     })
     .always(function () {
-      $('#btn-sync-contacts, #btn-sync-events').prop('disabled', false);
+      $('#btn-sync-events').prop('disabled', false);
     });
   });
 

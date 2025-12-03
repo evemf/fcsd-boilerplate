@@ -205,6 +205,7 @@ add_action( 'wp_enqueue_scripts', 'fcsd_enqueue_assets' );
 // --------------------------------------------------
 require_once FCSD_THEME_DIR . '/inc/customizer.php';
 require_once FCSD_THEME_DIR . '/inc/cpts.php';
+require_once FCSD_THEME_DIR . '/inc/timeline-admin.php';
 require_once FCSD_THEME_DIR . '/inc/services-areas.php';
 require_once FCSD_THEME_DIR . '/inc/service-meta.php';
 require_once FCSD_THEME_DIR . '/inc/transparency-meta.php';
