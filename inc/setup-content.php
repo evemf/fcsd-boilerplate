@@ -19,6 +19,10 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Sobre nosaltres',
             'content' => '',
         ),
+           'patronat' => array(
+            'title'   => 'Patronat',
+            'content' => '',
+        ),
         'intranet' => array(
             'title'   => 'Intranet',
             'content' => '',
@@ -84,6 +88,7 @@ function fcsd_create_initial_pages_and_menus() {
         'cistella'      => 'page-cart.php',
         'checkout'      => 'page-checkout.php',
         'intranet'      => 'page-intranet.php',
+        'patronat'      => 'page-patronat.php',
     );
 
     foreach ( $pages as $slug => $config ) {

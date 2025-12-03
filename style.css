@@ -2150,3 +2150,154 @@ body.theme-dark .fcsd-account-tabs .nav-link.active {
 .event-card__img--placeholder {
   background-color: #f3f3f3;
 }
+
+
+/**** PATRONAT PAGE ******/
+.patronat-page {
+    padding: 4rem 1.5rem;
+}
+
+.patronat-header__inner {
+    max-width: 960px;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.patronat-title {
+    font-size: clamp(2.2rem, 3vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.patronat-intro {
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.patronat-grid__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.75rem;
+}
+
+.patronat-card {
+    background: #fff;
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.patronat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.09);
+}
+
+.patronat-card__media {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.patronat-card__image img {
+    border-radius: 999px;
+    width: 72px;
+    height: 72px;
+    object-fit: cover;
+}
+
+.patronat-card__placeholder {
+    width: 72px;
+    height: 72px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eee;
+    font-weight: 600;
+    font-size: 1.4rem;
+}
+
+.patronat-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.patronat-card__name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.patronat-card__role {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #b0463b; /* adapta al color corporativo */
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.patronat-card__description {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.patronat-card__links {
+    margin-top: 0.3rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.patronat-card__link {
+    font-size: 0.85rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #444;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.patronat-card__link:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+}
+
+.patronat-card__link--linkedin {
+    border-color: #0a66c2;
+}
+
+.patronat-card__link--linkedin:hover {
+    background: #0a66c2;
+    color: #fff;
+}
+
+.patronat-empty {
+    text-align: center;
+    color: #777;
+    grid-column: 1 / -1;
+}
+
+.patronat-avatar-img {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}
+
+
+@media (max-width: 600px) {
+    .patronat-page {
+        padding: 2.5rem 1rem;
+    }
+
+    .patronat-card {
+        padding: 1.25rem;
+    }
+}
