@@ -23,6 +23,10 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Patronat',
             'content' => '',
         ),
+          'historia' => array(
+          'title'   => 'Història',
+          'content' => '', 
+        ),
         'intranet' => array(
             'title'   => 'Intranet',
             'content' => '',
@@ -89,6 +93,7 @@ function fcsd_create_initial_pages_and_menus() {
         'checkout'      => 'page-checkout.php',
         'intranet'      => 'page-intranet.php',
         'patronat'      => 'page-patronat.php',
+        'historia'      => 'page-historia.php',
     );
 
     foreach ( $pages as $slug => $config ) {

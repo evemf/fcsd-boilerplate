@@ -103,7 +103,128 @@ add_action('init', function(){
         'show_in_rest'        => true,
     ]);
 
+    // Cronologia: anys (menú principal "Cronologia")
+    register_post_type( 'timeline_year', [
+        'label'               => __( 'Anys cronologia', 'fcsd' ),
+        'labels'              => [
+            'name'          => __( 'Anys cronologia', 'fcsd' ),
+            'singular_name' => __( 'Any', 'fcsd' ),
+            'add_new_item'  => __( 'Afegir any', 'fcsd' ),
+            'edit_item'     => __( 'Editar any', 'fcsd' ),
+            'new_item'      => __( 'Nou any', 'fcsd' ),
+            'menu_name'     => __( 'Cronologia', 'fcsd' ), // texto del menú principal
+        ],
+        'public'              => false,
+        'show_ui'             => true,
+        'show_in_menu'        => true, // top level
+        'menu_icon'           => 'dashicons-calendar-alt',
+        'supports'            => [ 'title' ], // el títol serà "1982", "1983", ...
+        'has_archive'         => false,
+        'rewrite'             => false,
+        'show_in_rest'        => true,
+    ] );
+
+    // Cronologia: esdeveniments (submenú dentro de "Cronologia")
+    register_post_type( 'timeline_event', [
+        'label'               => __( 'Esdeveniments cronologia', 'fcsd' ),
+        'labels'              => [
+            'name'               => __( 'Esdeveniments cronologia', 'fcsd' ),
+            'singular_name'      => __( 'Esdeveniment', 'fcsd' ),
+            'add_new_item'       => __( 'Afegir esdeveniment', 'fcsd' ),
+            'edit_item'          => __( 'Editar esdeveniment', 'fcsd' ),
+            'new_item'           => __( 'Nou esdeveniment', 'fcsd' ),
+            'view_item'          => __( 'Veure esdeveniment', 'fcsd' ),
+            'search_items'       => __( 'Cercar esdeveniments', 'fcsd' ),
+            'not_found'          => __( 'Cap esdeveniment trobat', 'fcsd' ),
+            'not_found_in_trash' => __( 'Cap esdeveniment a la paperera', 'fcsd' ),
+            'menu_name'          => __( 'Esdeveniments', 'fcsd' ), // texto del submenú
+        ],
+        'public'              => false, // no single.php ni arxiu públic
+        'show_ui'             => true,
+        // lo colgamos bajo el menú de timeline_year (Cronologia)
+        'show_in_menu'        => 'edit.php?post_type=timeline_year',
+        'menu_icon'           => 'dashicons-backup',
+        'supports'            => [ 'title', 'editor', 'excerpt', 'page-attributes' ],
+        'has_archive'         => false,
+        'rewrite'             => false,
+        'show_in_rest'        => true,
+    ] );
+
 });
+
+// -------------------------------
+// Metabox: any associat a l'esdeveniment
+// -------------------------------
+function fcsd_timeline_event_add_metabox() {
+    add_meta_box(
+        'fcsd_timeline_event_year',
+        __( 'Any de la cronologia', 'fcsd' ),
+        'fcsd_timeline_event_year_metabox_cb',
+        'timeline_event',
+        'side',
+        'high'
+    );
+}
+add_action( 'add_meta_boxes_timeline_event', 'fcsd_timeline_event_add_metabox' );
+
+function fcsd_timeline_event_year_metabox_cb( $post ) {
+    wp_nonce_field( 'fcsd_timeline_event_year_save', 'fcsd_timeline_event_year_nonce' );
+
+    $selected_year_id = (int) get_post_meta( $post->ID, 'timeline_year_id', true );
+
+    $years = get_posts( [
+        'post_type'        => 'timeline_year',
+        'post_status'      => 'publish',
+        'numberposts'      => -1,
+        'orderby'          => 'title',
+        'order'            => 'ASC',
+        'suppress_filters' => false,
+    ] );
+    ?>
+    <p>
+        <label for="timeline_year_id">
+            <?php esc_html_e( 'Selecciona l\'any d\'aquest esdeveniment', 'fcsd' ); ?>
+        </label>
+    </p>
+    <p>
+        <select name="timeline_year_id" id="timeline_year_id" class="widefat">
+            <option value="0"><?php esc_html_e( '— Sense any —', 'fcsd' ); ?></option>
+            <?php foreach ( $years as $year ) : ?>
+                <option value="<?php echo esc_attr( $year->ID ); ?>" <?php selected( $selected_year_id, $year->ID ); ?>>
+                    <?php echo esc_html( get_the_title( $year ) ); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </p>
+    <?php
+}
+
+function fcsd_timeline_event_year_save( $post_id ) {
+    // Autosave / permisos / nonce
+    if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+        return;
+    }
+
+    if ( ! isset( $_POST['fcsd_timeline_event_year_nonce'] ) ||
+         ! wp_verify_nonce( $_POST['fcsd_timeline_event_year_nonce'], 'fcsd_timeline_event_year_save' ) ) {
+        return;
+    }
+
+    if ( ! current_user_can( 'edit_post', $post_id ) ) {
+        return;
+    }
+
+    if ( isset( $_POST['timeline_year_id'] ) ) {
+        $year_id = (int) $_POST['timeline_year_id'];
+
+        if ( $year_id > 0 ) {
+            update_post_meta( $post_id, 'timeline_year_id', $year_id );
+        } else {
+            delete_post_meta( $post_id, 'timeline_year_id' );
+        }
+    }
+}
+add_action( 'save_post_timeline_event', 'fcsd_timeline_event_year_save' );
 
 
 // METABOXES PARA PERSONA (PATRONAT)
@@ -134,7 +255,6 @@ function fcsd_persona_details_metabox_callback($post) {
                id="persona_cargo"
                class="widefat"
                value="<?php echo esc_attr($cargo); ?>"
-
                placeholder="<?php esc_attr_e('Presidència, Vicepresidència, Tresoreria, Vocal…', 'fcsd'); ?>">
     </p>
 

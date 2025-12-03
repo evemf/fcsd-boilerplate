@@ -24,7 +24,7 @@ function fcsd_render_mega_quisom(){ ?>
           <ul class="mega-list">
             <li><a href="/patronat"><?php _e('Patronat','fcsd'); ?></a></li>
             <li><a href="#"><?php _e('Equip','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Història','fcsd'); ?></a></li>
+            <li><a href="/historia"><?php _e('Història','fcsd'); ?></a></li>
           </ul>
         </div>
         <div class="col-12 col-md-3">

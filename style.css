@@ -2301,3 +2301,144 @@ body.theme-dark .fcsd-account-tabs .nav-link.active {
         padding: 1.25rem;
     }
 }
+
+/* ---------- Cronologia FCSD: estil bàsic, 100% responsive ---------- */
+
+.fcsd-history .history-header {
+  max-width: 800px;
+}
+
+.fcsd-history .history-intro p:last-child {
+  margin-bottom: 0;
+}
+
+.fcsd-history .history-timeline {
+  position: relative;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  max-width: 960px;
+}
+
+/* Línia vertical de la cronologia (desktop) */
+@media (min-width: 768px) {
+  .fcsd-history .history-timeline::before {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ddd;
+  }
+}
+
+.fcsd-history .history-year {
+  margin-bottom: 0.75rem;
+  border-radius: 0.75rem;
+  background: #fafafa;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.fcsd-history .history-year__toggle {
+  width: 100%;
+  padding: 0.9rem 1.1rem 0.9rem 2.5rem;
+  background: transparent;
+  border: none;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  position: relative;
+}
+
+.fcsd-history .history-year__toggle:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+@media (min-width: 768px) {
+  .fcsd-history .history-year__toggle {
+    padding-left: 3.5rem;
+  }
+
+  .fcsd-history .history-year__toggle::before {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid #999;
+    transform: translateY(-50%);
+  }
+}
+
+.fcsd-history .history-year__label {
+  margin-right: 1rem;
+}
+
+.fcsd-history .history-year__chevron {
+  width: 1rem;
+  height: 1rem;
+  border-right: 2px solid #555;
+  border-bottom: 2px solid #555;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.fcsd-history .history-year__toggle[aria-expanded="true"] .history-year__chevron {
+  transform: rotate(-135deg);
+}
+
+.fcsd-history .history-year__panel {
+  padding: 0 1.1rem 1.1rem 2.5rem;
+  border-top: 1px solid #eee;
+  animation: history-panel-in 0.18s ease-out;
+}
+
+@media (min-width: 768px) {
+  .fcsd-history .history-year__panel {
+    padding-left: 3.5rem;
+  }
+}
+
+@keyframes history-panel-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fcsd-history .history-events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fcsd-history .history-event + .history-event {
+  margin-top: 0.75rem;
+}
+
+.fcsd-history .history-event__title {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.fcsd-history .history-event__content p:last-child {
+  margin-bottom: 0;
+}
+
+.fcsd-history .history-year__empty {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+/* Any sense esdeveniments: lleugerament apagat */
+.fcsd-history .history-year--empty .history-year__toggle {
+  opacity: 0.85;
+}
