@@ -88,13 +88,19 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
 
                     <div class="d-flex flex-wrap gap-2">
 
+                        <?php
+                        // ID para el "Qualsevol"
+                        $any_id = 'color-any';
+                        ?>
                         <!-- Opción: cualquier color -->
-                        <label class="btn btn-outline-secondary btn-sm mb-0">
-                            <input type="radio"
-                                   class="btn-check"
-                                   name="color"
-                                   value=""
-                                <?php checked( $current_color, '' ); ?>>
+                        <input type="radio"
+                               class="btn-check"
+                               name="color"
+                               id="<?php echo esc_attr( $any_id ); ?>"
+                               value=""
+                            <?php checked( $current_color, '' ); ?>>
+                        <label class="btn btn-outline-secondary btn-sm mb-0"
+                               for="<?php echo esc_attr( $any_id ); ?>">
                             <span><?php esc_html_e( 'Qualsevol', 'fcsd' ); ?></span>
                         </label>
 
@@ -103,13 +109,17 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                                 <?php
                                 $hex   = isset( $data['hex'] ) ? $data['hex'] : '#000000';
                                 $label = isset( $data['label'] ) ? $data['label'] : $slug;
+                                $id    = 'color-' . esc_attr( $slug );
                                 ?>
-                                <label class="btn btn-outline-secondary btn-sm mb-0 d-flex align-items-center gap-2">
-                                    <input type="radio"
-                                           class="btn-check"
-                                           name="color"
-                                           value="<?php echo esc_attr( $slug ); ?>"
-                                        <?php checked( $current_color, $slug ); ?>>
+                                <input type="radio"
+                                       class="btn-check"
+                                       name="color"
+                                       id="<?php echo $id; ?>"
+                                       value="<?php echo esc_attr( $slug ); ?>"
+                                    <?php checked( $current_color, $slug ); ?>>
+
+                                <label class="btn btn-outline-secondary btn-sm mb-0 d-flex align-items-center gap-2"
+                                       for="<?php echo $id; ?>">
 
                                     <span class="d-inline-block rounded-circle"
                                           style="width:14px;height:14px;background-color:<?php echo esc_attr( $hex ); ?>;"></span>

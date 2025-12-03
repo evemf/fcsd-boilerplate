@@ -445,16 +445,26 @@ function fcsd_apply_shop_filters( $query ) {
         }
     }
 
-
     // -------------------------------
     // Color (array de hex en _fcsd_product_colors)
     // Se guardan como array serializado, usamos LIKE
     // -------------------------------
     if ( ! empty( $_GET['color'] ) ) {
-        $color = sanitize_text_field( wp_unslash( $_GET['color'] ) );
+        $color_raw = sanitize_text_field( wp_unslash( $_GET['color'] ) );
+        $color     = $color_raw;
 
-        // Normalizamos: aseguramos # delante
-        if ( $color[0] !== '#' ) {
+        // Si existe el helper, intentamos mapear slug => hex
+        if ( function_exists( 'fcsd_get_shop_colors' ) ) {
+            $all_colors = fcsd_get_shop_colors();
+
+            if ( isset( $all_colors[ $color_raw ]['hex'] ) ) {
+                // p.ej. "red" -> "#ff0000"
+                $color = $all_colors[ $color_raw ]['hex'];
+            }
+        }
+
+        // Normalizamos: aseguramos # delante si aún no lo tiene
+        if ( $color !== '' && $color[0] !== '#' ) {
             $color = '#' . $color;
         }
 
@@ -532,11 +542,11 @@ function fcsd_get_shop_colors() {
         ],
         'red' => [
             'label' => __( 'Vermell', 'fcsd' ),
-            'hex'   => '#ff0000',
+            'hex'   => '#ff1414',
         ],
         'blue' => [
             'label' => __( 'Blau', 'fcsd' ),
-            'hex'   => '#0000ff',
+            'hex'   => '#26b79f',
         ],
         'green' => [
             'label' => __( 'Verd', 'fcsd' ),
@@ -544,7 +554,7 @@ function fcsd_get_shop_colors() {
         ],
         'yellow' => [
             'label' => __( 'Groc', 'fcsd' ),
-            'hex'   => '#ffff00',
+            'hex'   => '#eae720',
         ],
         'purple' => [
             'label' => __( 'Porpra', 'fcsd' ),
@@ -553,6 +563,6 @@ function fcsd_get_shop_colors() {
         'orange' => [
             'label' => __( 'Taronja', 'fcsd' ),
             'hex'   => '#ffa500',
-        ],       
+        ],
     ];
 }

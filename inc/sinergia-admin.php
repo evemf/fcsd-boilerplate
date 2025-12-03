@@ -1026,7 +1026,7 @@ add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
         $offset = $next_offset;
 
         // Pequeño throttle para no colapsar Sinergia
-        usleep(100000);
+        // usleep(100000);
     }
 
     fcsd_sinergia_cache_set_last_sync('contacts');
@@ -1080,7 +1080,7 @@ add_action('wp_ajax_fcsd_sinergia_sync_events', function(){
     // IMPORTANTE: Sugar/Suite suele limitar a 100 resultados por página
     $offset       = 0;
     $total        = 0;
-    $page_size    = 100;
+    $page_size    = 200;
     $iterations   = 0;
     $max_iterations = 500;
 
