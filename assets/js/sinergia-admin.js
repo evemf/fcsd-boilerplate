@@ -295,6 +295,9 @@ jQuery(function ($) {
   /* -------------------------------------------------------------------------
      BOTONS DE SINCRONITZACIÓ
   ------------------------------------------------------------------------- */
+    /* -------------------------------------------------------------------------
+     BOTÓ SINCRONITZAR CONTACTS (per batches)
+  ------------------------------------------------------------------------- */
   $('#btn-sync-contacts').on('click', function (e) {
     e.preventDefault();
 
@@ -320,31 +323,33 @@ jQuery(function ($) {
         if (res && res.success) {
           var data       = res.data || {};
           var batchSaved = parseInt(data.saved, 10) || 0;
-          var batchCount = parseInt(data.batch_count, 10) || 0;
+          var batchTotal = parseInt(data.total, 10) || 0;
 
           totalSaved     += batchSaved;
-          totalProcessed += batchCount;
+          // No tenim el "count" exacte del batch, però podem deduir que com a mínim hem intentat guardar batchSaved
+          totalProcessed += batchSaved;
 
           if (data.finished) {
             finished = true;
 
             $('#contacts-sync-status')
-              .text('Sincronització completada. Guardats: ' + totalSaved + ' de ' + (data.total || totalProcessed))
+              .text('Sincronització completada. Guardats: ' + totalSaved + ' de ' + (batchTotal || totalProcessed))
               .css('color', '#46b450');
 
             if (data.last_sync_human) {
               $('#contacts-last-sync').text(data.last_sync_human);
             }
 
+            // Recarregar la taula de contacts
             loadContactsPage(1, $('#contact-search').val() || '');
           } else {
-            nextOffset = parseInt(data.next_offset, 10) || (nextOffset + batchCount);
+            nextOffset = parseInt(data.next_offset, 10) || (nextOffset + 200); // caiguda de seguretat
 
             $('#contacts-sync-status')
               .text('Sincronitzant contacts... (' + totalProcessed + ' processats)')
               .css('color', '');
 
-            // Lançar el següent batch
+            // crida següent batch
             runContactsBatch();
           }
         } else {
@@ -362,13 +367,16 @@ jQuery(function ($) {
       })
       .always(function () {
         if (finished) {
-          $('#btn-sync-contacts').prop('disabled', false);
+          $('#btn-sync-contacts, #btn-sync-events').prop('disabled', false);
         }
       });
     }
 
+    // Arrenquem el primer batch
     runContactsBatch();
   });
+
+
 
 
   $('#btn-sync-events').on('click', function (e) {

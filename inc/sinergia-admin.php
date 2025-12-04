@@ -912,21 +912,22 @@ add_action('wp_ajax_fcsd_sinergia_delete_event_post', function () {
  * Añadido: robustez extra con $entries para evitar 500 si la API devuelve algo raro
  */
 add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
-    check_ajax_referer('fcsd_sinergia_nonce','nonce');
+    check_ajax_referer('fcsd_sinergia_nonce', 'nonce');
 
+    // Important: que no se quede la sessió PHP bloqueando altres peticions
     if ( session_id() ) {
         session_write_close();
     }
 
     if ( ! current_user_can('manage_options') ) {
-        wp_send_json_error( array( 'message' => 'No perms' ) );
+        wp_send_json_error( [ 'message' => 'No perms' ] );
     }
 
     if ( ! function_exists('fcsd_sinergia_cache_upsert_contact') ) {
-        wp_send_json_error( array( 'message' => 'Capa de caché no disponible.' ) );
+        wp_send_json_error( [ 'message' => 'Capa de caché no disponible.' ] );
     }
 
-    // Evitar timeouts en sincronitzacions llargues
+    // Evitar timeouts de PHP (el timeout que veus al screenshot és del HTTP cap a Sinergia)
     if ( function_exists( 'wp_raise_memory_limit' ) ) {
         wp_raise_memory_limit( 'admin' );
     }
@@ -938,59 +939,63 @@ add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
 
     $sid = $client->login( $settings['username'], $settings['password'], $settings['lang'] );
     if ( ! $sid ) {
-        wp_send_json_error( array( 'message' => 'Login Sinergia KO' ) );
+        wp_send_json_error( [ 'message' => 'Login Sinergia KO' ] );
     }
 
-    // Procesamos la sincronización en batches pequeños para evitar timeouts.
-    // Cada llamada AJAX procesa solo una "página" de Contacts.
-    $offset     = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-    $page_size  = 200; // número de registres per crida
+    // ---------- PARÁMETROS DE BATCH ----------
+    // offset nos llega desde el JS, por defecto 0
+    $offset    = isset( $_POST['offset'] ) ? max( 0, intval( $_POST['offset'] ) ) : 0;
+    $page_size = 200; // ← aquí controlas cuántos contacts per crida
+
     $saved      = 0;
-    $processed  = 0;
+    $saved_regs = 0; // lo mantenemos por compatibilidad con el código anterior
+    $iterations = 1; // aquesta crida AJAX és una única iteració
 
-    error_log( '[Sinergia Sync] Batch contacts sync... offset=' . $offset . ' page_size=' . $page_size );
+    error_log( '[Sinergia Contacts Sync] Batch sync start. Offset=' . $offset . ' PageSize=' . $page_size );
 
-    $params = array(
+    $params = [
         'module_name'   => 'Contacts',
         'query'         => 'contacts.deleted = 0',
         'order_by'      => 'contacts.date_modified DESC',
         'offset'        => $offset,
-        'select_fields' => apply_filters( 'fcsd_sinergia_contact_select_fields', array() ),
-        'link_name_to_fields_array' => array(),
+        'select_fields' => apply_filters( 'fcsd_sinergia_contact_select_fields', [] ),
+        'link_name_to_fields_array' => [],
         'max_results'   => $page_size,
         'deleted'       => 0,
-    );
+    ];
 
     $list = $client->getEntryList( $params );
 
     if ( is_wp_error( $list ) ) {
-        error_log( '[Sinergia Contacts Sync] Error en getEntryList: ' . $list->get_error_message() );
+        error_log( '[Sinergia Contacts Sync] Error en getEntryList (offset ' . $offset . '): ' . $list->get_error_message() );
         $client->logout();
-        wp_send_json_error( array(
+
+        wp_send_json_error( [
             'message' => 'Error en getEntryList: ' . $list->get_error_message(),
-        ) );
+        ] );
     }
 
     if ( ! is_object( $list ) ) {
-        error_log( '[Sinergia Contacts Sync] Resposta buida o no vàlida en getEntryList (no és objecte).' );
+        error_log( '[Sinergia Contacts Sync] Resposta buida o no vàlida en getEntryList (no és objecte). Offset=' . $offset );
         $client->logout();
-        wp_send_json_error( array(
+
+        wp_send_json_error( [
             'message' => 'Resposta buida o no vàlida de Sinergia.',
-        ) );
+        ] );
     }
 
     $entries = ( ! empty( $list->entry_list ) && is_array( $list->entry_list ) )
         ? $list->entry_list
-        : array();
+        : [];
 
-    $count     = count( $entries );
-    $processed = $count;
+    $count = count( $entries );
+    error_log( "[Sinergia Contacts Sync] Retrieved $count contacts at offset $offset" );
 
     if ( $count ) {
         foreach ( $entries as $entry ) {
             $person = function_exists( 'fcsd_sinergia_normalize_contact_entry' )
                 ? fcsd_sinergia_normalize_contact_entry( $entry )
-                : array();
+                : [];
 
             if ( ! empty( $person['id'] ) && count( $person ) > 1 ) {
                 $result = fcsd_sinergia_cache_upsert_contact( $person );
@@ -998,7 +1003,7 @@ add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
                     $saved++;
                 }
 
-                // Inscripcions per contacte (si ho tens activat via filtre).
+                // Inscripcions per contacte (si ho tens activat via filtre)
                 if ( apply_filters( 'fcsd_sinergia_sync_registrations_bulk', false ) ) {
                     // fcsd_sinergia_get_contact_registrations( $client, $person['id'] );
                 }
@@ -1006,25 +1011,28 @@ add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
         }
     }
 
-    // Calculem si hi ha més pàgines.
+    // ---------- CÀLCUL DE SI HEM ACABAT ----------
     $finished    = false;
     $next_offset = null;
 
     if ( isset( $list->next_offset ) ) {
         $next_offset = (int) $list->next_offset;
+
         if ( $next_offset < 0 || $count === 0 ) {
             $finished = true;
+            error_log( "[Sinergia Contacts Sync] Finished. Last offset $offset, count $count" );
         }
     } else {
-        // Si l'API no ens dóna next_offset fem servir el count per deduir-ho.
+        // Si l'API no dóna next_offset, deduïm per tamany de la pàgina
         if ( $count < $page_size ) {
             $finished = true;
+            error_log( "[Sinergia Contacts Sync] Finished by page size. Last offset $offset, count $count" );
         } else {
             $next_offset = $offset + $page_size;
         }
     }
 
-    // Només actualitzem la data de darrera sincronització quan ja hem acabat totes les pàgines.
+    // Només actualitzem la data de darrera sincronització quan ja hem acabat totes les pàgines
     $last = null;
     if ( $finished ) {
         fcsd_sinergia_cache_set_last_sync( 'contacts' );
@@ -1033,22 +1041,22 @@ add_action('wp_ajax_fcsd_sinergia_sync_contacts', function () {
 
     $client->logout();
 
-    // Comptem quants contacts tenim a la caché (per mostrar el total a la UI).
+    // Comptem quants contacts tenim a la caché per mostrar el total
     $total_cache = function_exists( 'fcsd_sinergia_count_cached_contacts' )
         ? fcsd_sinergia_count_cached_contacts()
         : 0;
 
-    wp_send_json_success( array(
+    wp_send_json_success( [
         'total'           => $total_cache,
         'saved'           => $saved,          // guardats en aquest batch
-        'batch_count'     => $processed,      // processats en aquest batch
+        'saved_regs'      => $saved_regs,     // per compatibilitat
+        'iterations'      => $iterations,
         'finished'        => $finished,
         'next_offset'     => $finished ? null : $next_offset,
         'last_sync'       => $last,
-        'last_sync_human' => $last ? date_i18n( 'd/m/Y H:i', strtotime( $last ) ) : null,
-    ) );
+        'last_sync_human' => $last ? date_i18n( 'd/m/Y H:i', strtotime( $last ) ) : '–',
+    ] );
 });
-
 
 
 
