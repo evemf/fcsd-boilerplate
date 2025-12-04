@@ -2513,3 +2513,151 @@ body.theme-dark .fcsd-history .history-year__panel {
   margin: 0;
   padding: 0;
 }
+
+/* ===========================
+   ORGANIGRAMA
+   ========================== */
+
+.org-wrapper {
+  overflow-x: auto;
+  padding-bottom: 2rem;
+}
+
+/* Base del árbol */
+
+.org-tree, .org-tree ul {
+  padding-top: 20px;
+  position: relative;
+}
+
+.org-tree ul {
+  padding-left: 0;
+}
+
+.org-tree li {
+  list-style-type: none;
+  text-align: center;
+  position: relative;
+  padding: 20px 5px 0 5px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+/* Líneas que conectan nodos */
+
+.org-tree li::before,
+.org-tree li::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 50%;
+  border-top: 1px solid #ccc;
+  width: 50%;
+  height: 20px;
+}
+
+.org-tree li::after {
+  right: auto;
+  left: 50%;
+  border-left: 1px solid #ccc;
+}
+
+/* Sin hermanos: no dibujar líneas horizontales */
+
+.org-tree li:only-child::before,
+.org-tree li:only-child::after {
+  display: none;
+}
+
+.org-tree li:only-child {
+  padding-top: 0;
+}
+
+/* Primer/último hijo */
+
+.org-tree li:first-child::before {
+  border: 0 none;
+}
+
+.org-tree li:last-child::after {
+  border: 0 none;
+}
+
+/* Vertical desde el padre hacia los hijos */
+
+.org-tree ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  border-left: 1px solid #ccc;
+  width: 0;
+  height: 20px;
+}
+
+/* Caja de nodo */
+
+.org-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  padding: .4rem .9rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+  background: #f5f5f5;
+  color: #333;
+}
+
+/* Colores según tipo */
+
+.org-node--patronat {
+  background: #52c3a8;
+  color: #00423a;
+}
+
+.org-node--direccio {
+  background: #52c3a8;
+  color: #00423a;
+}
+
+.org-node--comite-general,
+.org-node--comite-especific {
+  background: #ffd45a;
+  color: #6b4e00;
+}
+
+.org-node--servei-acompanyament,
+.org-node--servei-conscienciacio,
+.org-node--servei-suport {
+  background: #f89ab0;
+  color: #6c2137;
+}
+
+.org-node--area {
+  background: #f89ab0;
+  color: #6c2137;
+}
+
+.org-node--unitat {
+  background: #a8dcf4;
+  color: #084766;
+}
+
+.org-node--default {
+  background: #e5e5e5;
+  color: #333;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+  .org-node {
+    min-width: 130px;
+    font-size: 0.8rem;
+    padding: .35rem .6rem;
+  }
+}

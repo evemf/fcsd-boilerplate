@@ -161,6 +161,16 @@ function fcsd_enqueue_assets() {
         true
     );
 
+    if ( is_page_template( 'page-organigrama.php' ) ) {
+        wp_enqueue_script(
+            'fcsd-organigrama',
+            FCSD_THEME_URI . '/assets/js/organigrama.js',
+            [],
+            FCSD_VERSION,
+            true
+        );
+    }
+
     // NOTA: shop.js se encola desde shop-core.php con wp_localize_script
 
     wp_enqueue_script(
@@ -213,6 +223,7 @@ require_once FCSD_THEME_DIR . '/inc/template-tags.php';
 require_once FCSD_THEME_DIR . '/inc/setup-content.php';
 require_once FCSD_THEME_DIR . '/inc/auth.php';
 require_once FCSD_THEME_DIR . '/inc/setup.php';
+require_once FCSD_THEME_DIR . '/inc/organigrama.php';
 require_once FCSD_THEME_DIR . '/inc/intranet.php';
 require_once FCSD_THEME_DIR . '/inc/sinergia-api.php';
 require_once FCSD_THEME_DIR . '/inc/sinergia-cache.php';
