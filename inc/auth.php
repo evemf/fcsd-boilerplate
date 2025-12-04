@@ -254,16 +254,22 @@ function fcsd_get_page_url_by_slug( $slug ) {
 
 if ( ! function_exists( 'fcsd_get_option' ) ) {
     /**
-     * Helper to get options with theme prefix.
-     *
-     * @param string $key Option key.
-     * @param mixed  $default Default value.
-     * @return mixed
+     * Helper para obtener opciones del tema.
+     * 1) Mira primero en theme_mod (Customizer)
+     * 2) Si no hay nada, mira en options
      */
     function fcsd_get_option( $key, $default = '' ) {
+        // 1. Probar como theme_mod
+        $mod = get_theme_mod( $key, null );
+        if ( null !== $mod && $mod !== '' ) {
+            return $mod;
+        }
+
+        // 2. Fallback a opción normal
         return get_option( $key, $default );
     }
 }
+
 
 
 /**
