@@ -53,9 +53,13 @@ function fcsd_create_initial_pages_and_menus() {
         // Sistema: perfil
         'perfil-usuari' => array(
             'title'   => 'Perfil usuari',
-            'content' => '', // lo pinta page-profile.php (ya existente)
+            'content' => '',
         ),
-
+        // Organigrama
+        'organigrama' => array(
+            'title'   => 'Organigrama',
+            'content' => '', 
+        ),
         // Ecommerce sistema
         'cistella' => array(
             'title'   => 'Cistella',
@@ -92,6 +96,7 @@ function fcsd_create_initial_pages_and_menus() {
         'cistella'      => 'page-cart.php',
         'checkout'      => 'page-checkout.php',
         'intranet'      => 'page-intranet.php',
+        'organigrama'      => 'page-organigrama.php',
         'patronat'      => 'page-patronat.php',
         'historia'      => 'page-historia.php',
     );

@@ -2514,150 +2514,125 @@ body.theme-dark .fcsd-history .history-year__panel {
   padding: 0;
 }
 
-/* ===========================
-   ORGANIGRAMA
-   ========================== */
-
-.org-wrapper {
-  overflow-x: auto;
-  padding-bottom: 2rem;
+.organigrama-fisico {
+    text-align: center;
+    margin-bottom: 4rem;
 }
 
-/* Base del árbol */
+.organigrama-digital {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    overflow-x: auto;
+    padding-bottom: 2rem;
+}
 
-.org-tree, .org-tree ul {
-  padding-top: 20px;
+.org-nodo {
+    position: relative;
+    text-align: center;
+    margin: 1rem;
+}
+
+.org-nodo-inner {
+    padding: .75rem 1.5rem;
+    border-radius: 8px;
+    background: #f1f1f1;
+    display: inline-block;
+    min-width: 160px;
+}
+
+.org-nodo-title {
+    font-weight: 600;
+}
+
+/* Colores de nodos */
+.org-color-azul .org-nodo-inner { background: #a5d5ff; }
+.org-color-amarillo .org-nodo-inner { background: #ffe28a; }
+.org-color-granate .org-nodo-inner { background: #e27c8c; }
+.org-color-rosa .org-nodo-inner { background: #ffb6d9; }
+.org-color-morado .org-nodo-inner { background: #c7b5ff; }
+.org-color-turquesa .org-nodo-inner { background: #a9f0e7; }
+
+/* Peso */
+.org-peso-importante .org-nodo-inner {
+    border: 2px solid #333;
+}
+.org-peso-normal .org-nodo-inner {
+    border: 1px solid #999;
+}
+
+/* Hijos */
+.org-nodo-children {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.org-digital-wrapper {
   position: relative;
+  overflow: auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: #f8f9fa;
 }
 
-.org-tree ul {
-  padding-left: 0;
-}
-
-.org-tree li {
-  list-style-type: none;
-  text-align: center;
+.org-digital-canvas {
   position: relative;
-  padding: 20px 5px 0 5px;
+  min-height: 600px;
+}
+
+/* Nodos digitales (puedes mejorar esto a tu gusto) */
+.org-node--digital {
   display: inline-block;
-  vertical-align: top;
+  margin: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
 }
 
-/* Líneas que conectan nodos */
+/* Peso / importància */
+.org-node--important {
+  font-weight: 700;
+  box-shadow: 0 0 0 2px #3331;
+}
 
-.org-tree li::before,
-.org-tree li::after {
-  content: '';
+/* Colores específics */
+.org-node--color-azul {
+  background-color: #004b8d;
+  color: #fff;
+}
+
+.org-node--color-azul-claro {
+  background-color: #e5f2ff;
+}
+
+.org-node--color-amarillo {
+  background-color: #fff5c2;
+}
+
+.org-node--color-rosa {
+  background-color: #ffd6e8;
+}
+
+.org-node--color-rosa-claro {
+  background-color: #ffeaf5;
+}
+
+.org-node--color-lila {
+  background-color: #f0e5ff;
+}
+
+.org-node--color-granate {
+  background-color: #7b002c;
+  color: #fff;
+}
+
+.org-digital-lines {
   position: absolute;
   top: 0;
-  right: 50%;
-  border-top: 1px solid #ccc;
-  width: 50%;
-  height: 20px;
-}
-
-.org-tree li::after {
-  right: auto;
-  left: 50%;
-  border-left: 1px solid #ccc;
-}
-
-/* Sin hermanos: no dibujar líneas horizontales */
-
-.org-tree li:only-child::before,
-.org-tree li:only-child::after {
-  display: none;
-}
-
-.org-tree li:only-child {
-  padding-top: 0;
-}
-
-/* Primer/último hijo */
-
-.org-tree li:first-child::before {
-  border: 0 none;
-}
-
-.org-tree li:last-child::after {
-  border: 0 none;
-}
-
-/* Vertical desde el padre hacia los hijos */
-
-.org-tree ul::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  border-left: 1px solid #ccc;
-  width: 0;
-  height: 20px;
-}
-
-/* Caja de nodo */
-
-.org-node {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 150px;
-  padding: .4rem .9rem;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.85rem;
-  line-height: 1.3;
-  box-shadow: 0 2px 4px rgba(0,0,0,.08);
-  background: #f5f5f5;
-  color: #333;
-}
-
-/* Colores según tipo */
-
-.org-node--patronat {
-  background: #52c3a8;
-  color: #00423a;
-}
-
-.org-node--direccio {
-  background: #52c3a8;
-  color: #00423a;
-}
-
-.org-node--comite-general,
-.org-node--comite-especific {
-  background: #ffd45a;
-  color: #6b4e00;
-}
-
-.org-node--servei-acompanyament,
-.org-node--servei-conscienciacio,
-.org-node--servei-suport {
-  background: #f89ab0;
-  color: #6c2137;
-}
-
-.org-node--area {
-  background: #f89ab0;
-  color: #6c2137;
-}
-
-.org-node--unitat {
-  background: #a8dcf4;
-  color: #084766;
-}
-
-.org-node--default {
-  background: #e5e5e5;
-  color: #333;
-}
-
-/* Responsive */
-
-@media (max-width: 768px) {
-  .org-node {
-    min-width: 130px;
-    font-size: 0.8rem;
-    padding: .35rem .6rem;
-  }
+  left: 0;
+  pointer-events: none;
 }
