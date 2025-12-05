@@ -18,31 +18,23 @@ function fcsd_main_nav_items(){
 function fcsd_render_mega_quisom(){ ?>
   <div class="mega dropdown-menu border-0 shadow w-100" id="mega-quisom" aria-labelledby="navQuiSom">
     <div class="container-fluid py-4">
-      <div class="row g-4">
-        <div class="col-12 col-md-3">
+      <div class="row g-3">
+        <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('La Fundació','fcsd'); ?></h6>
           <ul class="mega-list">
             <li><a href="/patronat"><?php _e('Patronat','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Equip','fcsd'); ?></a></li>
+            <li><a href="/organigrama"><?php _e('Organigrama','fcsd'); ?></a></li>
             <li><a href="/historia"><?php _e('Història','fcsd'); ?></a></li>
           </ul>
         </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('Recursos','fcsd'); ?></h6>
           <ul class="mega-list">
             <li><a href="#"><?php _e('Memòries','fcsd'); ?></a></li>
             <li><a href="#"><?php _e('Premsa','fcsd'); ?></a></li>
           </ul>
         </div>
-        <div class="col-12 col-md-3">
-          <h6 class="mega-title"><?php _e('Valors','fcsd'); ?></h6>
-          <ul class="mega-list">
-            <li><a href="#"><?php _e('Inclusió','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Innovació','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Comunitat','fcsd'); ?></a></li>
-          </ul>
-        </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('Participa','fcsd'); ?></h6>
           <ul class="mega-list">
             <li><a href="#"><?php _e('Voluntariat','fcsd'); ?></a></li>

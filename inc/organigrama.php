@@ -1,6 +1,6 @@
 <?php
 /**
- * 1) CUSTOM POST TYPE: NODOS DEL ORGANIGRAMA DIGITAL
+ * CUSTOM POST TYPE: NODOS DEL ORGANIGRAMA DIGITAL
  */
 add_action( 'init', 'org_register_nodo_cpt' );
 function org_register_nodo_cpt() {
@@ -22,7 +22,7 @@ function org_register_nodo_cpt() {
         'labels'             => $labels,
         'public'             => false,
         'show_ui'            => true,
-        'show_in_menu'       => true, // lo verás como "Organigrama digital" en el menú
+        'show_in_menu'       => true,
         'capability_type'    => 'post',
         'hierarchical'       => false,
         'supports'           => array( 'title' ),
@@ -34,7 +34,7 @@ function org_register_nodo_cpt() {
 }
 
 /**
- * 2) METABOX PARA PROPIEDADES DEL NODO
+ * METABOX PARA PROPIEDADES DEL NODO
  */
 add_action( 'add_meta_boxes', 'org_add_nodo_metaboxes' );
 function org_add_nodo_metaboxes() {
@@ -53,28 +53,37 @@ function org_render_nodo_metabox( $post ) {
 
     $color         = get_post_meta( $post->ID, '_org_color', true );
     $peso          = get_post_meta( $post->ID, '_org_peso', true );
-    $nivel_sup     = get_post_meta( $post->ID, '_org_nivel_superior', true ); // ID de post padre
+    $nivel_sup     = get_post_meta( $post->ID, '_org_nivel_superior', true );
     $punto_union   = get_post_meta( $post->ID, '_org_punto_union', true );
     $en_camino     = get_post_meta( $post->ID, '_org_en_camino', true );
+    $children_dir  = get_post_meta( $post->ID, '_org_children_dir', true ); // NUEVO
+    if ( ! $children_dir ) {
+        $children_dir = 'vertical'; // valor por defecto
+    }
 
-    // listamos otros nodos para seleccionar nivel superior
     $nodos = get_posts( array(
         'post_type'      => 'organigrama_nodo',
         'posts_per_page' => -1,
-        'post__not_in'   => array( $post->ID ),
-        'orderby'        => 'title',
-        'order'          => 'ASC',
+        'post_status'    => 'publish', // opcional, pero suele ser buena idea
+        'meta_key'       => '_org_orden',
+        'orderby'        => array(
+            'meta_value_num' => 'ASC',
+            'title'          => 'ASC',
+        ),
     ) );
+
     ?>
     <p>
         <label for="org_color"><strong>Color</strong></label><br>
         <select name="org_color" id="org_color">
             <option value="">—</option>
             <option value="azul" <?php selected( $color, 'azul' ); ?>>Azul</option>
+            <option value="azul-claro" <?php selected( $color, 'azul-claro' ); ?>>Azul claro</option>
             <option value="amarillo" <?php selected( $color, 'amarillo' ); ?>>Amarillo</option>
             <option value="granate" <?php selected( $color, 'granate' ); ?>>Granate</option>
             <option value="rosa" <?php selected( $color, 'rosa' ); ?>>Rosa</option>
-            <option value="morado" <?php selected( $color, 'morado' ); ?>>Morado</option>
+            <option value="rosa-claro" <?php selected( $color, 'rosa-claro' ); ?>>Rosa claro</option>
+            <option value="lila" <?php selected( $color, 'lila' ); ?>>Lila</option>
             <option value="turquesa" <?php selected( $color, 'turquesa' ); ?>>Turquesa</option>
         </select>
     </p>
@@ -85,6 +94,14 @@ function org_render_nodo_metabox( $post ) {
             <option value="normal" <?php selected( $peso, 'normal' ); ?>>Normal</option>
             <option value="importante" <?php selected( $peso, 'importante' ); ?>>Importante</option>
         </select>
+    </p>
+
+        <p>
+        <label for="org_orden"><strong>Orden (entre hermanos)</strong></label><br>
+        <input type="number" name="org_orden" id="org_orden"
+               value="<?php echo esc_attr( get_post_meta( $post->ID, '_org_orden', true ) ); ?>"
+               style="width: 100px;">
+        <span class="description">Se usa para ordenar los nodos al mismo nivel.</span>
     </p>
 
     <p>
@@ -107,6 +124,14 @@ function org_render_nodo_metabox( $post ) {
             <option value="izquierdo" <?php selected( $punto_union, 'izquierdo' ); ?>>Borde izquierdo</option>
             <option value="derecho" <?php selected( $punto_union, 'derecho' ); ?>>Borde derecho</option>
         </select>
+    </p>
+    <p>
+        <label for="org_children_dir"><strong>Dirección de los nodos hijos</strong></label><br>
+        <select name="org_children_dir" id="org_children_dir">
+            <option value="vertical" <?php selected( $children_dir, 'vertical' ); ?>>Vertical</option>
+            <option value="horizontal" <?php selected( $children_dir, 'horizontal' ); ?>>Horizontal</option>
+        </select>
+        <span class="description">Cómo se colocan los hijos directos de este nodo.</span>
     </p>
 
     <p>
@@ -135,21 +160,26 @@ function org_save_nodo_metabox( $post_id ) {
     $nivel_sup   = isset( $_POST['org_nivel_superior'] ) ? intval( $_POST['org_nivel_superior'] ) : '';
     $punto_union = isset( $_POST['org_punto_union'] ) ? sanitize_text_field( $_POST['org_punto_union'] ) : 'inferior';
     $en_camino   = isset( $_POST['org_en_camino'] ) ? '1' : '0';
+    $orden       = isset( $_POST['org_orden'] ) ? intval( $_POST['org_orden'] ) : 0;
+    $children_dir = isset( $_POST['org_children_dir'] ) ? sanitize_text_field( $_POST['org_children_dir'] ) : 'vertical';
+
 
     update_post_meta( $post_id, '_org_color', $color );
     update_post_meta( $post_id, '_org_peso', $peso );
     update_post_meta( $post_id, '_org_nivel_superior', $nivel_sup );
     update_post_meta( $post_id, '_org_punto_union', $punto_union );
     update_post_meta( $post_id, '_org_en_camino', $en_camino );
+    update_post_meta( $post_id, '_org_orden', $orden );
+    update_post_meta( $post_id, '_org_children_dir', $children_dir ); 
 }
 
 /**
- * 3) PÁGINA DE AJUSTES: CHECKBOX FÍSICO/DIGITAL + IMAGEN FÍSICA
+ * PÁGINA DE AJUSTES: CHECKBOX FÍSICO/DIGITAL + IMAGEN FÍSICA
  */
 add_action( 'admin_menu', 'org_add_organigrama_options_page' );
 function org_add_organigrama_options_page() {
     add_submenu_page(
-        'edit.php?post_type=organigrama_nodo', // queda como submenú bajo "Organigrama digital"
+        'edit.php?post_type=organigrama_nodo',
         'Ajustes organigrama',
         'Ajustes organigrama',
         'manage_options',
@@ -163,7 +193,6 @@ function org_render_organigrama_options_page() {
         return;
     }
 
-    // Guardar
     if ( isset( $_POST['org_ajustes_submit'] ) && check_admin_referer( 'org_ajustes_save', 'org_ajustes_nonce' ) ) {
         update_option( 'org_show_fisico', isset( $_POST['org_show_fisico'] ) ? '1' : '0' );
         update_option( 'org_show_digital', isset( $_POST['org_show_digital'] ) ? '1' : '0' );
@@ -225,11 +254,10 @@ function org_render_organigrama_options_page() {
 }
 
 /**
- * 4) JS PARA EL SELECTOR DE IMAGEN EN LA PÁGINA DE AJUSTES
+ * JS PARA EL SELECTOR DE IMAGEN EN LA PÁGINA DE AJUSTES
  */
 add_action( 'admin_enqueue_scripts', 'org_admin_enqueue_media' );
 function org_admin_enqueue_media( $hook ) {
-    // Sólo cargamos scripts en la página de ajustes
     if ( $hook !== 'organigrama_nodo_page_organigrama-ajustes' ) {
         return;
     }

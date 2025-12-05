@@ -2514,125 +2514,674 @@ body.theme-dark .fcsd-history .history-year__panel {
   padding: 0;
 }
 
+
+/* ==============================
+   ORGANIGRAMA - ESTILOS MEJORADOS
+   ============================== */
+
+.contenedor-organigrama {
+    padding: 2rem 0;
+}
+
+/* === ORGANIGRAMA FÍSICO (IMAGEN) === */
 .organigrama-fisico {
-    text-align: center;
     margin-bottom: 4rem;
 }
 
+.org-image-block {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+}
+
+.org-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--panel-border);
+}
+
+body.theme-dark .org-image {
+    border-color: var(--panel-border-strong);
+}
+
+.org-image-open {
+    margin-top: 1rem;
+}
+
+/* === LIGHTBOX PARA IMAGEN === */
+.org-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.org-lightbox.is-open {
+    display: flex;
+}
+
+.org-lightbox-inner {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.org-lightbox-toolbar {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    justify-content: center;
+    align-items: center;
+}
+
+.org-lightbox-toolbar button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1rem;
+    min-width: 40px;
+    transition: background var(--transition-fast);
+}
+
+.org-lightbox-toolbar button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.org-close {
+    margin-left: auto;
+    font-size: 1.5rem !important;
+    padding: 0.25rem 0.75rem !important;
+}
+
+.org-lightbox-canvas {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    cursor: grab;
+}
+
+.org-lightbox-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: none;
+    max-height: none;
+    transform-origin: center center;
+    transition: transform 0.1s ease-out;
+}
+
+/* === ORGANIGRAMA DIGITAL === */
+.organigrama-digital-section {
+    margin-top: 4rem;
+}
+
+.organigrama-digital-wrapper {
+    background-color: var(--bg);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid var(--panel-border);
+    width: 100%;
+    text-align: center;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.theme-dark .organigrama-digital-wrapper {
+    background-color: var(--panel);
+    border-color: var(--panel-border-strong);
+}
+
+.organigrama-digital-wrapper::-webkit-scrollbar {
+    height: 10px;
+}
+
+.organigrama-digital-wrapper::-webkit-scrollbar-track {
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+}
+
+.organigrama-digital-wrapper::-webkit-scrollbar-thumb {
+    background: var(--panel-border);
+    border-radius: var(--radius-sm);
+}
+
+.organigrama-digital-wrapper::-webkit-scrollbar-thumb:hover {
+    background: var(--panel-border-strong);
+}
+
+body.theme-dark .organigrama-digital-wrapper::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.theme-dark .organigrama-digital-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+body.theme-dark .organigrama-digital-wrapper::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* Árbol digital */
 .organigrama-digital {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
-    margin-bottom: 4rem;
-    overflow-x: auto;
-    padding-bottom: 2rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0 auto;
+    min-width: 0;
+    padding: 1.5rem 0;
 }
 
+/* === ESTRUCTURA DE NODOS === */
 .org-nodo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: relative;
-    text-align: center;
-    margin: 1rem;
 }
 
 .org-nodo-inner {
-    padding: .75rem 1.5rem;
-    border-radius: 8px;
-    background: #f1f1f1;
-    display: inline-block;
-    min-width: 160px;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-md);
+    min-width: 120px;
+    max-width: 180px;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    border: 2px solid transparent;
+    position: relative;
+    z-index: 10;
+    background: #fff;
+    margin: 0.5rem;
+    font-size: 0.75rem;
+}
+
+body.theme-dark .org-nodo-inner {
+    background: var(--panel);
+}
+
+.org-nodo-inner:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    z-index: 11;
 }
 
 .org-nodo-title {
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
+    font-size: 0.75rem;
+    display: block;
+    line-height: 1.25;
+    word-wrap: break-word;
+    hyphens: auto;
 }
 
-/* Colores de nodos */
-.org-color-azul .org-nodo-inner { background: #a5d5ff; }
-.org-color-amarillo .org-nodo-inner { background: #ffe28a; }
-.org-color-granate .org-nodo-inner { background: #e27c8c; }
-.org-color-rosa .org-nodo-inner { background: #ffb6d9; }
-.org-color-morado .org-nodo-inner { background: #c7b5ff; }
-.org-color-turquesa .org-nodo-inner { background: #a9f0e7; }
+/* === COLORES DE NODOS (alineados con la imagen) === */
 
-/* Peso */
+/* Barra verde (Patronat, Direcció) */
+.org-color-verde .org-nodo-inner {
+    background: #2abf9e;
+    color: #ffffff;
+    border-color: #19987b;
+}
+
+/* Azul intenso (si lo usas en algún nodo) */
+.org-color-azul .org-nodo-inner {
+    background: #5da6dc;
+    color: #ffffff;
+    border-color: #3c82b3;
+}
+
+/* Azul claro – admite guion y guion_bajo */
+.org-color-azul-claro .org-nodo-inner,
+.org-color-azul_claro .org-nodo-inner {
+    background: #e6f2ff;
+    color: #23527c;
+    border-color: #b3d4ff;
+}
+
+/* Amarillo comités */
+.org-color-amarillo .org-nodo-inner {
+    background: #ffe48a;
+    color: #7a5a00;
+    border-color: #f5d255;
+}
+
+/* Rojo (Comitè Ètic) */
+.org-color-rojo .org-nodo-inner {
+    background: #f28b82;
+    color: #6e1515;
+    border-color: #e6675a;
+}
+
+/* Granate (si lo usas en otros comités) */
+.org-color-granate .org-nodo-inner {
+    background: #ffb3b3;
+    color: #7a1e1e;
+    border-color: #f36b6b;
+}
+
+/* Rosa fuerte – bloques “SERVEIS” */
+.org-color-rosa .org-nodo-inner {
+    background: #f5b7b1;
+    color: #78281f;
+    border-color: #f1948a;
+}
+
+/* Rosa claro – admite guion y guion_bajo */
+.org-color-rosa-claro .org-nodo-inner,
+.org-color-rosa_claro .org-nodo-inner {
+    background: #fadbd8;
+    color: #943126;
+    border-color: #f5b7b1;
+}
+
+/* Lila (Assemblea, EXIT21) */
+.org-color-lila .org-nodo-inner {
+    background: #d7bde2;
+    color: #4a235a;
+    border-color: #c39bd3;
+}
+
+/* Turquesa – por si lo usas en alguna variante */
+.org-color-turquesa .org-nodo-inner {
+    background: #a3e4d7;
+    color: #0e6251;
+    border-color: #76d7c4;
+}
+
+/* === PESO IMPORTANTE === */
 .org-peso-importante .org-nodo-inner {
-    border: 2px solid #333;
-}
-.org-peso-normal .org-nodo-inner {
-    border: 1px solid #999;
+    font-weight: var(--font-weight-bold);
+    border-width: 3px;
+    box-shadow: var(--shadow-md);
 }
 
-/* Hijos */
+/* === CONTENEDOR DE HIJOS === */
 .org-nodo-children {
     display: flex;
+    gap: 1rem;
+    align-items: flex-start;
     justify-content: center;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    flex-wrap: nowrap;
+    position: relative;
+    margin-top: 1.8rem;
 }
 
-.org-digital-wrapper {
-  position: relative;
-  overflow: auto;
-  padding: 1.5rem;
-  border-radius: 12px;
-  background-color: #f8f9fa;
+/* Dirección de los hijos */
+.org-nodo-children.org-children-vertical {
+    flex-direction: column;
+    align-items: center;
 }
 
-.org-digital-canvas {
-  position: relative;
-  min-height: 600px;
+.org-nodo-children.org-children-horizontal {
+    flex-direction: row;
 }
 
-/* Nodos digitales (puedes mejorar esto a tu gusto) */
-.org-node--digital {
-  display: inline-block;
-  margin: 0.5rem;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
+/* === SISTEMA DE LÍNEAS DE CONEXIÓN === */
+
+/* Línea vertical desde el nodo padre hacia abajo */
+.org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2rem;
+    background: var(--panel-border);
+    left: 50%;
+    top: 100%;
+    transform: translateX(-1px);
+    z-index: 1;
 }
 
-/* Peso / importància */
-.org-node--important {
-  font-weight: 700;
-  box-shadow: 0 0 0 2px #3331;
+body.theme-dark .org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+    background: var(--panel-border-strong);
 }
 
-/* Colores específics */
-.org-node--color-azul {
-  background-color: #004b8d;
-  color: #fff;
+/* Línea horizontal superior que conecta hermanos */
+.org-nodo-children::before {
+    content: '';
+    position: absolute;
+    height: 2px;
+    background: var(--panel-border);
+    top: calc(-2rem + 1rem);
+    left: 0;
+    right: 0;
+    z-index: 1;
 }
 
-.org-node--color-azul-claro {
-  background-color: #e5f2ff;
+body.theme-dark .org-nodo-children::before {
+    background: var(--panel-border-strong);
 }
 
-.org-node--color-amarillo {
-  background-color: #fff5c2;
+/* Hijo único no necesita línea horizontal */
+.org-nodo-children:has(> .org-nodo:only-child)::before {
+    display: none;
 }
 
-.org-node--color-rosa {
-  background-color: #ffd6e8;
+/* Línea vertical que conecta cada hijo a la línea horizontal */
+.org-nodo-children > .org-nodo > .org-nodo-inner::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 1rem;
+    background: var(--panel-border);
+    top: calc(-1rem - 0.5rem);
+    left: 50%;
+    transform: translateX(-1px);
+    z-index: 1;
 }
 
-.org-node--color-rosa-claro {
-  background-color: #ffeaf5;
+body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
+    background: var(--panel-border-strong);
 }
 
-.org-node--color-lila {
-  background-color: #f0e5ff;
+/* Nodo raíz no tiene línea superior */
+.org-level-0 > .org-nodo-inner::before {
+    display: none !important;
 }
 
-.org-node--color-granate {
-  background-color: #7b002c;
-  color: #fff;
+/* === NODOS EN CAMINO (LATERALES) === */
+/* Importante: ya NO cambiamos a dashed ni fondo transparente */
+.org-en-camino {
+    opacity: 0.95;
 }
 
-.org-digital-lines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
+.org-en-camino .org-nodo-inner {
+    border-style: solid;
+    background-color: inherit; /* mantiene el color de org-color-* */
+}
+
+body.theme-dark .org-en-camino .org-nodo-inner {
+    opacity: 0.9;
+}
+
+/* === VARIANTES DE PUNTO DE UNIÓN === */
+
+/* Superior: invierte dirección */
+.org-nodo[data-union="superior"] {
+    flex-direction: column-reverse;
+}
+
+.org-nodo[data-union="superior"]:has(.org-nodo-children) > .org-nodo-inner::after {
+    top: auto;
+    bottom: 100%;
+}
+
+.org-nodo[data-union="superior"] .org-nodo-children {
+    margin-top: 0;
+    margin-bottom: 2rem;
+}
+
+/* Izquierda y derecha: margen adicional si se necesita */
+.org-nodo[data-union="izquierdo"] .org-nodo-children,
+.org-nodo[data-union="derecho"] .org-nodo-children {
+    margin-top: 2rem;
+}
+
+/* === NIVELES === */
+.org-level-0 {
+    margin-bottom: 0.6rem;
+}
+
+.org-level-1,
+.org-level-2 {
+    margin-bottom: 0.4rem;
+}
+
+/* === RESPONSIVE === */
+
+/* Tablets */
+@media (max-width: 1200px) {
+    .organigrama-digital {
+        padding: 1.25rem 0;
+    }
+
+    .org-nodo-inner {
+        min-width: 120px;
+        max-width: 170px;
+        padding: 0.5rem 0.8rem;
+        font-size: 0.72rem;
+    }
+
+    .org-nodo-children {
+        gap: 0.9rem;
+        margin-top: 1.6rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .organigrama-digital-wrapper {
+        padding: 1.5rem;
+    }
+
+    .organigrama-digital {
+        padding: 1rem 0;
+    }
+
+    .org-nodo-inner {
+        min-width: 110px;
+        max-width: 160px;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.7rem;
+    }
+
+    .org-peso-importante .org-nodo-inner {
+        min-width: 140px;
+    }
+
+    .org-nodo-children {
+        gap: 0.75rem;
+        margin-top: 1.4rem;
+    }
+
+    .org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+        height: 1.8rem;
+    }
+
+    .org-nodo-children::before {
+        top: calc(-1.8rem + 0.9rem);
+    }
+
+    .org-nodo-children > .org-nodo > .org-nodo-inner::before {
+        height: 0.9rem;
+        top: calc(-0.9rem - 0.45rem);
+    }
+}
+
+/* Móviles */
+@media (max-width: 768px) {
+    .contenedor-organigrama {
+        padding: 1rem 0;
+    }
+
+    .organigrama-digital-section {
+        margin-top: 3rem;
+    }
+
+    .organigrama-digital-wrapper {
+        padding: 1rem;
+        border-radius: var(--radius-md);
+    }
+
+    .organigrama-digital {
+        padding: 0.75rem;
+        min-width: 800px; /* Forzar scroll horizontal en móvil */
+    }
+
+    .org-nodo-inner {
+        min-width: 110px;
+        max-width: 150px;
+        padding: 0.5rem 0.7rem;
+        font-size: 0.65rem;
+        margin: 0.375rem;
+    }
+
+    .org-nodo-title {
+        font-size: 0.65rem;
+        line-height: 1.3;
+    }
+
+    .org-peso-importante .org-nodo-inner {
+        min-width: 130px;
+        font-size: 0.7rem;
+    }
+
+    .org-nodo-children {
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+        height: 1.6rem;
+    }
+
+    .org-nodo-children::before {
+        top: calc(-1.6rem + 0.8rem);
+    }
+
+    .org-nodo-children > .org-nodo > .org-nodo-inner::before {
+        height: 0.8rem;
+        top: calc(-0.8rem - 0.4rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .organigrama-digital {
+        min-width: 700px;
+        padding: 0.5rem;
+    }
+
+    .org-nodo-inner {
+        min-width: 100px;
+        max-width: 140px;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.6rem;
+    }
+
+    .org-nodo-title {
+        font-size: 0.6rem;
+    }
+
+    .org-peso-importante .org-nodo-inner {
+        min-width: 120px;
+        font-size: 0.65rem;
+    }
+
+    .org-nodo-children {
+        gap: 0.7rem;
+        margin-top: 1.4rem;
+    }
+
+    .org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+        height: 1.4rem;
+    }
+
+    .org-nodo-children::before {
+        top: calc(-1.4rem + 0.7rem);
+    }
+
+    .org-nodo-children > .org-nodo > .org-nodo-inner::before {
+        height: 0.7rem;
+        top: calc(-0.7rem - 0.35rem);
+    }
+}
+
+/* Indicador de scroll en móvil */
+@media (max-width: 768px) {
+    .organigrama-digital-wrapper::after {
+        content: '← Desliza →';
+        position: sticky;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0.5rem;
+        display: inline-block;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.7rem;
+        pointer-events: none;
+        opacity: 0.7;
+        z-index: 5;
+    }
+
+    body.theme-dark .organigrama-digital-wrapper::after {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* === MEJORAS DE ACCESIBILIDAD === */
+@media (prefers-reduced-motion: reduce) {
+    .org-nodo-inner,
+    .organigrama-digital-wrapper,
+    .org-lightbox-image {
+        transition: none;
+    }
+}
+
+/* === PRINT STYLES === */
+@media print {
+    .org-lightbox,
+    .org-image-open {
+        display: none !important;
+    }
+
+    .organigrama-digital-wrapper {
+        border: 1px solid #ddd;
+        overflow: visible;
+        page-break-inside: avoid;
+    }
+
+    .organigrama-digital {
+        min-width: 100%;
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+
+    .org-nodo-inner {
+        box-shadow: none;
+        border: 1px solid #333;
+        page-break-inside: avoid;
+    }
+
+    .org-nodo {
+        page-break-inside: avoid;
+    }
+
+    /* Forzar colores en impresión */
+    .org-color-verde .org-nodo-inner,
+    .org-color-azul .org-nodo-inner,
+    .org-color-azul-claro .org-nodo-inner,
+    .org-color-azul_claro .org-nodo-inner,
+    .org-color-amarillo .org-nodo-inner,
+    .org-color-rojo .org-nodo-inner,
+    .org-color-granate .org-nodo-inner,
+    .org-color-rosa .org-nodo-inner,
+    .org-color-rosa-claro .org-nodo-inner,
+    .org-color-rosa_claro .org-nodo-inner,
+    .org-color-lila .org-nodo-inner,
+    .org-color-turquesa .org-nodo-inner {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .org-nodo::before,
+    .org-nodo-children::before,
+    .org-nodo:has(.org-nodo-children) > .org-nodo-inner::after {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
