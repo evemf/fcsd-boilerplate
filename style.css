@@ -2733,52 +2733,52 @@ body.theme-dark .org-nodo-inner {
 
 /* Barra verde (Patronat, Direcció) */
 .org-color-verde .org-nodo-inner {
-    background: #2abf9e;
+    background: #93D8C7;
     color: #ffffff;
-    border-color: #19987b;
+    border-color: #93D8C7;
 }
 
 /* Azul intenso (si lo usas en algún nodo) */
 .org-color-azul .org-nodo-inner {
-    background: #5da6dc;
+    background: #B8E5F9;
     color: #ffffff;
-    border-color: #3c82b3;
+    border-color: #B8E5F9;
 }
 
 /* Azul claro – admite guion y guion_bajo */
 .org-color-azul-claro .org-nodo-inner,
 .org-color-azul_claro .org-nodo-inner {
-    background: #e6f2ff;
-    color: #23527c;
-    border-color: #b3d4ff;
+    background: #B8E5F6;
+    color: #ffffff;
+    border-color: #B8E5F6;
 }
 
 /* Amarillo comités */
 .org-color-amarillo .org-nodo-inner {
     background: #ffe48a;
     color: #7a5a00;
-    border-color: #f5d255;
+    border-color: #ffe48a;
 }
 
 /* Rojo (Comitè Ètic) */
 .org-color-rojo .org-nodo-inner {
-    background: #f28b82;
-    color: #6e1515;
-    border-color: #e6675a;
+    background: #EC7C72;
+    color: #ffffff;
+    border-color: #EC7C72;
 }
 
 /* Granate (si lo usas en otros comités) */
 .org-color-granate .org-nodo-inner {
-    background: #ffb3b3;
-    color: #7a1e1e;
-    border-color: #f36b6b;
+    background: #EC7C72;
+    color: #ffffff;
+    border-color: #EC7C72;
 }
 
 /* Rosa fuerte – bloques “SERVEIS” */
 .org-color-rosa .org-nodo-inner {
     background: #f5b7b1;
     color: #78281f;
-    border-color: #f1948a;
+    border-color: #f5b7b1;
 }
 
 /* Rosa claro – admite guion y guion_bajo */
@@ -2791,16 +2791,16 @@ body.theme-dark .org-nodo-inner {
 
 /* Lila (Assemblea, EXIT21) */
 .org-color-lila .org-nodo-inner {
-    background: #d7bde2;
-    color: #4a235a;
-    border-color: #c39bd3;
+    background: #CEB8D9;
+    color: #000000;
+    border-color: #CEB8D9;
 }
 
 /* Turquesa – por si lo usas en alguna variante */
 .org-color-turquesa .org-nodo-inner {
     background: #a3e4d7;
-    color: #0e6251;
-    border-color: #76d7c4;
+    color: #000000;
+    border-color: #a3e4d7;
 }
 
 /* === PESO IMPORTANTE === */
@@ -2891,21 +2891,6 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
 /* Nodo raíz no tiene línea superior */
 .org-level-0 > .org-nodo-inner::before {
     display: none !important;
-}
-
-/* === NODOS EN CAMINO (LATERALES) === */
-/* Importante: ya NO cambiamos a dashed ni fondo transparente */
-.org-en-camino {
-    opacity: 0.95;
-}
-
-.org-en-camino .org-nodo-inner {
-    border-style: solid;
-    background-color: inherit; /* mantiene el color de org-color-* */
-}
-
-body.theme-dark .org-en-camino .org-nodo-inner {
-    opacity: 0.9;
 }
 
 /* === VARIANTES DE PUNTO DE UNIÓN === */
