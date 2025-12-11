@@ -3170,180 +3170,6 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
         print-color-adjust: exact;
     }
 }
-/* =========================================================
- * CALENDARI D'ACTES – ADMIN
- * (pantalla wp-admin -> Actes → Calendari)
- * ======================================================= */
-
-.fcsd-actes-calendar-admin__toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 1rem 0;
-}
-
-.fcsd-actes-calendar-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 4px;
-    table-layout: fixed;
-    margin-top: 1rem;
-}
-
-.fcsd-actes-calendar-table thead th {
-    text-align: center;
-    font-size: 11px;
-    text-transform: uppercase;
-    color: #6c757d;
-    padding: 4px 0;
-}
-
-/* Día (celda) en vista mensual admin */
-.fcsd-actes-calendar__day {
-    vertical-align: top;
-    padding: 4px;
-    height: 90px;
-    position: relative;
-    background: #ffffff;
-    border: 1px solid #d4d4d4;   /* borde neutro gris */
-    border-radius: 4px;
-}
-
-.fcsd-actes-calendar__day.is-empty {
-    background: transparent;
-    border-color: transparent;
-}
-
-.fcsd-actes-calendar__day.is-today {
-    border-color: #0073aa;
-    box-shadow: 0 0 0 1px rgba(0,115,170,.3);
-}
-
-.fcsd-actes-calendar__day.has-events {
-    border-color: #f6c744;       /* borde amarillo cuando hay actos */
-    background: #fffdf3;
-}
-
-.fcsd-actes-calendar__day-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-    font-size: 11px;
-}
-
-.fcsd-actes-calendar__day-number {
-    font-weight: 600;
-}
-
-.fcsd-actes-calendar__add {
-    text-decoration: none;
-    font-weight: 700;
-    padding: 0 4px;
-    border-radius: 50%;
-    border: 1px solid #ccd0d4;
-    line-height: 1;
-    font-size: 12px;
-    background: #f8f9fa;
-}
-
-.fcsd-actes-calendar__add:hover {
-    background: #e2e6ea;
-}
-
-/* Lista de actos dentro del día (admin) */
-.fcsd-actes-calendar__events {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.fcsd-actes-calendar__event {
-    margin: 0 0 2px;
-    padding: 2px 4px;
-    border-left: 4px solid #0073aa;
-    background: #ffffff;
-    font-size: 11px;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.fcsd-actes-calendar__event a {
-    text-decoration: none;
-}
-
-/* Vista anual admin */
-.fcsd-actes-calendar-admin__annual-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-top: 1rem;
-}
-
-.fcsd-actes-calendar-admin__month {
-    background: #ffffff;
-    border: 1px solid #e2e4e7;
-    border-radius: 4px;
-    padding: 8px;
-}
-
-.fcsd-actes-calendar-admin__month-title {
-    margin: 0 0 6px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.fcsd-actes-calendar-table--compact .fcsd-actes-calendar__day {
-    height: 50px;
-}
-
-/* Dots de actos en vista anual admin */
-.fcsd-actes-calendar__dots {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px;
-    margin-top: 2px;
-}
-
-.fcsd-actes-calendar__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    background: #0073aa;
-}
-
-/* Modal rápido de creación/edición en admin */
-.fcsd-actes-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.4);
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fcsd-actes-modal {
-    background: #fff;
-    padding: 20px;
-    max-width: 600px;
-    width: 100%;
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
-    position: relative;
-}
-
-.fcsd-actes-modal__close {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    border: none;
-    background: transparent;
-    font-size: 24px;
-    cursor: pointer;
-}
 
 /* =========================================================
  * CALENDARI D'ACTES – FRONTEND
@@ -3604,4 +3430,138 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
         min-height: 70px;
         padding: 0.35rem;
     }
+}
+
+/* === Listado de actos dentro de cada día (vista mensual) === */
+
+.actes-calendar__events {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.actes-calendar__event {
+    font-size: 0.85rem;
+    border-radius: 4px;
+    background: #f7f9fb;
+    padding: 4px 6px;
+}
+
+.actes-calendar__event-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+}
+
+.actes-calendar__event-link:hover .actes-calendar__event-title {
+    text-decoration: underline;
+}
+
+.actes-calendar__event-header {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+}
+
+.actes-calendar__event-time {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: #0073aa;
+}
+
+.actes-calendar__event-title {
+    font-weight: 500;
+}
+
+.actes-calendar__event-excerpt {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: #555;
+}
+
+.actes-calendar__event-badge {
+    display: inline-block;
+    margin-top: 2px;
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #ffe0b3;
+    color: #7a4b00;
+    font-size: 0.7rem;
+}
+
+/* === Vista anual: puntos y tooltip === */
+
+.actes-calendar__day--compact {
+    padding: 2px 2px 4px;
+}
+
+.actes-calendar__dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+.actes-calendar__dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #0073aa;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Tooltip custom: hover o focus (click) */
+.actes-calendar__dot::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 50%;
+    bottom: 130%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: #1d2327;
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+    transform-origin: bottom center;
+    z-index: 10;
+}
+
+.actes-calendar__dot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 120%;
+    transform: translateX(-50%);
+    border-width: 4px;
+    border-style: solid;
+    border-color: #1d2327 transparent transparent transparent;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+    z-index: 9;
+}
+
+/* Mostrar tooltip al pasar por encima o al hacer click (focus) */
+.actes-calendar__dot:hover::after,
+.actes-calendar__dot:focus::after,
+.actes-calendar__dot:hover::before,
+.actes-calendar__dot:focus::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-1px);
+}
+
+/* Por si hay muchos puntos en un día */
+.actes-calendar__dots .actes-calendar__dot:nth-child(odd) {
+    background: #00a0d2;
+}
+.actes-calendar__dots .actes-calendar__dot:nth-child(even) {
+    background: #46b450;
 }

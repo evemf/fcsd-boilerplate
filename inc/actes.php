@@ -388,7 +388,7 @@ function fcsd_actes_group_by_day( $items, $range_start_ts, $range_end_ts ) {
 function fcsd_actes_register_admin_calendar_page() {
     add_submenu_page(
         'edit.php?post_type=acte',
-        __( 'Calendari d\'actes', 'fcsd' ),
+        __( 'Calendari', 'fcsd' ),
         __( 'Calendari', 'fcsd' ),
         'edit_posts',
         'fcsd-actes-calendar',
@@ -861,6 +861,13 @@ function fcsd_actes_admin_assets( $hook ) {
     if ( 'acte_page_fcsd-actes-calendar' !== $hook ) {
         return;
     }
+
+    wp_enqueue_style(
+        'fcsd-actes-admin-style',
+        get_template_directory_uri() . '/assets/css/calendari-admin.css',
+        array(),
+        FCSD_VERSION
+    );
 
     wp_enqueue_script(
         'fcsd-actes-admin',

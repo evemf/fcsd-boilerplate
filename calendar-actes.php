@@ -15,15 +15,34 @@ if ( have_posts() ) :
     the_post();
 
 $current_time = current_time( 'timestamp' );
-$view         = ( isset( $_GET['view'] ) && 'annual' === $_GET['view'] ) ? 'annual' : 'monthly';
-$year         = isset( $_GET['year'] ) ? (int) $_GET['year'] : (int) gmdate( 'Y', $current_time );
-$month        = isset( $_GET['month'] ) ? (int) $_GET['month'] : (int) gmdate( 'n', $current_time );
+
+// Vista: monthly (per defecte) o annual
+$view_raw = isset( $_GET['act_view'] ) ? sanitize_text_field( wp_unslash( $_GET['act_view'] ) ) : '';
+$view     = ( 'annual' === $view_raw ) ? 'annual' : 'monthly';
+
+// Any i mes actuals per defecte
+$year  = isset( $_GET['act_year'] ) ? (int) $_GET['act_year'] : (int) gmdate( 'Y', $current_time );
+$month = isset( $_GET['act_month'] ) ? (int) $_GET['act_month'] : (int) gmdate( 'n', $current_time );
+
+// Normalitzar any (evitem valors absurds que trenquin la navegació)
+$year_now = (int) gmdate( 'Y', $current_time );
+if ( $year < 1970 || $year > $year_now + 10 ) {
+    $year = $year_now;
+}
+
+// Normalitzar mes
 if ( $month < 1 || $month > 12 ) {
     $month = (int) gmdate( 'n', $current_time );
 }
 
-$scope    = 'general';
-$base_url = get_permalink();
+// Tipus d'actes que mostra aquest template
+$scope = 'general';
+
+// URL base neta (eliminem els nous paràmetres també)
+$base_url = remove_query_arg(
+    array( 'act_view', 'act_year', 'act_month', 'scope' ),
+    get_permalink()
+);
 
 $month_names = array(
     1  => __( 'Gener', 'fcsd' ),
@@ -62,16 +81,16 @@ $today_key = gmdate( 'Y-m-d', $current_time );
             <div class="actes-calendar__toolbar">
                 <div class="actes-calendar__view-toggle">
                     <a href="<?php echo esc_url( add_query_arg( array(
-                        'view' => 'monthly',
-                        'year' => $year,
-                        'month' => $month,
+                        'act_view'  => 'monthly',
+                        'act_year'  => $year,
+                        'act_month' => $month,
                     ), $base_url ) ); ?>"
                        class="button <?php echo ( 'monthly' === $view ) ? 'button-primary' : 'button-secondary'; ?>">
                         <?php esc_html_e( 'Mensual', 'fcsd' ); ?>
                     </a>
                     <a href="<?php echo esc_url( add_query_arg( array(
-                        'view' => 'annual',
-                        'year' => $year,
+                        'act_view' => 'annual',
+                        'act_year' => $year,
                     ), $base_url ) ); ?>"
                        class="button <?php echo ( 'annual' === $view ) ? 'button-primary' : 'button-secondary'; ?>">
                         <?php esc_html_e( 'Anual', 'fcsd' ); ?>
@@ -96,9 +115,9 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                         ?>
                         <a class="button button--ghost"
                            href="<?php echo esc_url( add_query_arg( array(
-                               'view'  => 'monthly',
-                               'year'  => $prev_year,
-                               'month' => $prev_month,
+                               'act_view'  => 'monthly',
+                               'act_year'  => $prev_year,
+                               'act_month' => $prev_month,
                            ), $base_url ) ); ?>">
                             &laquo;
                         </a>
@@ -107,17 +126,17 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                         </span>
                         <a class="button button--ghost"
                            href="<?php echo esc_url( add_query_arg( array(
-                               'view'  => 'monthly',
-                               'year'  => $next_year,
-                               'month' => $next_month,
+                               'act_view'  => 'monthly',
+                               'act_year'  => $next_year,
+                               'act_month' => $next_month,
                            ), $base_url ) ); ?>">
                             &raquo;
                         </a>
                     <?php else : ?>
                         <a class="button button--ghost"
                            href="<?php echo esc_url( add_query_arg( array(
-                               'view' => 'annual',
-                               'year' => $year - 1,
+                               'act_view' => 'annual',
+                               'act_year' => $year - 1,
                            ), $base_url ) ); ?>">
                             &laquo;
                         </a>
@@ -126,8 +145,8 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                         </span>
                         <a class="button button--ghost"
                            href="<?php echo esc_url( add_query_arg( array(
-                               'view' => 'annual',
-                               'year' => $year + 1,
+                               'act_view' => 'annual',
+                               'act_year' => $year + 1,
                            ), $base_url ) ); ?>">
                             &raquo;
                         </a>
@@ -154,6 +173,7 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                         </div>
                         <div class="actes-calendar__weeks">
                             <?php
+                            // celdas vacías hasta el primer día
                             for ( $i = 1; $i < $first_weekday; $i++ ) {
                                 echo '<div class="actes-calendar__day actes-calendar__day--empty"></div>';
                             }
@@ -177,34 +197,42 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                                     </div>
 
                                     <?php if ( ! empty( $day_items ) ) : ?>
-                                        <div class="actes-calendar__events">
+                                        <ul class="actes-calendar__events">
                                             <?php foreach ( $day_items as $item ) : ?>
-                                                <article class="actes-calendar__event">
-                                                    <div class="actes-calendar__event-main">
-                                                        <?php if ( ! empty( $item['thumb'] ) ) : ?>
-                                                            <span class="actes-calendar__event-thumb"
-                                                                style="background-image:url('<?php echo esc_url( $item['thumb'] ); ?>');"></span>
+                                                <?php
+                                                $time_label = '';
+                                                if ( ! empty( $item['start_ts'] ) ) {
+                                                    $time_label = date_i18n( get_option( 'time_format' ), (int) $item['start_ts'] );
+                                                }
+                                                ?>
+                                                <li class="actes-calendar__event">
+                                                    <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="actes-calendar__event-link">
+                                                        <div class="actes-calendar__event-header">
+                                                            <?php if ( $time_label ) : ?>
+                                                                <span class="actes-calendar__event-time">
+                                                                    <?php echo esc_html( $time_label ); ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                            <span class="actes-calendar__event-title">
+                                                                <?php echo esc_html( $item['title'] ); ?>
+                                                            </span>
+                                                        </div>
+
+                                                        <?php if ( ! empty( $item['excerpt'] ) ) : ?>
+                                                            <p class="actes-calendar__event-excerpt">
+                                                                <?php echo esc_html( wp_trim_words( $item['excerpt'], 12 ) ); ?>
+                                                            </p>
                                                         <?php endif; ?>
-                                                        <span class="actes-calendar__event-title">
-                                                            <?php echo esc_html( $item['title'] ); ?>
-                                                        </span>
-                                                    </div>
 
-                                                    <?php if ( ! empty( $item['excerpt'] ) ) : ?>
-                                                        <p class="actes-calendar__event-excerpt">
-                                                            <?php echo esc_html( wp_trim_words( $item['excerpt'], 12 ) ); ?>
-                                                        </p>
-                                                    <?php endif; ?>
-
-                                                    <?php if ( ! empty( $item['needs_ticket'] ) ) : ?>
-                                                        <span class="actes-calendar__event-badge">
-                                                            <?php esc_html_e( 'Entrada prèvia', 'fcsd' ); ?>
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </article>
-
+                                                        <?php if ( ! empty( $item['needs_ticket'] ) ) : ?>
+                                                            <span class="actes-calendar__event-badge">
+                                                                <?php esc_html_e( 'Entrada prèvia', 'fcsd' ); ?>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </a>
+                                                </li>
                                             <?php endforeach; ?>
-                                        </div>
+                                        </ul>
                                     <?php endif; ?>
                                 </div>
                                 <?php
@@ -212,7 +240,7 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                             ?>
                         </div>
                     </div>
-                <?php else : // Vista anual ?>
+                <?php else : // VISTA ANUAL ?>
                     <div class="actes-calendar__annual">
                         <?php for ( $m = 1; $m <= 12; $m++ ) : ?>
                             <?php
@@ -247,7 +275,7 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                                             $day_key    = gmdate( 'Y-m-d', $current_ts );
                                             $day_items  = isset( $items_days[ $day_key ] ) ? $items_days[ $day_key ] : array();
 
-                                            $classes = array( 'actes-calendar__day' );
+                                            $classes = array( 'actes-calendar__day', 'actes-calendar__day--compact' );
                                             if ( $day_key === $today_key ) {
                                                 $classes[] = 'actes-calendar__day--today';
                                             }
@@ -262,9 +290,9 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                                                 <?php if ( ! empty( $day_items ) ) : ?>
                                                     <div class="actes-calendar__dots">
                                                         <?php foreach ( $day_items as $item ) : ?>
-                                                            <a href="<?php echo esc_url( $item['permalink'] ); ?>"
-                                                               class="actes-calendar__dot"
-                                                               title="<?php echo esc_attr( $item['title'] ); ?>"></a>
+                                                            <span class="actes-calendar__dot"
+                                                                  tabindex="0"
+                                                                  data-title="<?php echo esc_attr( $item['title'] ); ?>"></span>
                                                         <?php endforeach; ?>
                                                     </div>
                                                 <?php endif; ?>
