@@ -3217,6 +3217,19 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
     padding: 0.35rem 0.75rem;
 }
 
+/* Tabs del calendario: botón activo más oscuro usando el accent-hover */
+.actes-calendar__view-toggle .button.button-primary {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+/* Botón inactivo: tono normal de accent, sin oscurecer al hacer hover */
+.actes-calendar__view-toggle .button.button-secondary,
+.actes-calendar__view-toggle .button.button-secondary:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
 /* Cuerpo del calendario */
 .actes-calendar__body {
     margin-top: 0.5rem;

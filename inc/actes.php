@@ -598,17 +598,21 @@ function fcsd_actes_render_admin_calendar_page() {
 
                             // Ordenamos los actes del día por hora de inicio.
                             if ( ! empty( $day_actes ) ) {
-                                usort(
-                                    $day_actes,
-                                    function ( $a, $b ) {
-                                        if ( $a['start_ts'] === $b['start_ts'] ) {
-                                            return $a['ID'] <=> $b['ID'];
-                                        }
+                                echo '<div class="fcsd-actes-calendar__dots">';
+                                foreach ( $day_actes as $item ) {
+                                    $color = ! empty( $item['color'] ) ? $item['color'] : '#0073aa';
+                                    $title = ! empty( $item['title'] ) ? $item['title'] : get_the_title( $item['ID'] );
 
-                                        return $a['start_ts'] <=> $b['start_ts'];
-                                    }
-                                );
+                                    echo '<div class="fcsd-actes-calendar__event">';
+                                        echo '<span class="fcsd-actes-calendar__dot"'
+                                            . ' style="background:' . esc_attr( $color ) . '"></span>';
+                                        echo '<span class="fcsd-actes-calendar__event-title">'
+                                            . esc_html( $title ) . '</span>';
+                                    echo '</div>';
+                                }
+                                echo '</div>';
                             }
+
 
                             $classes = array( 'fcsd-actes-calendar__day' );
                             if ( $is_today ) {
@@ -629,7 +633,7 @@ function fcsd_actes_render_admin_calendar_page() {
                                 );
                             }
 
-                            // Link "nuevo acto" pre-rellenando la fecha.
+                                                        // Link "nuevo acto" pre-rellenando la fecha.
                             $new_url = add_query_arg(
                                 array(
                                     'post_type'      => 'acte',
@@ -649,15 +653,38 @@ function fcsd_actes_render_admin_calendar_page() {
 
                                 if ( ! empty( $day_actes ) ) {
                                     echo '<div class="fcsd-actes-calendar__dots">';
+
                                     foreach ( $day_actes as $item ) {
                                         $color = ! empty( $item['color'] ) ? $item['color'] : '#0073aa';
-                                        echo '<span class="fcsd-actes-calendar__dot"'
-                                            . ' style="background:' . esc_attr( $color ) . '"></span>';
+                                        $title = ! empty( $item['title'] ) ? $item['title'] : get_the_title( $item['ID'] );
+
+                                        $time_label = '';
+                                        if ( ! empty( $item['start_ts'] ) ) {
+                                            $time_label = date_i18n( get_option( 'time_format' ), (int) $item['start_ts'] );
+                                        }
+
+                                        echo '<div class="fcsd-actes-calendar__event">';
+
+                                            echo '<span class="fcsd-actes-calendar__dot"'
+                                                . ' style="background:' . esc_attr( $color ) . '"></span>';
+
+                                            if ( $time_label ) {
+                                                echo '<span class="fcsd-actes-calendar__event-time">'
+                                                    . esc_html( $time_label ) . '</span>';
+                                            }
+
+                                            echo '<span class="fcsd-actes-calendar__event-title">'
+                                                . esc_html( $title ) . '</span>';
+
+                                        echo '</div>';
                                     }
+
                                     echo '</div>';
                                 }
 
                             echo '</td>';
+
+
 
                             if ( $col % 7 === 0 ) {
                                 echo '</tr><tr>';

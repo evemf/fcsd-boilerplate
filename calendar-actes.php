@@ -218,11 +218,6 @@ $today_key = gmdate( 'Y-m-d', $current_time );
                                                             </span>
                                                         </div>
 
-                                                        <?php if ( ! empty( $item['excerpt'] ) ) : ?>
-                                                            <p class="actes-calendar__event-excerpt">
-                                                                <?php echo esc_html( wp_trim_words( $item['excerpt'], 12 ) ); ?>
-                                                            </p>
-                                                        <?php endif; ?>
 
                                                         <?php if ( ! empty( $item['needs_ticket'] ) ) : ?>
                                                             <span class="actes-calendar__event-badge">

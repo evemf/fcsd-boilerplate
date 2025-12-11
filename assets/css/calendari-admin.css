@@ -3,14 +3,15 @@
  * Fitxer: assets/css/calendari-admin.css
  *************************************************/
 
-/* Wrapper general de la pàgina del calendari */
+/* Wrapper general */
 .fcsd-actes-calendar-admin {
     margin-top: 20px;
 }
 
-/* Tabs "Vista mensual / Vista anual" ya usan nav-tab de WP */
+/*************************************************
+ * Scope switch: Actes generals / laborals
+ *************************************************/
 
-/* Scope switch: Actes generals / laborals */
 .fcsd-actes-calendar-admin__scope {
     margin: 15px 0;
 }
@@ -31,7 +32,7 @@
 }
 
 /*************************************************
- * NAV (mes / any) dins de la pantalla
+ * Toolbar (mes / any)
  *************************************************/
 
 .fcsd-actes-calendar-admin__toolbar {
@@ -45,8 +46,12 @@
     font-size: 14px;
 }
 
+.fcsd-actes-calendar-admin__inner {
+    margin-top: 5px;
+}
+
 /*************************************************
- * TAULA BASE (mensual + anual)
+ * Taula base (mensual i anual)
  *************************************************/
 
 .fcsd-actes-calendar-table {
@@ -73,7 +78,7 @@
 }
 
 /*************************************************
- * CEL·LES DE DIA (vista mensual)
+ * Cel·les de dia (vista mensual)
  *************************************************/
 
 .fcsd-actes-calendar__day {
@@ -86,42 +91,37 @@
     transition: background-color 0.12s ease, box-shadow 0.12s ease;
 }
 
-/* Dies clicables (tenen data-date) → per al modal JS */
 .fcsd-actes-calendar__day[data-date] {
     cursor: pointer;
 }
 
-/* Evitar "mano" en el botó + (enllaç normal) */
 .fcsd-actes-calendar__day .fcsd-actes-calendar__add {
     cursor: default;
 }
 
-/* Dies buits (fora del mes) */
+/* Dies buits */
 .fcsd-actes-calendar__day--empty {
     background: transparent;
     border-radius: 0;
-    min-height: 40px;
 }
 
 /* Avui */
 .fcsd-actes-calendar__day.is-today {
     background: #f0f5ff;
-    border-color: transparent;         
-    box-shadow: inset 0 0 0 2px #0d6efd; 
+    box-shadow: inset 0 0 0 2px #0d6efd;
 }
 
-/* Dia amb actes */
+/* Amb actes */
 .fcsd-actes-calendar__day.has-events {
     background: #eef6ff;
 }
 
-/* Hover només en dies amb data-date (clicables) */
 .fcsd-actes-calendar__day[data-date]:hover {
     background: #e7f0ff;
 }
 
 /*************************************************
- * CAPÇALERA DEL DIA (número + botó +)
+ * Capçalera del dia
  *************************************************/
 
 .fcsd-actes-calendar__day-header {
@@ -136,11 +136,9 @@
     font-weight: 600;
     font-size: 12px;
     color: #1d2327;
-    min-width: 50px;
-    min-height: 50px;
 }
 
-/* Botó "+" per afegir acte des de l'admin */
+/* Botó "+" */
 .fcsd-actes-calendar__add {
     display: inline-flex;
     align-items: center;
@@ -150,10 +148,10 @@
     border-radius: 999px;
     background: #e5f5ff;
     color: #007cba;
-    text-decoration: none;
     border: 1px solid #c8e6ff;
     font-weight: 700;
     font-size: 13px;
+    text-decoration: none;
     transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
 }
 
@@ -165,7 +163,7 @@
 }
 
 /*************************************************
- * PUNTS / DOTS (vista mensual – resum dins del dia)
+ * Events dins del dia (vista mensual)
  *************************************************/
 
 .fcsd-actes-calendar__dots {
@@ -175,16 +173,42 @@
     gap: 3px;
 }
 
+/* En vista mensual → llista vertical */
+.fcsd-actes-calendar-table:not(.fcsd-actes-calendar-table--compact)
+.fcsd-actes-calendar__dots {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.fcsd-actes-calendar__event {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.fcsd-actes-calendar__event-time {
+    font-size: 10px;
+    opacity: 0.7;
+}
+
+.fcsd-actes-calendar__event-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .fcsd-actes-calendar__dot {
     display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 999px;
-    background: #0073aa; /* pot ser sobreescrit pel style="background-color" del PHP */
+    background: #0073aa;
 }
 
 /*************************************************
- * VISTA ANUAL – contenidor per mesos
+ * Vista anual – grid de mesos
  *************************************************/
 
 .fcsd-actes-calendar-admin__annual-grid {
@@ -207,9 +231,12 @@
     font-size: 13px;
 }
 
-/* Taula compacta dins de cada mes */
+/*************************************************
+ * Taula compacta (vista anual)
+ *************************************************/
+
 .fcsd-actes-calendar-table--compact tbody td {
-    padding: 2px 2px;
+    padding: 2px;
 }
 
 .fcsd-actes-calendar-table--compact .fcsd-actes-calendar__day {
@@ -224,7 +251,7 @@
 }
 
 /*************************************************
- * PUNTS / DOTS EN VISTA ANUAL + TOOLTIP
+ * Punts en vista anual + tooltip
  *************************************************/
 
 .fcsd-actes-calendar-table--compact .fcsd-actes-calendar__dots {
@@ -239,7 +266,7 @@
     cursor: pointer;
 }
 
-/* Tooltip personalitzat: utilitza l'atribut title del <a> */
+/* Tooltip */
 .fcsd-actes-calendar-table--compact .fcsd-actes-calendar__dot::after {
     content: attr(title);
     position: absolute;
@@ -281,7 +308,7 @@
 }
 
 /*************************************************
- * MODAL ADMIN (llistat d'actes per dia)
+ * Modal admin (llistat actes)
  *************************************************/
 
 .fcsd-actes-modal-overlay {
@@ -302,7 +329,6 @@
     border-radius: 8px;
     box-shadow: 0 12px 30px rgba(0,0,0,0.25);
     padding: 18px 20px 16px;
-    box-sizing: border-box;
     overflow: auto;
     z-index: 100001;
 }
@@ -322,11 +348,10 @@
 }
 
 .fcsd-actes-modal__close {
-    border: none;
     background: transparent;
+    border: none;
     cursor: pointer;
     font-size: 18px;
-    line-height: 1;
     color: #555d66;
 }
 .fcsd-actes-modal__close:hover {
@@ -337,7 +362,6 @@
     font-size: 13px;
 }
 
-/* Llista d'actes del dia */
 .fcsd-actes-modal__events {
     list-style: none;
     margin: 0 0 10px;
@@ -363,42 +387,20 @@
     margin-top: 2px;
 }
 
-/* Formulari creació ràpida */
 .fcsd-actes-modal__form {
     margin-top: 10px;
     border-top: 1px solid #f0f0f1;
     padding-top: 10px;
 }
 
-.fcsd-actes-modal__form .form-field {
-    margin-bottom: 8px;
-}
-
-.fcsd-actes-modal__form label {
-    display: block;
-    font-weight: 600;
-    font-size: 12px;
-    margin-bottom: 2px;
-}
-
-.fcsd-actes-modal__form input[type="text"],
-.fcsd-actes-modal__form input[type="time"],
-.fcsd-actes-modal__form textarea,
-.fcsd-actes-modal__form select {
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
 .fcsd-actes-modal__actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    margin-top: 10px;
 }
 
 /*************************************************
- * RESPONSIVE
+ * Responsive
  *************************************************/
 
 @media (max-width: 960px) {
@@ -410,5 +412,16 @@
 @media (max-width: 600px) {
     .fcsd-actes-calendar-admin__annual-grid {
         grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* **Fix WP: evitar que widefat es converteixi en llista** */
+@media (max-width: 1400px) {
+    .fcsd-actes-calendar-table.widefat tr {
+        display: table-row !important;
+    }
+    .fcsd-actes-calendar-table.widefat td,
+    .fcsd-actes-calendar-table.widefat th {
+        display: table-cell !important;
     }
 }
