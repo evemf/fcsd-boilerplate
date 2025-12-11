@@ -9,7 +9,7 @@ function fcsd_main_nav_items(){
         ['label' => __('Botiga','fcsd'),        'url' => get_post_type_archive_link('product')],
         ['label' => __('Transparència','fcsd'), 'url' => get_post_type_archive_link('transparency')],
         ['label' => __('Actualitat','fcsd'),    'url' => get_post_type_archive_link('news')],
-        ['label' => __('Contacte','fcsd'),      'url' => site_url('/contacte')],
+        ['label' => __('Contacte','fcsd'),      'url' => site_url('/contact')],
     ];
     return array_filter($items, fn($it)=>!empty($it['url']));
 }

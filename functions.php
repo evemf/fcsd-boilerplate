@@ -222,6 +222,7 @@ require_once FCSD_THEME_DIR . '/inc/transparency-meta.php';
 require_once FCSD_THEME_DIR . '/inc/template-tags.php';
 require_once FCSD_THEME_DIR . '/inc/setup-content.php';
 require_once FCSD_THEME_DIR . '/inc/auth.php';
+require_once FCSD_THEME_DIR . '/inc/contact-form.php';
 require_once FCSD_THEME_DIR . '/inc/setup.php';
 require_once FCSD_THEME_DIR . '/inc/organigrama.php';
 require_once FCSD_THEME_DIR . '/inc/actes.php';

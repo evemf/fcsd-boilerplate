@@ -286,6 +286,26 @@ add_action(
             )
         );
 
+        // Email del formulari de contacte (per defecte, el del footer)
+        $wp_customize->add_setting(
+            'fcsd_contact_email',
+            array(
+                'default'           => '',
+                'sanitize_callback' => 'sanitize_email',
+            )
+        );
+
+        $wp_customize->add_control(
+            'fcsd_contact_email',
+            array(
+                'label'       => __( 'Email formulari de contacte', 'fcsd' ),
+                'description' => __( 'Si el deixes en blanc, s\'utilitzarà el correu del footer.', 'fcsd' ),
+                'section'     => 'fcsd_footer',
+                'type'        => 'email',
+            )
+        );
+
+
         // Botón donación: URL
         $wp_customize->add_setting(
             'fcsd_footer_donate_url',

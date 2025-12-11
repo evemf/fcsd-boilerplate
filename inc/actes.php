@@ -898,7 +898,7 @@ function fcsd_actes_admin_assets( $hook ) {
 
     wp_enqueue_script(
         'fcsd-actes-admin',
-        get_template_directory_uri() . '/assets/js/actes-admin.js',
+        get_template_directory_uri() . '/assets/js/calendari-admin.js',
         array( 'jquery' ),
         FCSD_VERSION,
         true
@@ -988,3 +988,42 @@ function fcsd_actes_ajax_quick_create() {
     ) );
 }
 add_action( 'wp_ajax_fcsd_actes_quick_create', 'fcsd_actes_ajax_quick_create' );
+
+/**
+ * Eliminació ràpida d'un acte des del calendari (AJAX).
+ */
+function fcsd_actes_ajax_quick_delete() {
+    check_ajax_referer( 'fcsd_actes_quick_edit', 'nonce' );
+
+    if ( ! current_user_can( 'delete_posts' ) ) {
+        wp_send_json_error(
+            array(
+                'message' => __( 'No tens permisos per eliminar actes.', 'fcsd' ),
+            )
+        );
+    }
+
+    $post_id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
+
+    if ( ! $post_id || 'acte' !== get_post_type( $post_id ) ) {
+        wp_send_json_error(
+            array(
+                'message' => __( 'Acte no vàlid.', 'fcsd' ),
+            )
+        );
+    }
+
+    // L'enviem a la paperera
+    $result = wp_trash_post( $post_id );
+
+    if ( ! $result ) {
+        wp_send_json_error(
+            array(
+                'message' => __( 'No s\'ha pogut eliminar l\'acte.', 'fcsd' ),
+            )
+        );
+    }
+
+    wp_send_json_success();
+}
+add_action( 'wp_ajax_fcsd_actes_quick_delete', 'fcsd_actes_ajax_quick_delete' );

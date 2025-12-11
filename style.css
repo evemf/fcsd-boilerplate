@@ -3302,6 +3302,11 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
     font-size: 0.875rem;
 }
 
+/* Calendari laboral – dia amb festiu oficial */
+.actes-calendar__day.actes-calendar__day--official-holiday {
+    border: 2px solid #dc3545;
+}
+
 /* Lista de eventos dentro del día */
 .actes-calendar__events {
     margin: 0;
