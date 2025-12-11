@@ -13,7 +13,6 @@ get_header(); ?>
     </h1>
 
       <?php
-    // Navbar de filtros de la tienda
     get_template_part( 'template-parts/shop/navbar', 'filters' );
     ?>
 

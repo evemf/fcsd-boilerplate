@@ -19,34 +19,27 @@ get_header();
 
                 $post_id = get_the_ID();
 
-                // Agrupació per formació (igual que tenies)
                 $terms_ids = wp_get_post_terms( $post_id, 'event_formation', [ 'fields' => 'ids' ] );
 
                 if ( ! empty( $terms_ids ) && ! is_wp_error( $terms_ids ) ) {
-                    // Agrupats per formació: clau = term_id
                     $key = 't_' . $terms_ids[0];
                 } else {
-                    // Sense formació → cada event és independent
                     $key = 'p_' . $post_id;
                 }
 
                 if ( isset( $shown_formations[ $key ] ) ) {
-                    // Ja hem mostrat aquesta formació
                     continue;
                 }
                 $shown_formations[ $key ] = true;
 
-                // Metadades de l'esdeveniment
                 $event_start = get_post_meta( $post_id, 'fcsd_event_start', true );
                 $event_end   = get_post_meta( $post_id, 'fcsd_event_end', true );
                 $event_price = get_post_meta( $post_id, 'fcsd_event_price', true );
 
-                // Termes de formació (per mostrar-ho com a "categoria")
                 $formations = wp_get_post_terms( $post_id, 'event_formation' );
                 ?>
 
                 <article <?php post_class( 'news-card event-card' ); ?>>
-                    <!-- Part superior: capçalera + imatge, igual que les news -->
                     <a href="<?php the_permalink(); ?>"
                        class="news-card__thumb"
                        aria-label="<?php the_title_attribute(); ?>">
@@ -76,7 +69,6 @@ get_header();
                         <?php endif; ?>
                     </a>
 
-                    <!-- Cos de la card: dates, preu, resum i CTA -->
                     <div class="news-card__body">
                         <ul class="event-card__meta">
                             <?php if ( ! empty( $event_start ) ) : ?>

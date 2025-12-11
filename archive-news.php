@@ -17,19 +17,16 @@ get_header();
         $primary_cat = null;
         $bg_url      = '';
 
-        // categorías del CPT 'news' (usa la taxonomía 'category')
         $terms = get_the_terms( get_the_ID(), 'category' );
 
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
           foreach ( $terms as $term ) {
             $primary_cat = $term;
 
-            // normalizar nombre de categoría -> entreuistes, discapacitat, etc.
             $normalized = strtolower( remove_accents( $term->name ) );
             $normalized = preg_replace( '/[^a-z0-9]+/', '-', $normalized );
             $normalized = trim( $normalized, '-' );
 
-            // ejemplo: /assets/images/news/bg-news-entrevistes.png
             $relative_path = '/assets/images/news/bg-news-' . $normalized . '.png';
             $absolute_path = get_stylesheet_directory() . $relative_path;
 
@@ -40,7 +37,6 @@ get_header();
           }
         }
 
-        // fallback opcional si quieres un fondo por defecto
         if ( ! $bg_url ) {
           $default_rel = '/assets/images/news/bg-news-default.png';
           $default_abs = get_stylesheet_directory() . $default_rel;
@@ -53,7 +49,6 @@ get_header();
 
         <article <?php post_class( 'news-card' ); ?>>
 
-          <!-- Imagen + overlay con fondo de categoría y título -->
           <a href="<?php the_permalink(); ?>"
              class="news-card__thumb"
              aria-label="<?php the_title_attribute(); ?>">
@@ -82,7 +77,6 @@ get_header();
             <?php endif; ?>
           </a>
 
-          <!-- Texto inferior + botón "Llegir-ne més" -->
           <div class="news-card__body">
             <div class="news-card__excerpt">
               <?php the_excerpt(); ?>

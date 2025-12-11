@@ -3170,3 +3170,438 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
         print-color-adjust: exact;
     }
 }
+/* =========================================================
+ * CALENDARI D'ACTES – ADMIN
+ * (pantalla wp-admin -> Actes → Calendari)
+ * ======================================================= */
+
+.fcsd-actes-calendar-admin__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.fcsd-actes-calendar-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px;
+    table-layout: fixed;
+    margin-top: 1rem;
+}
+
+.fcsd-actes-calendar-table thead th {
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #6c757d;
+    padding: 4px 0;
+}
+
+/* Día (celda) en vista mensual admin */
+.fcsd-actes-calendar__day {
+    vertical-align: top;
+    padding: 4px;
+    height: 90px;
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #d4d4d4;   /* borde neutro gris */
+    border-radius: 4px;
+}
+
+.fcsd-actes-calendar__day.is-empty {
+    background: transparent;
+    border-color: transparent;
+}
+
+.fcsd-actes-calendar__day.is-today {
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px rgba(0,115,170,.3);
+}
+
+.fcsd-actes-calendar__day.has-events {
+    border-color: #f6c744;       /* borde amarillo cuando hay actos */
+    background: #fffdf3;
+}
+
+.fcsd-actes-calendar__day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.fcsd-actes-calendar__day-number {
+    font-weight: 600;
+}
+
+.fcsd-actes-calendar__add {
+    text-decoration: none;
+    font-weight: 700;
+    padding: 0 4px;
+    border-radius: 50%;
+    border: 1px solid #ccd0d4;
+    line-height: 1;
+    font-size: 12px;
+    background: #f8f9fa;
+}
+
+.fcsd-actes-calendar__add:hover {
+    background: #e2e6ea;
+}
+
+/* Lista de actos dentro del día (admin) */
+.fcsd-actes-calendar__events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.fcsd-actes-calendar__event {
+    margin: 0 0 2px;
+    padding: 2px 4px;
+    border-left: 4px solid #0073aa;
+    background: #ffffff;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fcsd-actes-calendar__event a {
+    text-decoration: none;
+}
+
+/* Vista anual admin */
+.fcsd-actes-calendar-admin__annual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 1rem;
+}
+
+.fcsd-actes-calendar-admin__month {
+    background: #ffffff;
+    border: 1px solid #e2e4e7;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.fcsd-actes-calendar-admin__month-title {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.fcsd-actes-calendar-table--compact .fcsd-actes-calendar__day {
+    height: 50px;
+}
+
+/* Dots de actos en vista anual admin */
+.fcsd-actes-calendar__dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.fcsd-actes-calendar__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #0073aa;
+}
+
+/* Modal rápido de creación/edición en admin */
+.fcsd-actes-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fcsd-actes-modal {
+    background: #fff;
+    padding: 20px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+    position: relative;
+}
+
+.fcsd-actes-modal__close {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* =========================================================
+ * CALENDARI D'ACTES – FRONTEND
+ * (vistas calendar-actes.php y calendar-work.php)
+ * ======================================================= */
+
+.actes-page {
+    /* hook por si quieres algo específico de la página de actes */
+}
+
+/* Contenedor principal del calendario */
+.actes-calendar {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid #e2e6ea;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Toolbar superior: selector vista + navegación meses/años */
+.actes-calendar__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.actes-calendar__view-toggle {
+    display: inline-flex;
+    gap: 0.5rem;
+}
+
+.actes-calendar__nav {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Botones de la toolbar: reutilizamos .button del tema */
+.actes-calendar__nav .button,
+.actes-calendar__view-toggle .button {
+    font-size: 0.875rem;
+    padding: 0.35rem 0.75rem;
+}
+
+/* Cuerpo del calendario */
+.actes-calendar__body {
+    margin-top: 0.5rem;
+}
+
+/* -----------------------------------------
+ * Vista mensual (frontend)
+ * -------------------------------------- */
+
+/* Cabecera de los días de la semana */
+.actes-calendar__week-days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    margin-bottom: 0.25rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+.actes-calendar__week-day {
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Wrapper del mes (simple, sin grid) */
+.actes-calendar__grid {
+    display: block;
+    margin-top: 0.25rem;
+}
+
+/* Contenedor de todos los días del mes */
+.actes-calendar__weeks {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.25rem;
+}
+
+/* Día */
+.actes-calendar__day {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    border: 1px solid #e2e6ea;
+    min-height: 90px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    position: relative;
+}
+
+.actes-calendar__day--empty {
+    background: transparent;
+    border-color: transparent;
+}
+
+/* Hoy */
+.actes-calendar__day--today {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 1px rgba(13,110,253,0.35);
+}
+
+/* Día con eventos */
+.actes-calendar__day--has-events {
+    background: #eef6ff;
+}
+
+/* Número del día */
+.actes-calendar__day-number {
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+/* Lista de eventos dentro del día */
+.actes-calendar__events {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin-top: auto; /* baja los eventos hacia abajo */
+}
+
+/* Píldora / evento en vista general */
+.actes-calendar__event {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.35rem;
+    border-radius: 999px;
+    background: #e7f1ff;
+    border-left: 3px solid #0d6efd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Variante sólo con punto (vista laboral) */
+.actes-calendar__event--dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+/* Punto / dot en vista laboral */
+.actes-calendar__event-dot,
+.actes-calendar__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    display: inline-block;
+    background: #0d6efd;
+}
+
+/* Elementos internos del evento (por si en el futuro se amplía) */
+.actes-calendar__event-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.actes-calendar__event-title {
+    font-weight: 500;
+}
+
+.actes-calendar__event-excerpt {
+    font-size: 0.75rem;
+    margin: 0.25rem 0 0;
+    color: #495057;
+}
+
+.actes-calendar__event-badge {
+    display: inline-block;
+    margin-left: 0.25rem;
+    font-size: 0.65rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* Versión compacta (vista laboral / anual mini) */
+.actes-calendar__grid--compact .actes-calendar__weeks {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.15rem;
+}
+
+.actes-calendar__grid--compact .actes-calendar__day {
+    min-height: 60px;
+    padding: 0.35rem;
+}
+
+/* -----------------------------------------
+ * Vista anual (frontend)
+ * -------------------------------------- */
+
+.actes-calendar__annual {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.actes-calendar__annual-month {
+    border-radius: 0.75rem;
+    border: 1px solid #e2e6ea;
+    padding: 0.75rem;
+    background: #ffffff;
+}
+
+.actes-calendar__annual-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+/* -----------------------------------------
+ * Responsivo frontend
+ * -------------------------------------- */
+
+@media (max-width: 991.98px) {
+    .actes-calendar {
+        padding: 1rem;
+    }
+
+    .actes-calendar__annual {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .actes-calendar__toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .actes-calendar__annual {
+        grid-template-columns: 1fr;
+    }
+
+    .actes-calendar__week-days {
+        font-size: 0.7rem;
+    }
+
+    .actes-calendar__weeks {
+        gap: 0.15rem;
+    }
+
+    .actes-calendar__day {
+        min-height: 70px;
+        padding: 0.35rem;
+    }
+}

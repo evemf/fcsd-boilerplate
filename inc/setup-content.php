@@ -31,8 +31,8 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Intranet',
             'content' => '',
         ),
-        'esdeveniments' => array(
-            'title'   => 'Esdeveniments',
+        'calendari' => array(
+            'title'   => 'Calendari',
             'content' => '',
         ),
         'ofertes' => array(
@@ -85,6 +85,14 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Pedido completado',
             'content' => '',
         ),
+         'calendar-actes' => array(
+            'title'   => 'Calendari',
+            'content' => '',
+        ),
+        'calendar-work' => array(
+            'title'   => 'Calendari Laboral',
+            'content' => '',
+        ),
     );
 
     // Plantillas del tema para páginas de sistema.
@@ -99,6 +107,8 @@ function fcsd_create_initial_pages_and_menus() {
         'organigrama'      => 'page-organigrama.php',
         'patronat'      => 'page-patronat.php',
         'historia'      => 'page-historia.php',
+        'calendar-work'      => 'calendar-work.php',
+        'calendar-actes'      => 'calendar-actes.php',
     );
 
     foreach ( $pages as $slug => $config ) {
@@ -143,7 +153,7 @@ function fcsd_create_initial_pages_and_menus() {
 
         $menu_items = array(
             'sobre-nosaltres' => 'Sobre nosaltres',
-            'esdeveniments'   => 'Esdeveniments',
+            'calendari'   => 'Calendari',
             'ofertes'         => 'Ofertes',
             'intranet'        => 'Intranet',
         );

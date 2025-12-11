@@ -10,11 +10,9 @@ get_header();
       <?php while ( have_posts() ) : the_post(); ?>
 
         <?php
-        // Término principal de la taxonomía service_area
         $areas        = get_the_terms( get_the_ID(), 'service_area' );
         $primary_area = ( ! empty( $areas ) && ! is_wp_error( $areas ) ) ? $areas[0] : null;
 
-        // Imagen de fondo según ámbito
         $bg_url = fcsd_get_service_area_bg_image_url( get_the_ID() );
         ?>
 
