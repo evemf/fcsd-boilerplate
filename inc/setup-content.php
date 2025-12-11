@@ -31,10 +31,6 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Intranet',
             'content' => '',
         ),
-        'calendari' => array(
-            'title'   => 'Calendari',
-            'content' => '',
-        ),
         'ofertes' => array(
             'title'   => 'Ofertes',
             'content' => '',
@@ -93,6 +89,10 @@ function fcsd_create_initial_pages_and_menus() {
             'title'   => 'Calendari Laboral',
             'content' => '',
         ),
+           'contacte' => array(
+            'title'   => 'Contacte',
+            'content' => '',
+        ),
     );
 
     // Plantillas del tema para páginas de sistema.
@@ -107,6 +107,7 @@ function fcsd_create_initial_pages_and_menus() {
         'organigrama'      => 'page-organigrama.php',
         'patronat'      => 'page-patronat.php',
         'historia'      => 'page-historia.php',
+        'contacte'      => 'page-contact.php',
         'calendar-work'      => 'calendar-work.php',
         'calendar-actes'      => 'calendar-actes.php',
     );

@@ -75,6 +75,10 @@ function fcsd_acte_render_meta_box( $post ) {
     $color  = get_post_meta( $post->ID, 'fcsd_acte_color', true );
     $scope  = get_post_meta( $post->ID, 'fcsd_acte_scope', true ); // general | laboral
 
+    // Nous metadades
+    $is_official   = (bool) get_post_meta( $post->ID, 'fcsd_acte_is_official_holiday', true );
+    $contract_type = get_post_meta( $post->ID, 'fcsd_acte_contract_type', true );
+
     if ( empty( $scope ) ) {
         $scope = 'general';
     }
@@ -142,6 +146,34 @@ function fcsd_acte_render_meta_box( $post ) {
             <span class="description">
                 <?php esc_html_e( 'S\'utilitza per marcar visualment l\'acte al calendari.', 'fcsd' ); ?>
             </span>
+        </p>
+
+        <p>
+            <label for="fcsd_acte_is_official_holiday">
+                <input type="checkbox"
+                       id="fcsd_acte_is_official_holiday"
+                       name="fcsd_acte_is_official_holiday"
+                       value="1"
+                    <?php checked( $is_official ); ?> />
+                <?php esc_html_e( 'Festiu oficial del calendari laboral', 'fcsd' ); ?>
+            </label>
+        </p>
+
+        <p>
+            <label for="fcsd_acte_contract_type">
+                <?php esc_html_e( 'Tipus de contracte (calendari laboral)', 'fcsd' ); ?>
+            </label><br>
+            <select name="fcsd_acte_contract_type" id="fcsd_acte_contract_type">
+                <option value="">
+                    <?php esc_html_e( 'Sense especificar', 'fcsd' ); ?>
+                </option>
+                <option value="37h" <?php selected( $contract_type, '37h' ); ?>>
+                    <?php esc_html_e( 'Contracte de 37 hores', 'fcsd' ); ?>
+                </option>
+                <option value="35h" <?php selected( $contract_type, '35h' ); ?>>
+                    <?php esc_html_e( 'Contracte de 35 hores', 'fcsd' ); ?>
+                </option>
+            </select>
         </p>
         <?php
         $needs_ticket = (bool) get_post_meta( $post->ID, 'fcsd_acte_needs_ticket', true );
@@ -221,7 +253,21 @@ function fcsd_acte_save_meta_box( $post_id ) {
         update_post_meta( $post_id, 'fcsd_acte_color', $color );
     }
 
-        // Entrada prèvia
+    // Festiu oficial del calendari laboral
+    $is_official = isset( $_POST['fcsd_acte_is_official_holiday'] ) ? '1' : '';
+    if ( $is_official ) {
+        update_post_meta( $post_id, 'fcsd_acte_is_official_holiday', '1' );
+    } else {
+        delete_post_meta( $post_id, 'fcsd_acte_is_official_holiday' );
+    }
+
+    // Tipus de contracte (calendari laboral)
+    if ( isset( $_POST['fcsd_acte_contract_type'] ) ) {
+        $contract_type = sanitize_text_field( wp_unslash( $_POST['fcsd_acte_contract_type'] ) );
+        update_post_meta( $post_id, 'fcsd_acte_contract_type', $contract_type );
+    }
+
+    // Entrada prèvia
     $needs_ticket = isset( $_POST['fcsd_acte_needs_ticket'] ) ? '1' : '';
     if ( $needs_ticket ) {
         update_post_meta( $post_id, 'fcsd_acte_needs_ticket', '1' );
@@ -246,7 +292,9 @@ function fcsd_acte_get_calendar_item( $post ) {
     $end_raw   = get_post_meta( $post_id, 'fcsd_acte_end', true );
     $scope     = get_post_meta( $post_id, 'fcsd_acte_scope', true );
     $color     = get_post_meta( $post_id, 'fcsd_acte_color', true );
-    $needs_ticket = (bool) get_post_meta( $post_id, 'fcsd_acte_needs_ticket', true );
+    $needs_ticket   = (bool) get_post_meta( $post_id, 'fcsd_acte_needs_ticket', true );
+    $is_official    = (bool) get_post_meta( $post_id, 'fcsd_acte_is_official_holiday', true );
+    $contract_type  = get_post_meta( $post_id, 'fcsd_acte_contract_type', true );
 
     if ( empty( $scope ) ) {
         $scope = 'general';
@@ -260,16 +308,18 @@ function fcsd_acte_get_calendar_item( $post ) {
     }
 
     return array(
-        'ID'        => $post_id,
-        'title'     => $title,
-        'permalink' => $permalink,
-        'excerpt'   => $excerpt,
-        'thumb'     => $thumb_url,
-        'start_ts'  => $start_ts,
-        'end_ts'    => $end_ts,
-        'scope'     => $scope,
-        'color'     => $color,
-        'needs_ticket' => $needs_ticket,
+        'ID'                 => $post_id,
+        'title'              => $title,
+        'permalink'          => $permalink,
+        'excerpt'            => $excerpt,
+        'thumb'              => $thumb_url,
+        'start_ts'           => $start_ts,
+        'end_ts'             => $end_ts,
+        'scope'              => $scope,
+        'color'              => $color,
+        'needs_ticket'       => $needs_ticket,
+        'is_official_holiday'=> $is_official,
+        'contract_type'      => $contract_type,
     );
 }
 
@@ -347,7 +397,6 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null ) {
 
     return $result;
 }
-
 
 /**
  * Petita helper: distribueix actes per dies (Y-m-d => [items]).
@@ -596,6 +645,17 @@ function fcsd_actes_render_admin_calendar_page() {
                             $day_actes  = isset( $actes_days[ $day_key ] ) ? $actes_days[ $day_key ] : array();
                             $is_today   = ( $day_key === $today_key );
 
+                            // Dia amb algun festiu oficial?
+                            $has_official = false;
+                            if ( ! empty( $day_actes ) ) {
+                                foreach ( $day_actes as $item ) {
+                                    if ( ! empty( $item['is_official_holiday'] ) ) {
+                                        $has_official = true;
+                                        break;
+                                    }
+                                }
+                            }
+
                             // Ordenamos los actes del día por hora de inicio.
                             if ( ! empty( $day_actes ) ) {
                                 echo '<div class="fcsd-actes-calendar__dots">';
@@ -613,13 +673,15 @@ function fcsd_actes_render_admin_calendar_page() {
                                 echo '</div>';
                             }
 
-
                             $classes = array( 'fcsd-actes-calendar__day' );
                             if ( $is_today ) {
                                 $classes[] = 'is-today';
                             }
                             if ( ! empty( $day_actes ) ) {
                                 $classes[] = 'has-events';
+                            }
+                            if ( $has_official ) {
+                                $classes[] = 'fcsd-actes-calendar__day--official-holiday';
                             }
 
                             // Payload minimal para el modal JS.
@@ -633,7 +695,7 @@ function fcsd_actes_render_admin_calendar_page() {
                                 );
                             }
 
-                                                        // Link "nuevo acto" pre-rellenando la fecha.
+                            // Link "nuevo acte" pre-rellenando la fecha.
                             $new_url = add_query_arg(
                                 array(
                                     'post_type'      => 'acte',
@@ -685,14 +747,12 @@ function fcsd_actes_render_admin_calendar_page() {
                             echo '</td>';
 
 
-
                             if ( $col % 7 === 0 ) {
                                 echo '</tr><tr>';
                             }
 
                             $col++;
                         }
-
 
                         while ( ( $col - 1 ) % 7 !== 0 ) {
                             echo '<td class="fcsd-actes-calendar__day fcsd-actes-calendar__day--empty"></td>';
@@ -765,9 +825,23 @@ function fcsd_actes_render_admin_calendar_page() {
                                             $day_key    = gmdate( 'Y-m-d', $current_ts );
                                             $day_actes  = isset( $actes_days[ $day_key ] ) ? $actes_days[ $day_key ] : array();
 
+                                            // Dia amb algun festiu oficial?
+                                            $has_official = false;
+                                            if ( ! empty( $day_actes ) ) {
+                                                foreach ( $day_actes as $item ) {
+                                                    if ( ! empty( $item['is_official_holiday'] ) ) {
+                                                        $has_official = true;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
                                             $classes = array( 'fcsd-actes-calendar__day' );
                                             if ( ! empty( $day_actes ) ) {
                                                 $classes[] = 'has-events';
+                                            }
+                                            if ( $has_official ) {
+                                                $classes[] = 'fcsd-actes-calendar__day--official-holiday';
                                             }
 
                                             echo '<td class="' . esc_attr( implode( ' ', $classes ) ) . '" data-date="' . esc_attr( $day_key ) . '">';
@@ -974,7 +1048,7 @@ function fcsd_actes_ajax_quick_create() {
 
     update_post_meta( $post_id, 'fcsd_acte_start', gmdate( 'Y-m-d H:i', $start_ts ) );
     update_post_meta( $post_id, 'fcsd_acte_end', gmdate( 'Y-m-d H:i', $end_ts ) );
-    // Por defecto, los actos creados desde aquí los marcamos como "general".
+    // Por defecto, los actes creados desde aquí los marcamos como "general".
     update_post_meta( $post_id, 'fcsd_acte_scope', 'general' );
 
     $needs_ticket = isset( $_POST['needs_ticket'] ) ? '1' : '';
