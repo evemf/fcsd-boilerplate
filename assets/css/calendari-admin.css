@@ -116,6 +116,11 @@
     background: #eef6ff;
 }
 
+/* Dia amb festiu oficial (calendari laboral) */
+.fcsd-actes-calendar__day.fcsd-actes-calendar__day--official-holiday {
+    border: 2px solid #dc3545;
+}
+
 .fcsd-actes-calendar__day[data-date]:hover {
     background: #e7f0ff;
 }
@@ -354,7 +359,7 @@
     font-size: 18px;
     color: #555d66;
 }
-.fcsd-actes-modal__close:hover {
+fcsd-actes-modal__close:hover {
     color: #d63638;
 }
 
