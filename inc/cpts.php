@@ -318,3 +318,62 @@ function fcsd_persona_details_save($post_id) {
     }
 }
 add_action('save_post_persona', 'fcsd_persona_details_save');
+
+
+// -------------------------------
+// Metabox: News -> mostrar al carrusel de la Home
+// -------------------------------
+
+function fcsd_news_home_carousel_add_metabox() {
+    add_meta_box(
+        'fcsd_news_home_carousel',
+        __("Carrusel de la pàgina d'inici", 'fcsd'),
+        'fcsd_news_home_carousel_metabox_cb',
+        'news',
+        'side',
+        'high'
+    );
+}
+add_action('add_meta_boxes_news', 'fcsd_news_home_carousel_add_metabox');
+
+function fcsd_news_home_carousel_metabox_cb($post) {
+    wp_nonce_field('fcsd_news_home_carousel_save', 'fcsd_news_home_carousel_nonce');
+
+    $checked = (get_post_meta($post->ID, '_fcsd_show_in_home_carousel', true) === '1');
+    ?>
+    <p style="margin:0 0 8px 0;">
+        <?php esc_html_e('Mostrar esta notícia al carrusel de la pàgina d\'inici', 'fcsd'); ?>
+    </p>
+    <label style="display:flex; gap:8px; align-items:center;">
+        <input type="checkbox" name="fcsd_show_in_home_carousel" value="1" <?php checked($checked); ?> />
+        <?php esc_html_e('Sí, mostrar', 'fcsd'); ?>
+    </label>
+    <?php
+}
+
+function fcsd_news_home_carousel_save($post_id) {
+    // Autosave
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+
+    // Nonce
+    if (
+        !isset($_POST['fcsd_news_home_carousel_nonce']) ||
+        !wp_verify_nonce($_POST['fcsd_news_home_carousel_nonce'], 'fcsd_news_home_carousel_save')
+    ) {
+        return;
+    }
+
+    // Permisos
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+
+    update_post_meta(
+        $post_id,
+        '_fcsd_show_in_home_carousel',
+        isset($_POST['fcsd_show_in_home_carousel']) ? '1' : '0'
+    );
+}
+add_action('save_post_news', 'fcsd_news_home_carousel_save');

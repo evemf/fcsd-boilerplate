@@ -657,21 +657,6 @@ function fcsd_actes_render_admin_calendar_page() {
                             }
 
                             // Ordenamos los actes del día por hora de inicio.
-                            if ( ! empty( $day_actes ) ) {
-                                echo '<div class="fcsd-actes-calendar__dots">';
-                                foreach ( $day_actes as $item ) {
-                                    $color = ! empty( $item['color'] ) ? $item['color'] : '#0073aa';
-                                    $title = ! empty( $item['title'] ) ? $item['title'] : get_the_title( $item['ID'] );
-
-                                    echo '<div class="fcsd-actes-calendar__event">';
-                                        echo '<span class="fcsd-actes-calendar__dot"'
-                                            . ' style="background:' . esc_attr( $color ) . '"></span>';
-                                        echo '<span class="fcsd-actes-calendar__event-title">'
-                                            . esc_html( $title ) . '</span>';
-                                    echo '</div>';
-                                }
-                                echo '</div>';
-                            }
 
                             $classes = array( 'fcsd-actes-calendar__day' );
                             if ( $is_today ) {
