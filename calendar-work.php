@@ -26,8 +26,9 @@ if ( have_posts() ) :
     }
     ?>
     <main id="primary" class="site-main site-main--calendar">
+          <div class="container content py-5">  
         <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
-            <header class="page-header">
+        <header class="page-header">
                 <h1 class="page-title"><?php the_title(); ?></h1>
                 <?php if ( has_excerpt() ) : ?>
                     <div class="page-intro">
@@ -103,6 +104,103 @@ if ( have_posts() ) :
                     );
 
                     $today_key = gmdate( 'Y-m-d', $current_time );
+
+                    /**
+                     * Fallback de títol:
+                     * - Si l'Acte té títol, el mostrem.
+                     * - Si no en té, mostrem el tipus (festiu/vacances/horari_reduit/pont).
+                     * - Legacy: is_official_holiday => festiu.
+                     */
+                    $fcsd_get_item_display_title = static function( array $item ) : string {
+                        $title = isset( $item['title'] ) ? trim( (string) $item['title'] ) : '';
+                        $type  = isset( $item['acte_type'] ) ? (string) $item['acte_type'] : '';
+
+                        if ( $type === '' && ! empty( $item['is_official_holiday'] ) ) {
+                            $type = 'festiu';
+                        }
+
+                        $labels = array(
+                            'festiu'        => __( 'Festiu', 'fcsd' ),
+                            'vacances'      => __( 'Vacances', 'fcsd' ),
+                            'horari_reduit' => __( 'Horari reduït', 'fcsd' ),
+                            'pont'          => __( 'Pont', 'fcsd' ),
+                        );
+
+                        if ( $title !== '' ) {
+                            return $title;
+                        }
+
+                        return $labels[ $type ] ?? __( 'Acte', 'fcsd' );
+                    };
+
+                    $fcsd_hex_to_rgba = static function( string $hex, float $alpha = 1.0 ) : string {
+    $hex = ltrim( trim( $hex ), '#' );
+    $alpha = max( 0.0, min( 1.0, $alpha ) );
+
+    if ( strlen( $hex ) === 3 ) {
+        $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
+    }
+
+    if ( strlen( $hex ) !== 6 ) {
+        return 'rgba(0,0,0,' . $alpha . ')';
+    }
+
+    $r = hexdec( substr( $hex, 0, 2 ) );
+    $g = hexdec( substr( $hex, 2, 2 ) );
+    $b = hexdec( substr( $hex, 4, 2 ) );
+
+    return "rgba($r,$g,$b,$alpha)";
+};
+
+                    /**
+                     * Prepara el payload (JSON) dels actes d'un dia per al modal de consulta del frontend.
+                     * Nota: en calendari laboral normalment només hi haurà 1 acte/dia, però ho deixem com a llista.
+                     */
+                    $fcsd_build_day_events_payload = static function( array $day_items ) use ( $fcsd_get_item_display_title ) : array {
+                        $out = array();
+                        foreach ( $day_items as $item ) {
+                            $id = ! empty( $item['ID'] ) ? (int) $item['ID'] : 0;
+                            $start_ts = ! empty( $item['start_ts'] ) ? (int) $item['start_ts'] : 0;
+                            $end_ts   = ! empty( $item['end_ts'] ) ? (int) $item['end_ts'] : 0;
+
+                            $time_range = '';
+                            if ( $start_ts ) {
+                                $start_date = date_i18n( get_option( 'date_format' ), $start_ts );
+                                $start_time = date_i18n( get_option( 'time_format' ), $start_ts );
+                                $time_range = $start_date . ' · ' . $start_time;
+                            }
+                            if ( $end_ts && $end_ts !== $start_ts ) {
+                                $end_date = date_i18n( get_option( 'date_format' ), $end_ts );
+                                $end_time = date_i18n( get_option( 'time_format' ), $end_ts );
+                                $time_range .= ' — ' . $end_date . ' · ' . $end_time;
+                            }
+
+                            // Contingut complet (sanititzat). Si no n'hi ha, usem excerpt.
+                            $content = '';
+                            if ( $id ) {
+                                $raw_content = get_post_field( 'post_content', $id );
+                                if ( is_string( $raw_content ) && trim( $raw_content ) !== '' ) {
+                                    $content = wp_kses_post( apply_filters( 'the_content', $raw_content ) );
+                                }
+                            }
+
+                            $out[] = array(
+                                'ID'          => $id,
+                                'title'       => $fcsd_get_item_display_title( $item ),
+                                'permalink'   => $item['permalink'] ?? '',
+                                'excerpt'     => $item['excerpt'] ?? '',
+                                'content'     => $content,
+                                'thumb'       => $item['thumb'] ?? '',
+                                'time_range'  => $time_range,
+                                'color'       => $item['color'] ?? '',
+                                'needs_ticket'=> ! empty( $item['needs_ticket'] ),
+                                'acte_type'   => $item['acte_type'] ?? '',
+                                'scope'       => $item['scope'] ?? '',
+                            );
+                        }
+                        return $out;
+                    };
+
                     ?>
                     <div class="actes-calendar actes-calendar--laboral">
                         <div class="actes-calendar__toolbar">
@@ -241,13 +339,35 @@ if ( have_posts() ) :
                                         $day_key    = gmdate( 'Y-m-d', $current_ts );
                                         $day_items  = isset( $items_days[ $day_key ] ) ? $items_days[ $day_key ] : array();
 
-                                        // Dia amb algun festiu oficial al calendari laboral?
-                                        $has_official = false;
+                                        // En laboral no n'hi haurà més d'un, però fem servir el primer per pintar el fons.
+                                        $day_event_color = ( ! empty( $day_items ) && ! empty( $day_items[0]['color'] ) ) ? (string) $day_items[0]['color'] : '';
+                                        $day_style       = '';
+                                        if ( $day_event_color !== '' ) {
+                                            $day_style = 'background-color: ' . $fcsd_hex_to_rgba( $day_event_color, 0.22 ) . '; border-color: ' . $day_event_color . ';';
+                                        }
+
+                                        // Categories de dia (segons meta fcsd_acte_type)
+                                        $has_festiu         = false;
+                                        $has_vacances       = false;
+                                        $has_horari_reduit  = false;
+                                        $has_pont           = false;
                                         if ( ! empty( $day_items ) ) {
                                             foreach ( $day_items as $item ) {
+                                                $event_color = ! empty( $item['color'] ) ? (string) $item['color'] : '#0073aa';
+                                                $event_bg    = $fcsd_hex_to_rgba( $event_color, 0.12 );
+                                                // Compatibilitat: el flag legacy també marca festiu.
                                                 if ( ! empty( $item['is_official_holiday'] ) ) {
-                                                    $has_official = true;
-                                                    break;
+                                                    $has_festiu = true;
+                                                }
+                                                $t = ! empty( $item['acte_type'] ) ? $item['acte_type'] : '';
+                                                if ( $t === 'festiu' ) {
+                                                    $has_festiu = true;
+                                                } elseif ( $t === 'vacances' ) {
+                                                    $has_vacances = true;
+                                                } elseif ( $t === 'horari_reduit' ) {
+                                                    $has_horari_reduit = true;
+                                                } elseif ( $t === 'pont' ) {
+                                                    $has_pont = true;
                                                 }
                                             }
                                         }
@@ -259,11 +379,31 @@ if ( have_posts() ) :
                                         if ( ! empty( $day_items ) ) {
                                             $classes[] = 'actes-calendar__day--has-events';
                                         }
-                                        if ( $has_official ) {
+                                        // Pintem el contorn segons categoria.
+                                        // Si n'hi ha més d'una, prioritats: festiu > vacances > horari_reduit > pont.
+                                        if ( $has_pont ) {
+                                            $classes[] = 'actes-calendar__day--type-pont';
+                                        }
+                                        if ( $has_horari_reduit ) {
+                                            $classes[] = 'actes-calendar__day--type-horari-reduit';
+                                        }
+                                        if ( $has_vacances ) {
+                                            $classes[] = 'actes-calendar__day--type-vacances';
+                                        }
+                                        if ( $has_festiu ) {
+                                            $classes[] = 'actes-calendar__day--type-festiu';
+                                            // Classe antiga (CSS existent)
                                             $classes[] = 'actes-calendar__day--official-holiday';
                                         }
                                         ?>
-                                        <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+                                        <?php
+                                        $data_events = '';
+                                        if ( ! empty( $day_items ) ) {
+                                            $payload     = $fcsd_build_day_events_payload( $day_items );
+                                            $data_events = esc_attr( wp_json_encode( $payload ) );
+                                        }
+                                        ?>
+                                        <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php echo $day_style ? ' style="' . esc_attr( $day_style ) . '"' : ''; ?><?php echo ! empty( $day_items ) ? ' data-day="' . esc_attr( $day_key ) . '" data-events="' . $data_events . '"' : ''; ?>>
                                             <div class="actes-calendar__day-number">
                                                 <?php echo (int) $day; ?>
                                             </div>
@@ -276,16 +416,19 @@ if ( have_posts() ) :
                                                         if ( ! empty( $item['start_ts'] ) ) {
                                                             $time_label = date_i18n( get_option( 'time_format' ), (int) $item['start_ts'] );
                                                         }
+                                                        $display_title = $fcsd_get_item_display_title( $item );
+                                                        $tooltip_text  = $display_title;
+                                                        if ( $time_label !== '' ) {
+                                                            $tooltip_text .= "\n" . $time_label;
+                                                        }
                                                         ?>
-                                                        <li class="actes-calendar__event">
-                                                            <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="actes-calendar__event-link">
-                                                                <?php if ( $time_label ) : ?>
-                                                                    <span class="actes-calendar__event-time">
-                                                                        <?php echo esc_html( $time_label ); ?>
-                                                                    </span>
-                                                                <?php endif; ?>
+                                                        <li class="actes-calendar__event"
+    style="border-left-color: <?php echo esc_attr( $event_color ); ?>;">
+
+                                                            <a href="<?php echo esc_url( $item['permalink'] ); ?>" class="actes-calendar__event-link" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo esc_attr( $tooltip_text ); ?>">
+                
                                                                 <span class="actes-calendar__event-title">
-                                                                    <?php echo esc_html( $item['title'] ); ?>
+                                                                    <?php echo esc_html( $display_title ); ?>
                                                                 </span>
                                                             </a>
                                                         </li>
@@ -329,7 +472,7 @@ if ( have_posts() ) :
                                             </h2>
                                         </header>
                                         <div class="actes-calendar__grid actes-calendar__grid--compact">
-                                            <div class="actes-calendar__weekdays">
+                                            <div class="actes-calendar__week-days">
                                                 <?php foreach ( $week_days_short as $label ) : ?>
                                                     <div class="actes-calendar__week-day">
                                                         <?php echo esc_html( $label ); ?>
@@ -347,13 +490,34 @@ if ( have_posts() ) :
                                                     $day_key    = gmdate( 'Y-m-d', $current_ts );
                                                     $day_items  = isset( $items_days[ $day_key ] ) ? $items_days[ $day_key ] : array();
 
-                                                    // Dia amb algun festiu oficial al calendari laboral?
-                                                    $has_official = false;
+                                                    // En laboral no n'hi haurà més d'un, però fem servir el primer per pintar el fons.
+                                                    $day_event_color = ( ! empty( $day_items ) && ! empty( $day_items[0]['color'] ) ) ? (string) $day_items[0]['color'] : '';
+                                                    $day_style       = '';
+                                                    if ( $day_event_color !== '' ) {
+                                                        $day_style = 'background-color: ' . $fcsd_hex_to_rgba( $day_event_color, 0.22 ) . '; border-color: ' . $day_event_color . ';';
+                                                    }
+
+                                                    // Categories de dia (segons meta fcsd_acte_type)
+                                                    $has_festiu         = false;
+                                                    $has_vacances       = false;
+                                                    $has_horari_reduit  = false;
+                                                    $has_pont           = false;
                                                     if ( ! empty( $day_items ) ) {
                                                         foreach ( $day_items as $item ) {
+                                                            $event_color = ! empty( $item['color'] ) ? (string) $item['color'] : '#0073aa';
+                                                            $event_bg    = $fcsd_hex_to_rgba( $event_color, 0.12 );
                                                             if ( ! empty( $item['is_official_holiday'] ) ) {
-                                                                $has_official = true;
-                                                                break;
+                                                                $has_festiu = true;
+                                                            }
+                                                            $t = ! empty( $item['acte_type'] ) ? $item['acte_type'] : '';
+                                                            if ( $t === 'festiu' ) {
+                                                                $has_festiu = true;
+                                                            } elseif ( $t === 'vacances' ) {
+                                                                $has_vacances = true;
+                                                            } elseif ( $t === 'horari_reduit' ) {
+                                                                $has_horari_reduit = true;
+                                                            } elseif ( $t === 'pont' ) {
+                                                                $has_pont = true;
                                                             }
                                                         }
                                                     }
@@ -365,21 +529,53 @@ if ( have_posts() ) :
                                                     if ( ! empty( $day_items ) ) {
                                                         $classes[] = 'actes-calendar__day--has-events';
                                                     }
-                                                    if ( $has_official ) {
+                                                    if ( $has_pont ) {
+                                                        $classes[] = 'actes-calendar__day--type-pont';
+                                                    }
+                                                    if ( $has_horari_reduit ) {
+                                                        $classes[] = 'actes-calendar__day--type-horari-reduit';
+                                                    }
+                                                    if ( $has_vacances ) {
+                                                        $classes[] = 'actes-calendar__day--type-vacances';
+                                                    }
+                                                    if ( $has_festiu ) {
+                                                        $classes[] = 'actes-calendar__day--type-festiu';
                                                         $classes[] = 'actes-calendar__day--official-holiday';
                                                     }
                                                     ?>
-                                                    <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
+                                                    <?php
+                                                    $data_events = '';
+                                                    if ( ! empty( $day_items ) ) {
+                                                        $payload     = $fcsd_build_day_events_payload( $day_items );
+                                                        $data_events = esc_attr( wp_json_encode( $payload ) );
+                                                    }
+                                                    ?>
+                                                    <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"<?php echo $day_style ? ' style="' . esc_attr( $day_style ) . '"' : ''; ?><?php echo ! empty( $day_items ) ? ' data-day="' . esc_attr( $day_key ) . '" data-events="' . $data_events . '"' : ''; ?>>
                                                         <div class="actes-calendar__day-number">
                                                             <?php echo (int) $day; ?>
                                                         </div>
                                                         <?php if ( ! empty( $day_items ) ) : ?>
                                                             <div class="actes-calendar__dots">
                                                                 <?php foreach ( $day_items as $item ) : ?>
+                                                                    <?php 
+                                                                        $display_title = $fcsd_get_item_display_title( $item );
+$dot_color     = ! empty( $item['color'] ) ? (string) $item['color'] : '#0073aa';
+
+                                                                        ?>
+                                                                    <?php $display_title = $fcsd_get_item_display_title( $item ); ?>
+                                                                    <?php
+                                                                    $tooltip_text = $display_title;
+                                                                    if ( ! empty( $item['start_ts'] ) ) {
+                                                                        $tooltip_text .= "\n" . date_i18n( get_option( 'time_format' ), (int) $item['start_ts'] );
+                                                                    }
+                                                                    ?>
                                                                     <span class="actes-calendar__dot"
-                                                                          tabindex="0"
-                                                                          aria-label="<?php echo esc_attr( $item['title'] ); ?>"
-                                                                          title="<?php echo esc_attr( $item['title'] ); ?>"></span>
+      style="background: <?php echo esc_attr( $dot_color ); ?>;"
+      tabindex="0"
+      data-bs-toggle="tooltip"
+      data-bs-placement="top"
+      aria-label="<?php echo esc_attr( $tooltip_text ); ?>"
+      title="<?php echo esc_attr( $tooltip_text ); ?>"></span>
                                                                 <?php endforeach; ?>
                                                             </div>
                                                         <?php endif; ?>
@@ -404,8 +600,24 @@ if ( have_posts() ) :
                         <?php endif; ?>
                     </div>
                 <?php endif; ?>
-            </div>
+            </div>                                
         </article>
+         </div>
+
+        <!-- Modal de consulta (frontend) -->
+        <div class="modal fade" id="fcsdActesDayModal" tabindex="-1" aria-labelledby="fcsdActesDayModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="fcsdActesDayModalLabel"><?php esc_html_e( 'Actes del dia', 'fcsd' ); ?></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo esc_attr__( 'Tancar', 'fcsd' ); ?>"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Omplert via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
     <?php
 endif;

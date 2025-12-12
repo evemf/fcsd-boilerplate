@@ -121,6 +121,25 @@
     border: 2px solid #dc3545;
 }
 
+/* Categories de dia (segons fcsd_acte_type)
+ * Prioritats: pont < horari_reduit < vacances < festiu
+ */
+.fcsd-actes-calendar__day.fcsd-actes-calendar__day--type-pont {
+    border: 2px solid #198754;
+}
+
+.fcsd-actes-calendar__day.fcsd-actes-calendar__day--type-horari-reduit {
+    border: 2px solid #0d6efd;
+}
+
+.fcsd-actes-calendar__day.fcsd-actes-calendar__day--type-vacances {
+    border: 2px solid #ffc107;
+}
+
+.fcsd-actes-calendar__day.fcsd-actes-calendar__day--type-festiu {
+    border: 2px solid #dc3545;
+}
+
 .fcsd-actes-calendar__day[data-date]:hover {
     background: #e7f0ff;
 }

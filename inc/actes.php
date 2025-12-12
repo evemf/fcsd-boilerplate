@@ -8,8 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * - CPT "acte" per gestionar actes generals i laborals.
  * - Cada acte té: títol, descripció (cos), data inici/fi, color, tipus (general/laboral) i imatge destacada.
- * - Helpers per obtenir actes per rang de dates i per tipus.
+ * - Helpers per obtenir actes per rang de dates i per tipus (+ contracte).
  * - Pantalla d'admin "Calendari d'actes" amb vista mensual / anual.
+ * - Pantalla d'admin "Llista d'actes" (agrupats per any/mes) amb cerca + bulk.
  */
 
 /**
@@ -76,8 +77,17 @@ function fcsd_acte_render_meta_box( $post ) {
     $scope  = get_post_meta( $post->ID, 'fcsd_acte_scope', true ); // general | laboral
 
     // Nous metadades
+    // IMPORTANT: mantenim el meta antic (fcsd_acte_is_official_holiday) per compatibilitat,
+    // però el camp principal passa a ser “fcsd_acte_type”.
+    $acte_type     = get_post_meta( $post->ID, 'fcsd_acte_type', true ); // festiu | vacances | horari_reduit | pont
     $is_official   = (bool) get_post_meta( $post->ID, 'fcsd_acte_is_official_holiday', true );
     $contract_type = get_post_meta( $post->ID, 'fcsd_acte_contract_type', true );
+
+    // Compatibilitat: si ve d'antics registres amb checkbox de festiu,
+    // i no hi ha tipus, assumim "festiu".
+    if ( empty( $acte_type ) && $is_official ) {
+        $acte_type = 'festiu';
+    }
 
     if ( empty( $scope ) ) {
         $scope = 'general';
@@ -111,6 +121,32 @@ function fcsd_acte_render_meta_box( $post ) {
                     <?php esc_html_e( 'Acte laboral (només treballadors @fcsd.org)', 'fcsd' ); ?>
                 </option>
             </select>
+        </p>
+
+        <p>
+            <label for="fcsd_acte_type">
+                <?php esc_html_e( 'Categoria del dia (calendari laboral)', 'fcsd' ); ?>
+            </label><br>
+            <select name="fcsd_acte_type" id="fcsd_acte_type">
+                <option value="" <?php selected( $acte_type, '' ); ?>>
+                    <?php esc_html_e( '— Cap —', 'fcsd' ); ?>
+                </option>
+                <option value="festiu" <?php selected( $acte_type, 'festiu' ); ?>>
+                    <?php esc_html_e( 'Festiu', 'fcsd' ); ?>
+                </option>
+                <option value="vacances" <?php selected( $acte_type, 'vacances' ); ?>>
+                    <?php esc_html_e( 'Vacances', 'fcsd' ); ?>
+                </option>
+                <option value="horari_reduit" <?php selected( $acte_type, 'horari_reduit' ); ?>>
+                    <?php esc_html_e( 'Horari reduït', 'fcsd' ); ?>
+                </option>
+                <option value="pont" <?php selected( $acte_type, 'pont' ); ?>>
+                    <?php esc_html_e( 'Pont', 'fcsd' ); ?>
+                </option>
+            </select>
+            <span class="description">
+                <?php esc_html_e( 'Serveix per pintar el contorn del dia al calendari (p. ex. “Festiu: Any nou”).', 'fcsd' ); ?>
+            </span>
         </p>
 
         <p>
@@ -154,8 +190,8 @@ function fcsd_acte_render_meta_box( $post ) {
                        id="fcsd_acte_is_official_holiday"
                        name="fcsd_acte_is_official_holiday"
                        value="1"
-                    <?php checked( $is_official ); ?> />
-                <?php esc_html_e( 'Festiu oficial del calendari laboral', 'fcsd' ); ?>
+                    <?php checked( $is_official || 'festiu' === $acte_type ); ?> />
+                <?php esc_html_e( 'Festiu oficial del calendari laboral (compatibilitat)', 'fcsd' ); ?>
             </label>
         </p>
 
@@ -253,10 +289,31 @@ function fcsd_acte_save_meta_box( $post_id ) {
         update_post_meta( $post_id, 'fcsd_acte_color', $color );
     }
 
-    // Festiu oficial del calendari laboral
-    $is_official = isset( $_POST['fcsd_acte_is_official_holiday'] ) ? '1' : '';
-    if ( $is_official ) {
+    // Categoria del dia (tipus d'acte) – nou camp
+    if ( isset( $_POST['fcsd_acte_type'] ) ) {
+        $acte_type = sanitize_text_field( wp_unslash( $_POST['fcsd_acte_type'] ) );
+        if ( ! in_array( $acte_type, array( '', 'festiu', 'vacances', 'horari_reduit', 'pont' ), true ) ) {
+            $acte_type = '';
+        }
+
+        if ( $acte_type === '' ) {
+            delete_post_meta( $post_id, 'fcsd_acte_type' );
+        } else {
+            update_post_meta( $post_id, 'fcsd_acte_type', $acte_type );
+        }
+    }
+
+    // Festiu oficial del calendari laboral (meta LEGACY)
+    // - Si el nou tipus és “festiu”, mantenim aquest meta per no trencar codi antic.
+    // - Si el nou tipus és un altre (o buit), eliminem el meta legacy.
+    $legacy_is_official = isset( $_POST['fcsd_acte_is_official_holiday'] ) ? '1' : '';
+    $saved_type         = get_post_meta( $post_id, 'fcsd_acte_type', true );
+    if ( $saved_type === 'festiu' || $legacy_is_official ) {
         update_post_meta( $post_id, 'fcsd_acte_is_official_holiday', '1' );
+        // Si només han marcat el checkbox legacy, també ho reflectim al nou camp.
+        if ( empty( $saved_type ) ) {
+            update_post_meta( $post_id, 'fcsd_acte_type', 'festiu' );
+        }
     } else {
         delete_post_meta( $post_id, 'fcsd_acte_is_official_holiday' );
     }
@@ -293,8 +350,19 @@ function fcsd_acte_get_calendar_item( $post ) {
     $scope     = get_post_meta( $post_id, 'fcsd_acte_scope', true );
     $color     = get_post_meta( $post_id, 'fcsd_acte_color', true );
     $needs_ticket   = (bool) get_post_meta( $post_id, 'fcsd_acte_needs_ticket', true );
+    $acte_type      = get_post_meta( $post_id, 'fcsd_acte_type', true ); // festiu | vacances | horari_reduit | pont
     $is_official    = (bool) get_post_meta( $post_id, 'fcsd_acte_is_official_holiday', true );
     $contract_type  = get_post_meta( $post_id, 'fcsd_acte_contract_type', true );
+
+    // Compatibilitat: si només tenim el meta legacy, assumim "festiu".
+    if ( empty( $acte_type ) && $is_official ) {
+        $acte_type = 'festiu';
+    }
+
+    // El flag legacy continua exposant-se, però ara també es deriva del nou tipus.
+    if ( $acte_type === 'festiu' ) {
+        $is_official = true;
+    }
 
     if ( empty( $scope ) ) {
         $scope = 'general';
@@ -318,6 +386,7 @@ function fcsd_acte_get_calendar_item( $post ) {
         'scope'              => $scope,
         'color'              => $color,
         'needs_ticket'       => $needs_ticket,
+        'acte_type'          => $acte_type,
         'is_official_holiday'=> $is_official,
         'contract_type'      => $contract_type,
     );
@@ -326,9 +395,10 @@ function fcsd_acte_get_calendar_item( $post ) {
 /**
  * Devuelve los actes entre 2 timestamps.
  *
- * @param int         $start_ts Timestamp inicio (UTC).
- * @param int         $end_ts   Timestamp fin (UTC).
- * @param string|null $scope    'general', 'laboral' o null para todos.
+ * @param int         $start_ts       Timestamp inicio (UTC).
+ * @param int         $end_ts         Timestamp fin (UTC).
+ * @param string|null $scope          'general', 'laboral' o null para todos.
+ * @param string|null $contract_type  '35h' | '37h' (solo si scope=laboral)
  * @return array
  */
 function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_type = null ) {
@@ -343,7 +413,6 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
         'post_type'      => 'acte',
         'post_status'    => 'publish',
         'posts_per_page' => -1,
-        // Orden principal por meta de inicio, secundario por fecha de creación.
         'meta_key'       => 'fcsd_acte_start',
         'orderby'        => array(
             'meta_value' => 'ASC',
@@ -351,7 +420,6 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
         ),
     );
 
-    // Meta query dinámica (scope + contract_type)
     $meta_query = array();
 
     if ( $scope ) {
@@ -362,7 +430,6 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
     }
 
     if ( $contract_type ) {
-        // Normalizamos a valores conocidos
         $contract_type = sanitize_text_field( $contract_type );
         if ( ! in_array( $contract_type, array( '35h', '37h' ), true ) ) {
             $contract_type = null;
@@ -377,11 +444,9 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
     }
 
     if ( ! empty( $meta_query ) ) {
-        if ( count( $meta_query ) > 1 ) {
-            $args['meta_query'] = array_merge( array( 'relation' => 'AND' ), $meta_query );
-        } else {
-            $args['meta_query'] = $meta_query;
-        }
+        $args['meta_query'] = ( count( $meta_query ) > 1 )
+            ? array_merge( array( 'relation' => 'AND' ), $meta_query )
+            : $meta_query;
     }
 
     $query  = new WP_Query( $args );
@@ -391,12 +456,10 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
         foreach ( $query->posts as $post ) {
             $item = fcsd_acte_get_calendar_item( $post );
 
-            // Item mal formado → fuera.
             if ( ! $item['start_ts'] || ! $item['end_ts'] ) {
                 continue;
             }
 
-            // Fuera de rango.
             if ( $item['end_ts'] < $start_ts || $item['start_ts'] > $end_ts ) {
                 continue;
             }
@@ -419,7 +482,6 @@ function fcsd_actes_get_in_range( $start_ts, $end_ts, $scope = null, $contract_t
 
     return $result;
 }
-
 
 /**
  * Petita helper: distribueix actes per dies (Y-m-d => [items]).
@@ -458,7 +520,6 @@ function fcsd_actes_group_by_day( $items, $range_start_ts, $range_end_ts ) {
  * Admin: registra submenú "Calendari d'actes".
  */
 function fcsd_actes_register_admin_calendar_page() {
-    // Calendari (vista mensual/anual)
     add_submenu_page(
         'edit.php?post_type=acte',
         __( 'Calendari', 'fcsd' ),
@@ -468,7 +529,6 @@ function fcsd_actes_register_admin_calendar_page() {
         'fcsd_actes_render_admin_calendar_page'
     );
 
-    // Nova vista: llista d'actes (agrupats per any/mes)
     add_submenu_page(
         'edit.php?post_type=acte',
         __( 'Llista d\'actes', 'fcsd' ),
@@ -498,6 +558,15 @@ function fcsd_actes_render_admin_calendar_page() {
     }
 
     $scope = isset( $_GET['scope'] ) && 'laboral' === $_GET['scope'] ? 'laboral' : 'general';
+
+    $contract = null;
+    if ( 'laboral' === $scope ) {
+        $contract = isset( $_GET['contract'] ) ? sanitize_text_field( wp_unslash( $_GET['contract'] ) ) : '35h';
+        if ( ! in_array( $contract, array( '35h', '37h' ), true ) ) {
+            $contract = '35h';
+        }
+    }
+    $contract_arg = ( 'laboral' === $scope && $contract ) ? array( 'contract' => $contract ) : array();
 
     $base_url = add_query_arg(
         array(
@@ -543,19 +612,25 @@ function fcsd_actes_render_admin_calendar_page() {
         <h2 class="nav-tab-wrapper">
             <?php
             $monthly_url = add_query_arg(
-                array(
-                    'view'  => 'monthly',
-                    'year'  => $year,
-                    'month' => $month,
-                    'scope' => $scope,
+                array_merge(
+                    array(
+                        'view'  => 'monthly',
+                        'year'  => $year,
+                        'month' => $month,
+                        'scope' => $scope,
+                    ),
+                    $contract_arg
                 ),
                 $base_url
             );
             $annual_url  = add_query_arg(
-                array(
-                    'view'  => 'annual',
-                    'year'  => $year,
-                    'scope' => $scope,
+                array_merge(
+                    array(
+                        'view'  => 'annual',
+                        'year'  => $year,
+                        'scope' => $scope,
+                    ),
+                    $contract_arg
                 ),
                 $base_url
             );
@@ -581,10 +656,11 @@ function fcsd_actes_render_admin_calendar_page() {
             );
             $scope_laboral_url = add_query_arg(
                 array(
-                    'scope' => 'laboral',
-                    'view'  => $view,
-                    'year'  => $year,
-                    'month' => $month,
+                    'scope'    => 'laboral',
+                    'view'     => $view,
+                    'year'     => $year,
+                    'month'    => $month,
+                    'contract' => $contract ? $contract : '35h',
                 ),
                 $base_url
             );
@@ -601,6 +677,35 @@ function fcsd_actes_render_admin_calendar_page() {
             </li>
         </ul>
 
+        <?php if ( 'laboral' === $scope ) : ?>
+            <?php
+            $contract_35_url = add_query_arg(
+                array(
+                    'scope'    => 'laboral',
+                    'contract' => '35h',
+                    'view'     => $view,
+                    'year'     => $year,
+                    'month'    => $month,
+                ),
+                $base_url
+            );
+            $contract_37_url = add_query_arg(
+                array(
+                    'scope'    => 'laboral',
+                    'contract' => '37h',
+                    'view'     => $view,
+                    'year'     => $year,
+                    'month'    => $month,
+                ),
+                $base_url
+            );
+            ?>
+            <h2 class="nav-tab-wrapper" style="margin-top:10px;">
+                <a href="<?php echo esc_url( $contract_35_url ); ?>" class="nav-tab <?php echo ( '35h' === $contract ) ? 'nav-tab-active' : ''; ?>">Contracte 35h</a>
+                <a href="<?php echo esc_url( $contract_37_url ); ?>" class="nav-tab <?php echo ( '37h' === $contract ) ? 'nav-tab-active' : ''; ?>">Contracte 37h</a>
+            </h2>
+        <?php endif; ?>
+
         <div class="fcsd-actes-calendar-admin__inner">
             <?php
             if ( 'monthly' === $view ) {
@@ -608,9 +713,9 @@ function fcsd_actes_render_admin_calendar_page() {
                 $month_start    = gmmktime( 0, 0, 0, $month, 1, $year );
                 $days_in_month  = (int) gmdate( 't', $month_start );
                 $month_end      = gmmktime( 23, 59, 59, $month, $days_in_month, $year );
-                $first_weekday  = (int) gmdate( 'N', $month_start ); // 1 (dl) - 7 (dg)
+                $first_weekday  = (int) gmdate( 'N', $month_start );
 
-                $actes      = fcsd_actes_get_in_range( $month_start, $month_end, $scope );
+                $actes      = fcsd_actes_get_in_range( $month_start, $month_end, $scope, $contract );
                 $actes_days = fcsd_actes_group_by_day( $actes, $month_start, $month_end );
 
                 $today_key = gmdate( 'Y-m-d', $current_time );
@@ -628,31 +733,41 @@ function fcsd_actes_render_admin_calendar_page() {
                     $next_month = 1;
                     $next_year++;
                 }
+
+                $prev_url = add_query_arg(
+                    array_merge(
+                        array(
+                            'view'  => 'monthly',
+                            'year'  => $prev_year,
+                            'month' => $prev_month,
+                            'scope' => $scope,
+                        ),
+                        $contract_arg
+                    ),
+                    $base_url
+                );
+
+                $next_url = add_query_arg(
+                    array_merge(
+                        array(
+                            'view'  => 'monthly',
+                            'year'  => $next_year,
+                            'month' => $next_month,
+                            'scope' => $scope,
+                        ),
+                        $contract_arg
+                    ),
+                    $base_url
+                );
                 ?>
                 <div class="fcsd-actes-calendar-admin__toolbar">
-                    <a class="button"
-                       href="<?php echo esc_url( add_query_arg( array(
-                           'view'  => 'monthly',
-                           'year'  => $prev_year,
-                           'month' => $prev_month,
-                           'scope' => $scope,
-                       ), $base_url ) ); ?>">
-                        &laquo;
-                    </a>
+                    <a class="button" href="<?php echo esc_url( $prev_url ); ?>">&laquo;</a>
 
                     <strong>
                         <?php echo esc_html( $month_names[ $month ] . ' ' . $year ); ?>
                     </strong>
 
-                    <a class="button"
-                       href="<?php echo esc_url( add_query_arg( array(
-                           'view'  => 'monthly',
-                           'year'  => $next_year,
-                           'month' => $next_month,
-                           'scope' => $scope,
-                       ), $base_url ) ); ?>">
-                        &raquo;
-                    </a>
+                    <a class="button" href="<?php echo esc_url( $next_url ); ?>">&raquo;</a>
                 </div>
 
                 <table class="widefat fixed fcsd-actes-calendar-table">
@@ -679,18 +794,28 @@ function fcsd_actes_render_admin_calendar_page() {
                             $day_actes  = isset( $actes_days[ $day_key ] ) ? $actes_days[ $day_key ] : array();
                             $is_today   = ( $day_key === $today_key );
 
-                            // Dia amb algun festiu oficial?
-                            $has_official = false;
+                            // Categories de dia (segons meta fcsd_acte_type)
+                            $has_festiu        = false;
+                            $has_vacances      = false;
+                            $has_horari_reduit = false;
+                            $has_pont          = false;
                             if ( ! empty( $day_actes ) ) {
                                 foreach ( $day_actes as $item ) {
                                     if ( ! empty( $item['is_official_holiday'] ) ) {
-                                        $has_official = true;
-                                        break;
+                                        $has_festiu = true;
+                                    }
+                                    $t = ! empty( $item['acte_type'] ) ? $item['acte_type'] : '';
+                                    if ( $t === 'festiu' ) {
+                                        $has_festiu = true;
+                                    } elseif ( $t === 'vacances' ) {
+                                        $has_vacances = true;
+                                    } elseif ( $t === 'horari_reduit' ) {
+                                        $has_horari_reduit = true;
+                                    } elseif ( $t === 'pont' ) {
+                                        $has_pont = true;
                                     }
                                 }
                             }
-
-                            // Ordenamos los actes del día por hora de inicio.
 
                             $classes = array( 'fcsd-actes-calendar__day' );
                             if ( $is_today ) {
@@ -699,11 +824,20 @@ function fcsd_actes_render_admin_calendar_page() {
                             if ( ! empty( $day_actes ) ) {
                                 $classes[] = 'has-events';
                             }
-                            if ( $has_official ) {
+                            if ( $has_pont ) {
+                                $classes[] = 'fcsd-actes-calendar__day--type-pont';
+                            }
+                            if ( $has_horari_reduit ) {
+                                $classes[] = 'fcsd-actes-calendar__day--type-horari-reduit';
+                            }
+                            if ( $has_vacances ) {
+                                $classes[] = 'fcsd-actes-calendar__day--type-vacances';
+                            }
+                            if ( $has_festiu ) {
+                                $classes[] = 'fcsd-actes-calendar__day--type-festiu';
                                 $classes[] = 'fcsd-actes-calendar__day--official-holiday';
                             }
 
-                            // Payload minimal para el modal JS.
                             $events_payload = array();
                             foreach ( $day_actes as $item ) {
                                 $events_payload[] = array(
@@ -714,7 +848,6 @@ function fcsd_actes_render_admin_calendar_page() {
                                 );
                             }
 
-                            // Link "nuevo acte" pre-rellenando la fecha.
                             $new_url = add_query_arg(
                                 array(
                                     'post_type'      => 'acte',
@@ -725,7 +858,7 @@ function fcsd_actes_render_admin_calendar_page() {
 
                             echo '<td class="' . esc_attr( implode( ' ', $classes ) ) . '"'
                                 . ' data-date="' . esc_attr( $day_key ) . '"'
-                                . ' data-events=\'' . esc_attr( wp_json_encode( $events_payload ) ) . '\'>';
+                                . ' data-events=\'' . esc_attr( wp_json_encode( $events_payload ) ) . '\'>' . "\n";
 
                                 echo '<div class="fcsd-actes-calendar__day-header">';
                                     echo '<span class="fcsd-actes-calendar__day-number">' . (int) $day . '</span>';
@@ -765,7 +898,6 @@ function fcsd_actes_render_admin_calendar_page() {
 
                             echo '</td>';
 
-
                             if ( $col % 7 === 0 ) {
                                 echo '</tr><tr>';
                             }
@@ -783,28 +915,35 @@ function fcsd_actes_render_admin_calendar_page() {
                 </table>
                 <?php
             } else {
-                // Vista anual
+                $prev_year_url = add_query_arg(
+                    array_merge(
+                        array(
+                            'view'  => 'annual',
+                            'year'  => $year - 1,
+                            'scope' => $scope,
+                        ),
+                        $contract_arg
+                    ),
+                    $base_url
+                );
+                $next_year_url = add_query_arg(
+                    array_merge(
+                        array(
+                            'view'  => 'annual',
+                            'year'  => $year + 1,
+                            'scope' => $scope,
+                        ),
+                        $contract_arg
+                    ),
+                    $base_url
+                );
                 ?>
                 <div class="fcsd-actes-calendar-admin__toolbar">
-                    <a class="button"
-                       href="<?php echo esc_url( add_query_arg( array(
-                           'view'  => 'annual',
-                           'year'  => $year - 1,
-                           'scope' => $scope,
-                       ), $base_url ) ); ?>">
-                        &laquo;
-                    </a>
+                    <a class="button" href="<?php echo esc_url( $prev_year_url ); ?>">&laquo;</a>
 
                     <strong><?php echo esc_html( $year ); ?></strong>
 
-                    <a class="button"
-                       href="<?php echo esc_url( add_query_arg( array(
-                           'view'  => 'annual',
-                           'year'  => $year + 1,
-                           'scope' => $scope,
-                       ), $base_url ) ); ?>">
-                        &raquo;
-                    </a>
+                    <a class="button" href="<?php echo esc_url( $next_year_url ); ?>">&raquo;</a>
                 </div>
 
                 <div class="fcsd-actes-calendar-admin__annual-grid">
@@ -815,7 +954,7 @@ function fcsd_actes_render_admin_calendar_page() {
                         $month_end     = gmmktime( 23, 59, 59, $m, $days_in_month, $year );
                         $first_weekday = (int) gmdate( 'N', $month_start );
 
-                        $actes      = fcsd_actes_get_in_range( $month_start, $month_end, $scope );
+                        $actes      = fcsd_actes_get_in_range( $month_start, $month_end, $scope, $contract );
                         $actes_days = fcsd_actes_group_by_day( $actes, $month_start, $month_end );
                         ?>
                         <div class="fcsd-actes-calendar-admin__month">
@@ -844,13 +983,25 @@ function fcsd_actes_render_admin_calendar_page() {
                                             $day_key    = gmdate( 'Y-m-d', $current_ts );
                                             $day_actes  = isset( $actes_days[ $day_key ] ) ? $actes_days[ $day_key ] : array();
 
-                                            // Dia amb algun festiu oficial?
-                                            $has_official = false;
+                                            // Categories de dia (segons meta fcsd_acte_type)
+                                            $has_festiu        = false;
+                                            $has_vacances      = false;
+                                            $has_horari_reduit = false;
+                                            $has_pont          = false;
                                             if ( ! empty( $day_actes ) ) {
                                                 foreach ( $day_actes as $item ) {
                                                     if ( ! empty( $item['is_official_holiday'] ) ) {
-                                                        $has_official = true;
-                                                        break;
+                                                        $has_festiu = true;
+                                                    }
+                                                    $t = ! empty( $item['acte_type'] ) ? $item['acte_type'] : '';
+                                                    if ( $t === 'festiu' ) {
+                                                        $has_festiu = true;
+                                                    } elseif ( $t === 'vacances' ) {
+                                                        $has_vacances = true;
+                                                    } elseif ( $t === 'horari_reduit' ) {
+                                                        $has_horari_reduit = true;
+                                                    } elseif ( $t === 'pont' ) {
+                                                        $has_pont = true;
                                                     }
                                                 }
                                             }
@@ -859,7 +1010,17 @@ function fcsd_actes_render_admin_calendar_page() {
                                             if ( ! empty( $day_actes ) ) {
                                                 $classes[] = 'has-events';
                                             }
-                                            if ( $has_official ) {
+                                            if ( $has_pont ) {
+                                                $classes[] = 'fcsd-actes-calendar__day--type-pont';
+                                            }
+                                            if ( $has_horari_reduit ) {
+                                                $classes[] = 'fcsd-actes-calendar__day--type-horari-reduit';
+                                            }
+                                            if ( $has_vacances ) {
+                                                $classes[] = 'fcsd-actes-calendar__day--type-vacances';
+                                            }
+                                            if ( $has_festiu ) {
+                                                $classes[] = 'fcsd-actes-calendar__day--type-festiu';
                                                 $classes[] = 'fcsd-actes-calendar__day--official-holiday';
                                             }
 
@@ -870,7 +1031,13 @@ function fcsd_actes_render_admin_calendar_page() {
                                                 echo '<div class="fcsd-actes-calendar__dots">';
                                                 foreach ( $day_actes as $item ) {
                                                     $edit_link = get_edit_post_link( $item['ID'] );
-                                                    echo '<a class="fcsd-actes-calendar__dot" href="' . esc_url( $edit_link ) . '" title="' . esc_attr( $item['title'] ) . '"></a>';
+                                                    $color     = ! empty( $item['color'] ) ? $item['color'] : '#0073aa';
+
+                                                    echo '<a class="fcsd-actes-calendar__dot"'
+                                                        . ' href="' . esc_url( $edit_link ) . '"'
+                                                        . ' title="' . esc_attr( $item['title'] ) . '"'
+                                                        . ' style="background:' . esc_attr( $color ) . '"'
+                                                        . '></a>';
                                                 }
                                                 echo '</div>';
                                             }
@@ -945,13 +1112,13 @@ function fcsd_actes_render_admin_list_page() {
             }
         }
 
-        // Redirigir para evitar re-POST al refrescar + mostrar aviso
         $redirect = add_query_arg(
             array(
                 'post_type'     => 'acte',
                 'page'          => 'fcsd-actes-list',
                 'year'          => isset( $_POST['year'] ) ? (int) $_POST['year'] : (int) gmdate( 'Y', current_time( 'timestamp' ) ),
                 'scope'         => isset( $_POST['scope'] ) ? sanitize_key( wp_unslash( $_POST['scope'] ) ) : 'general',
+                'contract'      => isset( $_POST['contract'] ) ? sanitize_text_field( wp_unslash( $_POST['contract'] ) ) : '',
                 'orderby'       => isset( $_POST['orderby'] ) ? sanitize_key( wp_unslash( $_POST['orderby'] ) ) : 'date',
                 'order'         => isset( $_POST['order'] ) ? sanitize_key( wp_unslash( $_POST['order'] ) ) : 'asc',
                 's'             => isset( $_POST['s'] ) ? sanitize_text_field( wp_unslash( $_POST['s'] ) ) : '',
@@ -964,25 +1131,31 @@ function fcsd_actes_render_admin_list_page() {
         wp_safe_redirect( $redirect );
         exit;
     }
-    
+
     $current_time = current_time( 'timestamp' );
 
-    // Ordenació (per defecte: data asc)
     $order_by = isset( $_GET['orderby'] ) ? sanitize_key( $_GET['orderby'] ) : 'date';
     $order    = ( isset( $_GET['order'] ) && 'desc' === strtolower( $_GET['order'] ) ) ? 'desc' : 'asc';
-
-    // Normalitza valors admesos
     if ( ! in_array( $order_by, array( 'date', 'title' ), true ) ) {
         $order_by = 'date';
     }
 
-    // Any seleccionat (per defecte, any actual)
     $year = isset( $_GET['year'] ) ? (int) $_GET['year'] : (int) gmdate( 'Y', $current_time );
 
-    // Àmbit (general / laboral), igual que al calendari
-    $scope = ( isset( $_GET['scope'] ) && 'laboral' === $_GET['scope'] ) ? 'laboral' : 'general';
-    $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
-    // URL base d'aquesta pantalla
+    $scope  = ( isset( $_GET['scope'] ) && 'laboral' === $_GET['scope'] ) ? 'laboral' : 'general';
+
+    // ✅ FIX: unslash + sanitize
+    $search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+
+    $contract = null;
+    if ( 'laboral' === $scope ) {
+        $contract = isset( $_GET['contract'] ) ? sanitize_text_field( wp_unslash( $_GET['contract'] ) ) : '35h';
+        if ( ! in_array( $contract, array( '35h', '37h' ), true ) ) {
+            $contract = '35h';
+        }
+    }
+    $contract_arg = ( 'laboral' === $scope && $contract ) ? array( 'contract' => $contract ) : array();
+
     $base_url = add_query_arg(
         array(
             'post_type' => 'acte',
@@ -991,7 +1164,6 @@ function fcsd_actes_render_admin_list_page() {
         admin_url( 'edit.php' )
     );
 
-    // URLs per canviar de vista (calendari vs llista)
     $calendar_base_url = add_query_arg(
         array(
             'post_type' => 'acte',
@@ -1000,79 +1172,87 @@ function fcsd_actes_render_admin_list_page() {
         admin_url( 'edit.php' )
     );
 
-    $month  = (int) gmdate( 'n', $current_time ); // només per enllaç "vista mensual"
+    $month  = (int) gmdate( 'n', $current_time );
     $monthly_url = add_query_arg(
-        array(
-            'view'  => 'monthly',
-            'year'  => $year,
-            'month' => $month,
-            'scope' => $scope,
+        array_merge(
+            array(
+                'view'  => 'monthly',
+                'year'  => $year,
+                'month' => $month,
+                'scope' => $scope,
+            ),
+            $contract_arg
         ),
         $calendar_base_url
     );
     $annual_url = add_query_arg(
-        array(
-            'view'  => 'annual',
-            'year'  => $year,
-            'scope' => $scope,
+        array_merge(
+            array(
+                'view'  => 'annual',
+                'year'  => $year,
+                'scope' => $scope,
+            ),
+            $contract_arg
         ),
         $calendar_base_url
     );
     $list_url = add_query_arg(
-        array(
-            'year'  => $year,
-            'scope' => $scope,
+        array_merge(
+            array(
+                'year'  => $year,
+                'scope' => $scope,
+                'orderby' => $order_by,
+                'order'   => $order,
+                's'       => $search,
+            ),
+            $contract_arg
         ),
         $base_url
     );
 
-    // Rang de l'any sencer
     $year_start = gmmktime( 0, 0, 0, 1, 1, $year );
     $year_end   = gmmktime( 23, 59, 59, 12, 31, $year );
 
-    // Recuperem tots els actes d'aquest any + àmbit
     $actes = function_exists( 'fcsd_actes_get_in_range' )
-        ? fcsd_actes_get_in_range( $year_start, $year_end, $scope )
+        ? fcsd_actes_get_in_range( $year_start, $year_end, $scope, $contract )
         : array();
 
-    // Ordenem el conjunt d'actes abans d'agrupar per mesos
     usort( $actes, function( $a, $b ) use ( $order_by, $order ) {
-
         if ( 'title' === $order_by ) {
             $cmp = strcasecmp( (string) $a['title'], (string) $b['title'] );
         } else {
             $cmp = ( (int) $a['start_ts'] ) <=> ( (int) $b['start_ts'] );
         }
-
         return ( 'asc' === $order ) ? $cmp : -$cmp;
     });
 
-        if ( $search ) {
-            $actes = array_filter( $actes, function( $item ) use ( $search ) {
-                return stripos( $item['title'], $search ) !== false;
-            });
-        }
+    // ✅ FIX: búsqueda robusta (acentos) + no falla con slashes
+    if ( $search !== '' ) {
+        $actes = array_filter( $actes, function( $item ) use ( $search ) {
+            $haystack = (string) ( $item['title'] ?? '' );
+            if ( function_exists( 'mb_stripos' ) ) {
+                return mb_stripos( $haystack, $search, 0, 'UTF-8' ) !== false;
+            }
+            return stripos( $haystack, $search ) !== false;
+        } );
+    }
 
-    // Agrupem per mes
     $by_month = array();
     foreach ( $actes as $item ) {
         $start_ts = (int) $item['start_ts'];
         if ( ! $start_ts ) {
             continue;
         }
-
         $item_year  = (int) gmdate( 'Y', $start_ts );
         if ( $item_year !== $year ) {
             continue;
         }
-
         $item_month = (int) gmdate( 'n', $start_ts );
         if ( ! isset( $by_month[ $item_month ] ) ) {
             $by_month[ $item_month ] = array();
         }
         $by_month[ $item_month ][] = $item;
     }
-
     ksort( $by_month );
 
     $month_names = array(
@@ -1091,32 +1271,82 @@ function fcsd_actes_render_admin_list_page() {
     );
 
     $prev_year_url = add_query_arg(
-        array(
-            'year'  => $year - 1,
-            'scope' => $scope,
+        array_merge(
+            array(
+                'year'    => $year - 1,
+                'scope'   => $scope,
+                'orderby' => $order_by,
+                'order'   => $order,
+                's'       => $search,
+            ),
+            $contract_arg
         ),
         $base_url
     );
     $next_year_url = add_query_arg(
-        array(
-            'year'  => $year + 1,
-            'scope' => $scope,
+        array_merge(
+            array(
+                'year'    => $year + 1,
+                'scope'   => $scope,
+                'orderby' => $order_by,
+                'order'   => $order,
+                's'       => $search,
+            ),
+            $contract_arg
         ),
         $base_url
     );
 
-    // URLs per canviar d'àmbit (general / laboral)
     $scope_general_url = add_query_arg(
         array(
-            'year'  => $year,
-            'scope' => 'general',
+            'year'    => $year,
+            'scope'   => 'general',
+            'orderby' => $order_by,
+            'order'   => $order,
+            's'       => $search,
         ),
         $base_url
     );
     $scope_laboral_url = add_query_arg(
         array(
-            'year'  => $year,
-            'scope' => 'laboral',
+            'year'     => $year,
+            'scope'    => 'laboral',
+            'contract' => $contract ? $contract : '35h',
+            'orderby'  => $order_by,
+            'order'    => $order,
+            's'        => $search,
+        ),
+        $base_url
+    );
+
+    // URLs d’ordenació (manté any, scope, contracte, cerca, etc.)
+    $date_order  = ( 'date' === $order_by && 'asc' === $order ) ? 'desc' : 'asc';
+    $title_order = ( 'title' === $order_by && 'asc' === $order ) ? 'desc' : 'asc';
+
+    $date_url = add_query_arg(
+        array_merge(
+            array(
+                'year'    => $year,
+                'scope'   => $scope,
+                'orderby' => 'date',
+                'order'   => $date_order,
+                's'       => $search,
+            ),
+            $contract_arg
+        ),
+        $base_url
+    );
+
+    $title_url = add_query_arg(
+        array_merge(
+            array(
+                'year'    => $year,
+                'scope'   => $scope,
+                'orderby' => 'title',
+                'order'   => $title_order,
+                's'       => $search,
+            ),
+            $contract_arg
         ),
         $base_url
     );
@@ -1126,25 +1356,25 @@ function fcsd_actes_render_admin_list_page() {
         <h1 class="wp-heading-inline">
             <?php esc_html_e( 'Llista d\'actes', 'fcsd' ); ?>
         </h1>
-    <?php if ( isset( $_GET['bulk_done'], $_GET['bulk_action'] ) ) : ?>
-        <div class="notice notice-success is-dismissible">
-            <p>
-                <?php
-                $n = (int) $_GET['bulk_done'];
-                $a = sanitize_key( $_GET['bulk_action'] );
-                if ( 'trash' === $a ) {
-                    echo esc_html( sprintf( 'Actes moguts a la paperera: %d', $n ) );
-                } elseif ( 'delete' === $a ) {
-                    echo esc_html( sprintf( 'Actes eliminats definitivament: %d', $n ) );
-                } else {
-                    echo esc_html( sprintf( 'Acció aplicada: %d', $n ) );
-                }
-                ?>
-            </p>
-        </div>
-    <?php endif; ?>
 
-        <!-- Pestanyes de vista: mensual / anual / llista -->
+        <?php if ( isset( $_GET['bulk_done'], $_GET['bulk_action'] ) ) : ?>
+            <div class="notice notice-success is-dismissible">
+                <p>
+                    <?php
+                    $n = (int) $_GET['bulk_done'];
+                    $a = sanitize_key( $_GET['bulk_action'] );
+                    if ( 'trash' === $a ) {
+                        echo esc_html( sprintf( 'Actes moguts a la paperera: %d', $n ) );
+                    } elseif ( 'delete' === $a ) {
+                        echo esc_html( sprintf( 'Actes eliminats definitivament: %d', $n ) );
+                    } else {
+                        echo esc_html( sprintf( 'Acció aplicada: %d', $n ) );
+                    }
+                    ?>
+                </p>
+            </div>
+        <?php endif; ?>
+
         <h2 class="nav-tab-wrapper">
             <a href="<?php echo esc_url( $monthly_url ); ?>" class="nav-tab">
                 <?php esc_html_e( 'Vista mensual', 'fcsd' ); ?>
@@ -1157,7 +1387,6 @@ function fcsd_actes_render_admin_list_page() {
             </a>
         </h2>
 
-        <!-- Tabs d'àmbit general / laboral -->
         <ul class="subsubsub fcsd-actes-calendar-admin__scope-tabs">
             <li>
                 <a href="<?php echo esc_url( $scope_general_url ); ?>" class="<?php echo ( 'general' === $scope ) ? 'current' : ''; ?>">
@@ -1171,7 +1400,37 @@ function fcsd_actes_render_admin_list_page() {
             </li>
         </ul>
 
-        <!-- Navegació d'any -->
+        <?php if ( 'laboral' === $scope ) : ?>
+            <?php
+            $contract_35_url = add_query_arg(
+                array(
+                    'year'     => $year,
+                    'scope'    => 'laboral',
+                    'contract' => '35h',
+                    'orderby'  => $order_by,
+                    'order'    => $order,
+                    's'        => $search,
+                ),
+                $base_url
+            );
+            $contract_37_url = add_query_arg(
+                array(
+                    'year'     => $year,
+                    'scope'    => 'laboral',
+                    'contract' => '37h',
+                    'orderby'  => $order_by,
+                    'order'    => $order,
+                    's'        => $search,
+                ),
+                $base_url
+            );
+            ?>
+            <h2 class="nav-tab-wrapper" style="margin-top:10px;">
+                <a href="<?php echo esc_url( $contract_35_url ); ?>" class="nav-tab <?php echo ( '35h' === $contract ) ? 'nav-tab-active' : ''; ?>">Contracte 35h</a>
+                <a href="<?php echo esc_url( $contract_37_url ); ?>" class="nav-tab <?php echo ( '37h' === $contract ) ? 'nav-tab-active' : ''; ?>">Contracte 37h</a>
+            </h2>
+        <?php endif; ?>
+
         <div class="tablenav top" style="margin-top: 10px;">
             <div class="alignleft actions">
                 <a class="button" href="<?php echo esc_url( $prev_year_url ); ?>">&laquo; <?php echo esc_html( $year - 1 ); ?></a>
@@ -1181,14 +1440,49 @@ function fcsd_actes_render_admin_list_page() {
             <br class="clear" />
         </div>
 
-        <?php
-        if ( empty( $by_month ) ) :
-            ?>
+        <!-- ✅ Buscador ÚNICO (no se repite por mes) -->
+        <form method="get" style="margin:10px 0;">
+            <input type="hidden" name="post_type" value="acte">
+            <input type="hidden" name="page" value="fcsd-actes-list">
+            <input type="hidden" name="year" value="<?php echo esc_attr( $year ); ?>">
+            <input type="hidden" name="scope" value="<?php echo esc_attr( $scope ); ?>">
+            <?php if ( 'laboral' === $scope && $contract ) : ?>
+                <input type="hidden" name="contract" value="<?php echo esc_attr( $contract ); ?>">
+            <?php endif; ?>
+            <input type="hidden" name="orderby" value="<?php echo esc_attr( $order_by ); ?>">
+            <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+
+            <input type="search"
+                name="s"
+                value="<?php echo esc_attr( $search ); ?>"
+                placeholder="Filtrar per títol…"
+                style="min-width:250px;">
+
+            <button class="button">Filtrar</button>
+
+            <?php if ( $search !== '' ) : ?>
+                <a class="button" style="margin-left:6px;"
+                   href="<?php echo esc_url( add_query_arg( array_merge(
+                       array(
+                           'year'    => $year,
+                           'scope'   => $scope,
+                           'orderby' => $order_by,
+                           'order'   => $order,
+                           's'       => '',
+                       ),
+                       $contract_arg
+                   ), $base_url ) ); ?>">
+                    Netejar
+                </a>
+            <?php endif; ?>
+        </form>
+
+        <?php if ( empty( $by_month ) ) : ?>
             <p><?php esc_html_e( 'No hi ha actes per a aquest any i àmbit.', 'fcsd' ); ?></p>
-            <?php
-        else :
-            foreach ( $by_month as $month => $items ) :
-                // Ordenem per data/hora
+        <?php else : ?>
+
+            <?php foreach ( $by_month as $m => $items ) : ?>
+                <?php
                 if ( 'date' === $order_by ) {
                     usort(
                         $items,
@@ -1202,156 +1496,124 @@ function fcsd_actes_render_admin_list_page() {
                         }
                     );
                 }
-                $month_label = isset( $month_names[ $month ] ) ? $month_names[ $month ] : $month;
+
+                $month_label = isset( $month_names[ $m ] ) ? $month_names[ $m ] : $m;
                 $new_url     = add_query_arg(
                     array(
                         'post_type'      => 'acte',
-                        'fcsd_acte_date' => sprintf( '%04d-%02d-01', $year, $month ), // preomplim dia 1
+                        'fcsd_acte_date' => sprintf( '%04d-%02d-01', $year, $m ),
                     ),
                     admin_url( 'post-new.php' )
                 );
                 ?>
+
                 <h2 style="margin-top:30px;">
                     <?php echo esc_html( $month_label . ' ' . $year ); ?>
                     <a href="<?php echo esc_url( $new_url ); ?>" class="page-title-action">
                         <?php esc_html_e( 'Afegir acte', 'fcsd' ); ?>
                     </a>
                 </h2>
-                <?php
-                $search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
-                ?>
 
-                <form method="get" style="margin:10px 0;">
+                <form method="post" class="fcsd-actes-bulk-form" style="margin:10px 0;">
+                    <?php wp_nonce_field( 'fcsd_actes_bulk_action', 'fcsd_actes_bulk_nonce' ); ?>
+
                     <input type="hidden" name="post_type" value="acte">
                     <input type="hidden" name="page" value="fcsd-actes-list">
                     <input type="hidden" name="year" value="<?php echo esc_attr( $year ); ?>">
                     <input type="hidden" name="scope" value="<?php echo esc_attr( $scope ); ?>">
+                    <?php if ( 'laboral' === $scope && $contract ) : ?>
+                        <input type="hidden" name="contract" value="<?php echo esc_attr( $contract ); ?>">
+                    <?php endif; ?>
+                    <input type="hidden" name="orderby" value="<?php echo esc_attr( $order_by ); ?>">
+                    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
+                    <input type="hidden" name="s" value="<?php echo esc_attr( $search ); ?>">
 
-                    <input type="search"
-                        name="s"
-                        value="<?php echo esc_attr( $search ); ?>"
-                        placeholder="Filtrar per títol…"
-                        style="min-width:250px;">
+                    <div class="tablenav top">
+                        <div class="alignleft actions bulkactions">
+                            <label class="screen-reader-text" for="fcsd-bulk-action"><?php esc_html_e( 'Accions massives', 'fcsd' ); ?></label>
+                            <select name="bulk_action" id="fcsd-bulk-action">
+                                <option value=""><?php esc_html_e( 'Accions massives', 'fcsd' ); ?></option>
+                                <option value="trash"><?php esc_html_e( 'Moure a la paperera', 'fcsd' ); ?></option>
+                                <option value="delete"><?php esc_html_e( 'Eliminar definitivament', 'fcsd' ); ?></option>
+                            </select>
 
-                    <button class="button">Filtrar</button>
-                </form>
+                            <button type="submit" class="button action" id="fcsd-actes-bulk-apply">
+                                <?php esc_html_e( 'Aplicar', 'fcsd' ); ?>
+                            </button>
+                        </div>
+                        <br class="clear" />
+                    </div>
 
-                <form method="post" class="fcsd-actes-bulk-form" style="margin:10px 0;">
-    <?php wp_nonce_field( 'fcsd_actes_bulk_action', 'fcsd_actes_bulk_nonce' ); ?>
-
-    <input type="hidden" name="post_type" value="acte">
-    <input type="hidden" name="page" value="fcsd-actes-list">
-    <input type="hidden" name="year" value="<?php echo esc_attr( $year ); ?>">
-    <input type="hidden" name="scope" value="<?php echo esc_attr( $scope ); ?>">
-    <input type="hidden" name="orderby" value="<?php echo esc_attr( $order_by ); ?>">
-    <input type="hidden" name="order" value="<?php echo esc_attr( $order ); ?>">
-    <input type="hidden" name="s" value="<?php echo esc_attr( $search ); ?>">
-
-    <div class="tablenav top">
-        <div class="alignleft actions bulkactions">
-            <label class="screen-reader-text" for="fcsd-bulk-action"><?php esc_html_e( 'Accions massives', 'fcsd' ); ?></label>
-            <select name="bulk_action" id="fcsd-bulk-action">
-                <option value=""><?php esc_html_e( 'Accions massives', 'fcsd' ); ?></option>
-                <option value="trash"><?php esc_html_e( 'Moure a la paperera', 'fcsd' ); ?></option>
-                <option value="delete"><?php esc_html_e( 'Eliminar definitivament', 'fcsd' ); ?></option>
-            </select>
-
-            <button type="submit" class="button action" id="fcsd-actes-bulk-apply">
-                <?php esc_html_e( 'Aplicar', 'fcsd' ); ?>
-            </button>
-        </div>
-        <br class="clear" />
-    </div>
-
-
-                <table class="widefat striped">
-                    <thead>
-                        <tr>
-                            <td class="manage-column column-cb check-column">
-                                <input type="checkbox" class="fcsd-actes-select-all" />
-                            </td>
-
-                            <?php
-                            // URLs d’ordenació (manté any, scope, cerca, etc.)
-                            $date_order  = ( 'date' === $order_by && 'asc' === $order ) ? 'desc' : 'asc';
-                            $title_order = ( 'title' === $order_by && 'asc' === $order ) ? 'desc' : 'asc';
-
-                            $date_url = add_query_arg( array(
-                                'orderby' => 'date',
-                                'order'   => $date_order,
-                            ) );
-
-                            $title_url = add_query_arg( array(
-                                'orderby' => 'title',
-                                'order'   => $title_order,
-                            ) );
-                            ?>
-
-                            <th>
-                                <a href="<?php echo esc_url( $date_url ); ?>">
-                                    <?php esc_html_e( 'Data', 'fcsd' ); ?>
-                                </a>
-                            </th>
-                            <th><?php esc_html_e( 'Hora', 'fcsd' ); ?></th>
-                            <th>
-                                <a href="<?php echo esc_url( $title_url ); ?>">
-                                    <?php esc_html_e( 'Títol', 'fcsd' ); ?>
-                                </a>
-                            </th>
-                            <th><?php esc_html_e( 'Contracte', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Festiu oficial', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Accions', 'fcsd' ); ?></th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        <?php foreach ( $items as $item ) :
-                            $start_ts    = (int) $item['start_ts'];
-                            $date_label  = $start_ts ? date_i18n( get_option( 'date_format' ), $start_ts ) : '';
-                            $time_label  = $start_ts ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
-                            $title       = ! empty( $item['title'] ) ? $item['title'] : get_the_title( $item['ID'] );
-                            $contract    = ! empty( $item['contract_type'] ) ? $item['contract_type'] : '';
-                            $is_official = ! empty( $item['is_official_holiday'] );
-
-                            $edit_link   = get_edit_post_link( $item['ID'] );
-                            $delete_link = get_delete_post_link( $item['ID'] ); // a la paperera (NO delete permanent)
-                            ?>
+                    <table class="widefat striped">
+                        <thead>
                             <tr>
-                                <th class="check-column">
-                                    <input type="checkbox"
-                                        name="acte_ids[]"
-                                        value="<?php echo esc_attr( (int) $item['ID'] ); ?>"
-                                        class="fcsd-actes-row-checkbox" />
+                                <td class="manage-column column-cb check-column">
+                                    <input type="checkbox" class="fcsd-actes-select-all" />
+                                </td>
+                                <th>
+                                    <a href="<?php echo esc_url( $date_url ); ?>">
+                                        <?php esc_html_e( 'Data', 'fcsd' ); ?>
+                                    </a>
                                 </th>
-
-                                <td><?php echo esc_html( $date_label ); ?></td>
-                                <td><?php echo esc_html( $time_label ); ?></td>
-                                <td>
-                                    <a href="<?php echo esc_url( $edit_link ); ?>">
-                                        <?php echo esc_html( $title ); ?>
+                                <th><?php esc_html_e( 'Hora', 'fcsd' ); ?></th>
+                                <th>
+                                    <a href="<?php echo esc_url( $title_url ); ?>">
+                                        <?php esc_html_e( 'Títol', 'fcsd' ); ?>
                                     </a>
-                                </td>
-                                <td><?php echo esc_html( $contract ); ?></td>
-                                <td><?php echo $is_official ? '&#10003;' : ''; ?></td>
-                                <td>
-                                    <a href="<?php echo esc_url( $edit_link ); ?>">
-                                        <?php esc_html_e( 'Editar', 'fcsd' ); ?>
-                                    </a>
-                                    |
-                                    <a href="<?php echo esc_url( $delete_link ); ?>">
-                                        <?php esc_html_e( 'Moure a la paperera', 'fcsd' ); ?>
-                                    </a>
-                                </td>
+                                </th>
+                                <th><?php esc_html_e( 'Contracte', 'fcsd' ); ?></th>
+                                <th><?php esc_html_e( 'Festiu oficial', 'fcsd' ); ?></th>
+                                <th><?php esc_html_e( 'Accions', 'fcsd' ); ?></th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody>
+                            <?php foreach ( $items as $item ) :
+                                $start_ts    = (int) $item['start_ts'];
+                                $date_label  = $start_ts ? date_i18n( get_option( 'date_format' ), $start_ts ) : '';
+                                $time_label  = $start_ts ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
+                                $title       = ! empty( $item['title'] ) ? $item['title'] : get_the_title( $item['ID'] );
+                                $contract_v  = ! empty( $item['contract_type'] ) ? $item['contract_type'] : '';
+                                $is_official = ! empty( $item['is_official_holiday'] );
+
+                                $edit_link   = get_edit_post_link( $item['ID'] );
+                                $delete_link = get_delete_post_link( $item['ID'] );
+                                ?>
+                                <tr>
+                                    <th class="check-column">
+                                        <input type="checkbox"
+                                            name="acte_ids[]"
+                                            value="<?php echo esc_attr( (int) $item['ID'] ); ?>"
+                                            class="fcsd-actes-row-checkbox" />
+                                    </th>
+
+                                    <td><?php echo esc_html( $date_label ); ?></td>
+                                    <td><?php echo esc_html( $time_label ); ?></td>
+                                    <td>
+                                        <a href="<?php echo esc_url( $edit_link ); ?>">
+                                            <?php echo esc_html( $title ); ?>
+                                        </a>
+                                    </td>
+                                    <td><?php echo esc_html( $contract_v ); ?></td>
+                                    <td><?php echo $is_official ? '&#10003;' : ''; ?></td>
+                                    <td>
+                                        <a href="<?php echo esc_url( $edit_link ); ?>">
+                                            <?php esc_html_e( 'Editar', 'fcsd' ); ?>
+                                        </a>
+                                        |
+                                        <a href="<?php echo esc_url( $delete_link ); ?>">
+                                            <?php esc_html_e( 'Moure a la paperera', 'fcsd' ); ?>
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
 
                 </form>
-                <?php
-            endforeach;
-        endif;
-        ?>
+            <?php endforeach; ?>
+
+        <?php endif; ?>
     </div>
     <?php
 }
@@ -1377,7 +1639,6 @@ function fcsd_actes_prefill_date_on_new() {
         return;
     }
 
-    // Quan es desa per primer cop, si no té data d'inici, li assignem aquesta.
     add_action(
         'save_post_acte',
         function( $post_id ) use ( $date ) {
@@ -1397,18 +1658,15 @@ add_action( 'load-post-new.php', 'fcsd_actes_prefill_date_on_new' );
 
 /**
  * Redirige la lista estándar del CPT "acte" al calendari d'actes.
- * Cuando el usuario entra en "Actes" verá directamente el calendario.
  */
 function fcsd_actes_redirect_list_to_calendar() {
     global $typenow;
 
-    // Solo afectamos al CPT "acte".
     if ( 'acte' !== $typenow ) {
         return;
     }
 
-    // Si ya estamos en la página del calendario, no hacemos nada.
-    if ( isset( $_GET['page'] ) && 'fcsd-actes-calendar' === $_GET['page'] ) {
+    if ( isset( $_GET['page'] ) && in_array( $_GET['page'], array( 'fcsd-actes-calendar', 'fcsd-actes-list' ), true ) ) {
         return;
     }
 
@@ -1443,14 +1701,14 @@ function fcsd_actes_admin_assets( $hook ) {
         'fcsd-actes-admin-style',
         get_template_directory_uri() . '/assets/css/calendari-admin.css',
         array(),
-        FCSD_VERSION
+        defined( 'FCSD_VERSION' ) ? FCSD_VERSION : null
     );
 
     wp_enqueue_script(
         'fcsd-actes-admin',
         get_template_directory_uri() . '/assets/js/calendari-admin.js',
         array( 'jquery' ),
-        FCSD_VERSION,
+        defined( 'FCSD_VERSION' ) ? FCSD_VERSION : null,
         true
     );
 
@@ -1463,7 +1721,6 @@ function fcsd_actes_admin_assets( $hook ) {
         )
     );
 }
-
 add_action( 'admin_enqueue_scripts', 'fcsd_actes_admin_assets' );
 
 /**
@@ -1525,7 +1782,6 @@ function fcsd_actes_ajax_quick_create() {
 
     update_post_meta( $post_id, 'fcsd_acte_start', gmdate( 'Y-m-d H:i', $start_ts ) );
     update_post_meta( $post_id, 'fcsd_acte_end', gmdate( 'Y-m-d H:i', $end_ts ) );
-    // Por defecto, los actes creados desde aquí los marcamos como "general".
     update_post_meta( $post_id, 'fcsd_acte_scope', 'general' );
 
     $needs_ticket = isset( $_POST['needs_ticket'] ) ? '1' : '';
@@ -1564,7 +1820,6 @@ function fcsd_actes_ajax_quick_delete() {
         );
     }
 
-    // L'enviem a la paperera
     $result = wp_trash_post( $post_id );
 
     if ( ! $result ) {

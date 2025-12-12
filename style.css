@@ -3294,6 +3294,34 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
 /* Día con eventos */
 .actes-calendar__day--has-events {
     background: #eef6ff;
+    cursor: pointer;
+}
+
+/* Tooltip (calendar) */
+.fcsd-tooltip .tooltip-inner {
+    white-space: pre-line;
+}
+
+/* Modal de consulta per dia (frontend) */
+.fcsd-day-modal__event {
+    border-left: 4px solid #0d6efd;
+    padding: 0.75rem 0.75rem 0.75rem 0.9rem;
+    border-radius: 0.75rem;
+    background: #fff;
+    border: 1px solid #e2e6ea;
+    margin-bottom: 0.75rem;
+}
+
+.fcsd-day-modal__thumb img {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    display: block;
+}
+
+.fcsd-day-modal__content :is(h1,h2,h3,h4,h5,h6) {
+    margin-top: 0.75rem;
 }
 
 /* Número del día */
@@ -3302,10 +3330,11 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
     font-size: 0.875rem;
 }
 
-/* Calendari laboral – dia amb festiu oficial */
-.actes-calendar__day.actes-calendar__day--official-holiday {
-    border: 2px solid #dc3545;
-}
+/* Calendari laboral – categories de dia (segons fcsd_acte_type)
+ * Notes:
+ * - Si hi ha més d'una categoria al mateix dia, la darrera regla que coincideix
+ *   “guanya”. Per això, deixem FESTIU al final (prioritat màxima).
+ */
 
 /* Lista de eventos dentro del día */
 .actes-calendar__events {

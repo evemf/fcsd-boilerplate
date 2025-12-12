@@ -189,6 +189,17 @@ function fcsd_enqueue_assets() {
         true
     );
 
+    // Calendari d'actes (frontend): tooltips + modal de consulta per dia.
+    if ( is_page_template( 'calendar-actes.php' ) || is_page_template( 'calendar-work.php' ) ) {
+        wp_enqueue_script(
+            'fcsd-actes-calendar-public',
+            FCSD_THEME_URI . '/assets/js/actes-calendar-public.js',
+            [ 'bootstrap' ],
+            FCSD_VERSION,
+            true
+        );
+    }
+
     // ----- Pasar los textos legales del Customizer al JS -----
     $legal_data = [
         'privacy'   => [
