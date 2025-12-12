@@ -3,6 +3,7 @@
  * Template Name: Calendari laboral d'actes
  *
  * Calendari intern d'actes laborals (només per a correus @fcsd.org), amb vista mensual / anual.
+ * + Tabs per contracte (35h / 37h) filtrant per meta fcsd_acte_contract_type.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -14,7 +15,7 @@ get_header();
 if ( have_posts() ) :
     the_post();
 
-    $user = wp_get_current_user();
+    $user     = wp_get_current_user();
     $can_view = false;
 
     if ( $user && $user->exists() ) {
@@ -49,7 +50,7 @@ if ( have_posts() ) :
 
                     $current_time = current_time( 'timestamp' );
 
-                    $view = isset( $_GET['act_view'] ) && 'annual' === $_GET['act_view'] ? 'annual' : 'monthly';
+                    $view = ( isset( $_GET['act_view'] ) && 'annual' === $_GET['act_view'] ) ? 'annual' : 'monthly';
 
                     $year  = isset( $_GET['act_year'] ) ? (int) $_GET['act_year'] : (int) gmdate( 'Y', $current_time );
                     $month = isset( $_GET['act_month'] ) ? (int) $_GET['act_month'] : (int) gmdate( 'n', $current_time );
@@ -69,6 +70,12 @@ if ( have_posts() ) :
                     $scope = 'laboral';
 
                     $base_url = get_permalink();
+
+                    // Contracte: 35h / 37h
+                    $contract = isset( $_GET['act_contract'] ) ? sanitize_text_field( wp_unslash( $_GET['act_contract'] ) ) : '37h';
+                    if ( ! in_array( $contract, array( '35h', '37h' ), true ) ) {
+                        $contract = '37h';
+                    }
 
                     $month_names = array(
                         1  => __( 'Gener', 'fcsd' ),
@@ -101,19 +108,43 @@ if ( have_posts() ) :
                         <div class="actes-calendar__toolbar">
                             <div class="actes-calendar__view-switch">
                                 <a href="<?php echo esc_url( add_query_arg( array(
-                                    'act_view'  => 'monthly',
-                                    'act_year'  => $year,
-                                    'act_month' => $month,
+                                    'act_view'     => 'monthly',
+                                    'act_year'     => $year,
+                                    'act_month'    => $month,
+                                    'act_contract' => $contract,
                                 ), $base_url ) ); ?>"
                                    class="button <?php echo ( 'monthly' === $view ) ? 'button-primary' : 'button-secondary'; ?>">
                                     <?php esc_html_e( 'Vista mensual', 'fcsd' ); ?>
                                 </a>
                                 <a href="<?php echo esc_url( add_query_arg( array(
-                                    'act_view' => 'annual',
-                                    'act_year' => $year,
+                                    'act_view'     => 'annual',
+                                    'act_year'     => $year,
+                                    'act_contract' => $contract,
                                 ), $base_url ) ); ?>"
                                    class="button <?php echo ( 'annual' === $view ) ? 'button-primary' : 'button-secondary'; ?>">
                                     <?php esc_html_e( 'Vista anual', 'fcsd' ); ?>
+                                </a>
+                            </div>
+
+                            <div class="actes-calendar__contract-switch">
+                                <a href="<?php echo esc_url( add_query_arg( array(
+                                    'act_view'     => $view,
+                                    'act_year'     => $year,
+                                    'act_month'    => $month,
+                                    'act_contract' => '37h',
+                                ), $base_url ) ); ?>"
+                                   class="button <?php echo ( '37h' === $contract ) ? 'button-primary' : 'button-secondary'; ?>">
+                                    <?php esc_html_e( 'Contracte 37h', 'fcsd' ); ?>
+                                </a>
+
+                                <a href="<?php echo esc_url( add_query_arg( array(
+                                    'act_view'     => $view,
+                                    'act_year'     => $year,
+                                    'act_month'    => $month,
+                                    'act_contract' => '35h',
+                                ), $base_url ) ); ?>"
+                                   class="button <?php echo ( '35h' === $contract ) ? 'button-primary' : 'button-secondary'; ?>">
+                                    <?php esc_html_e( 'Contracte 35h', 'fcsd' ); ?>
                                 </a>
                             </div>
 
@@ -136,9 +167,10 @@ if ( have_posts() ) :
                                     ?>
                                     <a class="button button--ghost"
                                        href="<?php echo esc_url( add_query_arg( array(
-                                           'act_view'  => 'monthly',
-                                           'act_year'  => $prev_year,
-                                           'act_month' => $prev_month,
+                                           'act_view'     => 'monthly',
+                                           'act_year'     => $prev_year,
+                                           'act_month'    => $prev_month,
+                                           'act_contract' => $contract,
                                        ), $base_url ) ); ?>">
                                         &laquo;
                                     </a>
@@ -147,17 +179,19 @@ if ( have_posts() ) :
                                     </span>
                                     <a class="button button--ghost"
                                        href="<?php echo esc_url( add_query_arg( array(
-                                           'act_view'  => 'monthly',
-                                           'act_year'  => $next_year,
-                                           'act_month' => $next_month,
+                                           'act_view'     => 'monthly',
+                                           'act_year'     => $next_year,
+                                           'act_month'    => $next_month,
+                                           'act_contract' => $contract,
                                        ), $base_url ) ); ?>">
                                         &raquo;
                                     </a>
                                 <?php else : ?>
                                     <a class="button button--ghost"
                                        href="<?php echo esc_url( add_query_arg( array(
-                                           'act_view' => 'annual',
-                                           'act_year' => $year - 1,
+                                           'act_view'     => 'annual',
+                                           'act_year'     => $year - 1,
+                                           'act_contract' => $contract,
                                        ), $base_url ) ); ?>">
                                         &laquo;
                                     </a>
@@ -166,8 +200,9 @@ if ( have_posts() ) :
                                     </span>
                                     <a class="button button--ghost"
                                        href="<?php echo esc_url( add_query_arg( array(
-                                           'act_view' => 'annual',
-                                           'act_year' => $year + 1,
+                                           'act_view'     => 'annual',
+                                           'act_year'     => $year + 1,
+                                           'act_contract' => $contract,
                                        ), $base_url ) ); ?>">
                                         &raquo;
                                     </a>
@@ -183,7 +218,8 @@ if ( have_posts() ) :
                             $month_end      = gmmktime( 23, 59, 59, $month, $days_in_month, $year );
                             $first_weekday  = (int) gmdate( 'N', $month_start ); // 1 (dl) - 7 (dg)
 
-                            $items      = fcsd_actes_get_in_range( $month_start, $month_end, $scope );
+                            // FILTRADO POR CONTRATO (35h/37h)
+                            $items      = fcsd_actes_get_in_range( $month_start, $month_end, $scope, $contract );
                             $items_days = fcsd_actes_group_by_day( $items, $month_start, $month_end );
                             ?>
 
@@ -282,7 +318,8 @@ if ( have_posts() ) :
                                     $month_end     = gmmktime( 23, 59, 59, $m, $days_in_month, $year );
                                     $first_weekday = (int) gmdate( 'N', $month_start );
 
-                                    $items      = fcsd_actes_get_in_range( $month_start, $month_end, $scope );
+                                    // FILTRADO POR CONTRATO (35h/37h)
+                                    $items      = fcsd_actes_get_in_range( $month_start, $month_end, $scope, $contract );
                                     $items_days = fcsd_actes_group_by_day( $items, $month_start, $month_end );
                                     ?>
                                     <section class="actes-calendar__month-card">

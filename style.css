@@ -3583,3 +3583,13 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
 .actes-calendar__dots .actes-calendar__dot:nth-child(even) {
     background: #46b450;
 }
+
+.actes-calendar__contract-switch {
+    display: inline-flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+.actes-calendar__contract-switch .button {
+    font-size: 0.875rem;
+    padding: 0.35rem 0.75rem;
+}

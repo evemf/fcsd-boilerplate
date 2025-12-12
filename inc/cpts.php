@@ -377,3 +377,109 @@ function fcsd_news_home_carousel_save($post_id) {
     );
 }
 add_action('save_post_news', 'fcsd_news_home_carousel_save');
+
+// -------------------------------------------
+// Admin list: columna con checkbox (News -> Home carousel)
+// -------------------------------------------
+
+// 1) Añadir columna
+add_filter('manage_edit-news_columns', function ($columns) {
+    // Inserta la columna antes de "date" si existe
+    $new = [];
+    foreach ($columns as $key => $label) {
+        if ($key === 'date') {
+            $new['fcsd_home_carousel'] = __('Home', 'fcsd');
+        }
+        $new[$key] = $label;
+    }
+    if (!isset($new['fcsd_home_carousel'])) {
+        $new['fcsd_home_carousel'] = __('Home', 'fcsd');
+    }
+    return $new;
+});
+
+// 2) Pintar checkbox
+add_action('manage_news_posts_custom_column', function ($column, $post_id) {
+    if ($column !== 'fcsd_home_carousel') return;
+
+    $checked = (get_post_meta($post_id, '_fcsd_show_in_home_carousel', true) === '1');
+    $nonce = wp_create_nonce('fcsd_toggle_news_carousel_' . $post_id);
+
+    echo '<label style="display:inline-flex;align-items:center;gap:8px;">';
+    echo '<input type="checkbox" class="fcsd-news-home-toggle" data-post-id="' . esc_attr($post_id) . '" data-nonce="' . esc_attr($nonce) . '" ' . checked($checked, true, false) . ' />';
+    echo '<span class="screen-reader-text">' . esc_html__('Mostrar en Home', 'fcsd') . '</span>';
+    echo '</label>';
+}, 10, 2);
+
+// 3) AJAX handler para guardar el meta
+add_action('wp_ajax_fcsd_toggle_news_home_carousel', function () {
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error(['message' => 'forbidden'], 403);
+    }
+
+    $post_id = isset($_POST['post_id']) ? (int) $_POST['post_id'] : 0;
+    $value   = isset($_POST['value']) ? sanitize_text_field($_POST['value']) : '0';
+    $nonce   = isset($_POST['nonce']) ? sanitize_text_field($_POST['nonce']) : '';
+
+    if (!$post_id || !wp_verify_nonce($nonce, 'fcsd_toggle_news_carousel_' . $post_id)) {
+        wp_send_json_error(['message' => 'bad_nonce'], 400);
+    }
+
+    if (get_post_type($post_id) !== 'news') {
+        wp_send_json_error(['message' => 'bad_post_type'], 400);
+    }
+
+    update_post_meta($post_id, '_fcsd_show_in_home_carousel', ($value === '1') ? '1' : '0');
+    wp_send_json_success(['saved' => true]);
+});
+
+// 4) JS inline solo en la pantalla del listado de News
+add_action('admin_footer-edit.php', function () {
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (!$screen || $screen->id !== 'edit-news') return;
+    ?>
+    <script>
+      (function () {
+        const els = document.querySelectorAll('.fcsd-news-home-toggle');
+        if (!els.length) return;
+
+        els.forEach(cb => {
+          cb.addEventListener('change', async (e) => {
+            const el = e.currentTarget;
+            const postId = el.dataset.postId;
+            const nonce  = el.dataset.nonce;
+            const value  = el.checked ? '1' : '0';
+
+            el.disabled = true;
+
+            try {
+              const form = new URLSearchParams();
+              form.set('action', 'fcsd_toggle_news_home_carousel');
+              form.set('post_id', postId);
+              form.set('nonce', nonce);
+              form.set('value', value);
+
+              const res = await fetch(ajaxurl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                body: form.toString()
+              });
+
+              const json = await res.json();
+              if (!json || !json.success) {
+                // rollback visual
+                el.checked = !el.checked;
+                alert('No s’ha pogut desar el canvi.');
+              }
+            } catch (err) {
+              el.checked = !el.checked;
+              alert('Error de xarxa al desar el canvi.');
+            } finally {
+              el.disabled = false;
+            }
+          });
+        });
+      })();
+    </script>
+    <?php
+});
