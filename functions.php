@@ -189,6 +189,24 @@ function fcsd_enqueue_assets() {
         true
     );
 
+    // Home (front-page) enhancements
+    if ( is_front_page() ) {
+        wp_enqueue_style(
+            'fcsd-home',
+            FCSD_THEME_URI . '/assets/css/home.css',
+            [ 'bootstrap', 'fcsd-style' ],
+            FCSD_VERSION
+        );
+
+        wp_enqueue_script(
+            'fcsd-home',
+            FCSD_THEME_URI . '/assets/js/home.js',
+            [],
+            FCSD_VERSION,
+            true
+        );
+    }
+
     // Calendari d'actes (frontend): tooltips + modal de consulta per dia.
     if ( is_page_template( 'calendar-actes.php' ) || is_page_template( 'calendar-work.php' ) ) {
         wp_enqueue_script(

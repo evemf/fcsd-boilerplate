@@ -1,0 +1,316 @@
+/*
+ * Home (front-page) – split hero video + welcome overlay + flipping coins grid
+ */
+
+/* Prevent any accidental horizontal scrolling on home */
+body.home, html{
+  overflow-x: clip;
+}
+
+/* --- Split hero: full-bleed slices with welcome block in the middle --- */
+.fcsd-hero-split{
+  /* full bleed */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  background: #000;
+
+  /* The media inside the hero is absolutely positioned.
+     If this section has no height, the next section will ride up and
+     visually sit on top of the video.
+
+     Give the hero an explicit height so it owns its space in the layout. */
+  position: relative;
+  height: clamp(420px, 70vh, 620px);
+  overflow: hidden;
+}
+
+/* (Legacy) split-slice styles were used when the hero was built from two
+   stacked slices. Keep them harmless, but the current front-page uses a
+   single full-bleed media wrapper. */
+.fcsd-hero-split__slice{ position: relative; overflow: hidden; }
+.fcsd-hero-split__slice--top{ height: 100%; position: relative; }
+
+
+/* media wrapper keeps iframe large enough to cover slice */
+.fcsd-hero-split__media{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.fcsd-hero-split__media iframe{
+  /* Responsive "cover" for YouTube iframe.
+     Uses the classic min-width/min-height trick for 16:9. */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  min-width: 177.78vh; /* 16/9 = 1.777... */
+  min-height: 56.25vw; /* 9/16 = 0.5625 */
+  transform: translate(-50%, -50%);
+  border: 0;
+}
+
+/* If you ever re-enable the old split-slice version, these transforms would
+   crop each slice. Disabled for the single-iframe hero. */
+/*
+.fcsd-hero-split__slice--top .fcsd-hero-split__media iframe{ transform: translate(-50%, -42%); }
+.fcsd-hero-split__slice--bottom .fcsd-hero-split__media iframe{ transform: translate(-50%, -58%); }
+*/
+
+
+/* --- Welcome block that “cuts” the video --- */
+.fcsd-home-welcome{
+  /* Overlay content on top of the hero video.
+     If you removed the welcome block in your latest version, this is simply
+     unused and won't affect layout. */
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  padding: 22px 0;
+  background: transparent;
+}
+
+.fcsd-home-welcome::before{
+  /* subtle dark scrim behind the panel for contrast without “white background” */
+  content:"";
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0,.35);
+  pointer-events:none;
+}
+
+.fcsd-home-welcome__panel{
+  position: relative;
+  border-radius: 18px;
+  padding: clamp(18px, 2.8vw, 28px);
+  color: #fff;
+  background: rgba(255,255,255,0); /* becomes white on press/hover */
+  border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(6px);
+  transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+}
+
+.fcsd-home-welcome__panel:hover,
+.fcsd-home-welcome__panel:focus,
+.fcsd-home-welcome__panel:active,
+.fcsd-home-welcome__panel.is-pressed{
+  background: rgba(255,255,255,.96);
+  color: #111;
+  border-color: rgba(0,0,0,.08);
+  transform: translateY(-1px);
+}
+
+.fcsd-home-welcome__kicker{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  font-size: 12px;
+  opacity: .95;
+}
+
+.fcsd-home-welcome__kicker h1 {
+  margin: 10px 0 0;
+  font-weight: 800;
+  line-height: 1.05;
+  font-size: clamp(20px, 2vw, 36px);
+}
+
+.fcsd-home-welcome__lead{
+  margin: 12px 0 0;
+  max-width: 70ch;
+  font-size: clamp(16px, 1.6vw, 20px);
+  opacity: .95;
+}
+
+.fcsd-home-welcome__actions{
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fcsd-home-welcome__hint{
+  margin: 14px 0 0;
+  font-size: 13px;
+  opacity: .9;
+}
+
+/* Make outline-light readable when panel is NOT pressed */
+.fcsd-home-welcome__panel .btn-outline-light{
+  border-color: rgba(255,255,255,.65);
+  color: #fff;
+}
+.fcsd-home-welcome__panel:hover .btn-outline-light,
+.fcsd-home-welcome__panel.is-pressed .btn-outline-light,
+.fcsd-home-welcome__panel:active .btn-outline-light{
+  border-color: rgba(0,0,0,.25);
+  color: #111;
+}
+
+/* On very small screens, remove the “hint” to reduce clutter */
+@media (max-width: 420px){
+  .fcsd-home-welcome__hint{ display:none; }
+}
+
+/* --- Flipping coins grid --- */
+.fcsd-ambits{
+  padding-top: 2.25rem;
+}
+
+.fcsd-ambits__grid{
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+}
+
+@media (max-width: 991.98px){
+  .fcsd-ambits__grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 575.98px){
+  .fcsd-ambits__grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.fcsd-ambit{
+  text-align: center;
+}
+
+.fcsd-ambit__title{
+  margin: 0 0 10px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.fcsd-coin{
+  --coin: #2a2a2a;
+  width: clamp(120px, 16vw, 170px);
+  height: clamp(120px, 16vw, 170px);
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  perspective: 1000px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.fcsd-coin:focus-visible{
+  outline: 3px solid rgba(13,110,253,.6);
+  outline-offset: 4px;
+}
+
+.fcsd-coin__inner{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.2,.8,.2,1);
+}
+
+.fcsd-ambit:hover .fcsd-coin__inner,
+.fcsd-ambit.is-flipped .fcsd-coin__inner{
+  transform: rotateY(180deg);
+}
+
+.fcsd-coin__face{
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  backface-visibility: hidden;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.fcsd-coin__front{
+  background: var(--coin);
+  box-shadow:
+    0 14px 35px rgba(0,0,0,.18),
+    inset 0 0 0 2px rgba(255,255,255,.28);
+}
+
+/* subtle “coin” highlights */
+.fcsd-coin__front::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,.55), rgba(255,255,255,0) 55%),
+    radial-gradient(circle at 70% 75%, rgba(0,0,0,.22), rgba(0,0,0,0) 55%);
+  mix-blend-mode: soft-light;
+}
+
+.fcsd-coin__back{
+  background: #fff;
+  transform: rotateY(180deg);
+  box-shadow:
+    0 14px 35px rgba(0,0,0,.18),
+    inset 0 0 0 2px rgba(0,0,0,.08);
+}
+
+.fcsd-coin__back::before{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(0,0,0,.08), rgba(0,0,0,0) 55%),
+    radial-gradient(circle at 70% 80%, rgba(0,0,0,.08), rgba(0,0,0,0) 55%);
+}
+
+.fcsd-coin__link{
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  text-decoration: none;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,.18);
+  color: #111;
+}
+
+.fcsd-coin__link:hover{
+  text-decoration: none;
+  border-color: rgba(0,0,0,.4);
+}
+
+.fcsd-coin__link i{
+  font-size: 18px;
+}
+
+/* Make hover-only interactions still work on touchscreens */
+@media (hover: none){
+  .fcsd-ambit:hover .fcsd-coin__inner{ transform: none; }
+}
+
+
+/* Responsive grid requirements:
+   - small: 2 per row
+   - mobile: 1 per row
+*/
+@media (max-width: 768px){
+  .fcsd-ambits__grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 420px){
+  .fcsd-ambits__grid{
+    grid-template-columns: 1fr;
+  }
+  .fcsd-coin{
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
