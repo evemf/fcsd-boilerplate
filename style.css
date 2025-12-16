@@ -246,8 +246,35 @@ body.theme-dark .bg-accent {
   --bs-btn-color: var(--text);
   --bs-btn-border-color: var(--panel-border-strong);
   --bs-btn-hover-bg: var(--panel-border-strong);
-  --bs-btn-hover-color: var(--text-inverse);
+  /* En dark mode, --text-inverse es oscuro; mantenemos legibilidad */
+  --bs-btn-hover-color: var(--text);
   --bs-btn-hover-border-color: var(--panel-border-strong);
+
+  /* Estado activo/seleccionado (especialmente útil para filtros tipo "btn-check") */
+  --bs-btn-active-bg: var(--accent);
+  --bs-btn-active-border-color: var(--accent);
+  --bs-btn-active-color: var(--text-inverse);
+}
+
+/* Ajustes extra en modo oscuro para outline-secondary (hover/active/disabled) */
+body.theme-dark .btn-outline-secondary {
+  --bs-btn-color: var(--text);
+  --bs-btn-border-color: var(--panel-border-strong);
+  --bs-btn-hover-bg: var(--panel-border);
+  --bs-btn-hover-border-color: var(--panel-border-strong);
+  --bs-btn-hover-color: var(--text);
+  --bs-btn-active-bg: var(--accent);
+  --bs-btn-active-border-color: var(--accent);
+  --bs-btn-active-color: var(--text-inverse);
+  --bs-btn-disabled-color: var(--text-muted);
+  --bs-btn-disabled-border-color: var(--panel-border-strong);
+}
+
+/* Placeholders legibles en dark mode */
+body.theme-dark .form-control::placeholder,
+body.theme-dark .form-select::placeholder {
+  color: var(--text-muted);
+  opacity: 0.9;
 }
 
 /* Botones de contraste especiales (por si los usas en header/hero) */
@@ -3675,5 +3702,8 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
 
     /* scrollbar discreta */
     .fcsd-home-news-strip__inner::-webkit-scrollbar{ height:8px; }
-    .fcsd-home-news-strip__inner::-webkit-scrollbar-thumb{ background:#2a2a2a; border-radius:999px; }
+    /* En tema claro, un gris limpio usando tokens ya definidos */
+    .fcsd-home-news-strip__inner::-webkit-scrollbar-thumb{ background:var(--panel-border); border-radius:999px; }
+    /* En tema oscuro, mantenemos un thumb más contrastado */
+    body.theme-dark .fcsd-home-news-strip__inner::-webkit-scrollbar-thumb{ background:var(--panel-border-strong); }
 

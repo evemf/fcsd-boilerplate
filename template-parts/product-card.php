@@ -104,9 +104,7 @@ $default_size  = ! empty( $size_options )  ? $size_options[0]           : '';
                                        class="d-none js-product-size-input"
                                        value="<?php echo esc_attr( $size ); ?>"
                                        <?php checked( $is_default ); ?> />
-                                <span class="d-inline-flex align-items-center justify-content-center rounded-pill border px-3 py-1 small">
-                                    <?php echo esc_html( $size ); ?>
-                                </span>
+                                <span><?php echo esc_html( $size ); ?></span>
                             </label>
                         <?php endforeach; ?>
                     </div>

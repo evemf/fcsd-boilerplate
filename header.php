@@ -19,7 +19,7 @@ $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
 ?>
 
 <!-- Top bar -->
-<div class="topbar py-1 small">
+<div class="topbar py-2 small">
   <div class="container-fluid d-flex align-items-center justify-content-between">
 
     <!-- Enlaces de la franja superior -->

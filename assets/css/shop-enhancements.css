@@ -5,11 +5,90 @@ Version: 2.0.0
 */
 
 /* ==============================
+   NAVBAR DE FILTROS (Archive)
+   ============================== */
+
+.shop-filters {
+  background-color: var(--panel) !important;
+  border: 1px solid var(--panel-border);
+}
+
+body.theme-dark .shop-filters {
+  background-color: var(--panel) !important;
+  border-color: var(--panel-border-strong);
+}
+
+/* Inputs y selects dentro del navbar (asegura contraste en dark) */
+.shop-filters .form-control,
+.shop-filters .form-select {
+  background-color: var(--panel);
+}
+
+body.theme-dark .shop-filters .form-control,
+body.theme-dark .shop-filters .form-select {
+  background-color: var(--panel-strong);
+  border-color: var(--panel-border-strong);
+  color: var(--text);
+}
+
+body.theme-dark .shop-filters .form-control::placeholder {
+  color: var(--text-muted);
+  opacity: 0.9;
+}
+
+/* Botones/píldoras de color (btn-check + label) */
+body.theme-dark .shop-filters .btn-outline-secondary {
+  background-color: transparent;
+}
+
+body.theme-dark .shop-filters .btn-check:checked + .btn-outline-secondary,
+body.theme-dark .shop-filters .btn-outline-secondary.active {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-inverse);
+}
+
+/* Icono del toggler visible en dark */
+body.theme-dark .shop-filters .navbar-toggler {
+  border-color: var(--panel-border-strong);
+}
+
+body.theme-dark .shop-filters .navbar-toggler-icon {
+  filter: invert(1) grayscale(1);
+}
+
+/* ==============================
    PRODUCTOS - CARDS EN GRID
    ============================== */
 
 .product-card {
   margin-bottom: var(--space-xl);
+}
+
+/*
+  En el markup actual del grid (template-parts/product-card.php) la tarjeta usa
+  la clase .product-card (no .product-card-inner). Le damos el mismo tratamiento
+  visual que el resto de superficies para asegurar legibilidad en theme-dark.
+*/
+.shop-archive .product-card {
+  background-color: var(--panel);
+  color: var(--bs-body-color);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-md);
+  padding: 16px;
+}
+
+body.theme-dark .shop-archive .product-card {
+  background-color: var(--panel-strong);
+  border-color: var(--panel-border-strong);
+}
+
+/* Texto auxiliar (p.ej. "Preu especial...") con contraste correcto en dark */
+body.theme-dark .shop-archive .product-card .text-muted,
+body.theme-dark .shop-archive .product-card small {
+  color: var(--text-muted) !important;
+  opacity: 1;
 }
 
 .product-card-inner {
@@ -181,7 +260,6 @@ body.theme-dark .fcsd-color-swatch input:checked + .fcsd-color-circle {
   min-width: 44px;
   padding: 8px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--panel-border);
   background-color: transparent;
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -212,10 +290,6 @@ body.theme-dark .fcsd-color-swatch input:checked + .fcsd-color-circle {
 
 .fcsd-size-pill input:checked ~ * {
   font-weight: var(--font-weight-semibold);
-}
-
-body.theme-dark .fcsd-size-pill {
-  border-color: var(--panel-border-strong);
 }
 
 body.theme-dark .fcsd-size-pill:hover {

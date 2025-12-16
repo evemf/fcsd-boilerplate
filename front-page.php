@@ -51,7 +51,7 @@ $carousel_news = new WP_Query([
         <?php echo wp_kses_post(
           fcsd_get_option(
             'home_intro',
-            __( 'Acompanyem persones i famílies perquè puguin construir una vida més autònoma, plena i connectada.', 'fcsd' )
+            __( 'Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada.', 'fcsd' )
           )
         ); ?>
       </h1>

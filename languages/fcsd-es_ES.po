@@ -343,7 +343,7 @@ msgid "Benvingudes i benvinguts"
 msgstr ""
 
 #: front-page.php:70
-msgid "Acompanyem persones i famílies perquè puguin construir una vida més autònoma, plena i connectada."
+msgid "Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada."
 msgstr ""
 
 #: front-page.php:76

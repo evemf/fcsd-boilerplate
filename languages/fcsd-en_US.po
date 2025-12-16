@@ -344,8 +344,8 @@ msgid "Benvingudes i benvinguts"
 msgstr "Welcome"
 
 #: front-page.php:70
-msgid "Acompanyem persones i famílies perquè puguin construir una vida més autònoma, plena i connectada."
-msgstr "We support people and families so they can build a more independent, fulfilling, and connected life."
+msgid "Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada."
+msgstr "We support people with SD to build a more independent, fulfilling, and connected life."
 
 #: front-page.php:76
 #: inc/template-tags.php:6
