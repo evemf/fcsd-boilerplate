@@ -1,15 +1,21 @@
 (function () {
-  if (typeof window.fcsdLegalModals === 'undefined') {
+  // El tema localiza datos como `fcsdLegalData` (desde functions.php).
+  // Versiones anteriores podían usar `fcsdLegalModals`. Aceptamos ambos.
+  var data = window.fcsdLegalData || window.fcsdLegalModals;
+  if (typeof data === 'undefined') {
     return;
   }
-
-  var data     = window.fcsdLegalModals;
   var overlay  = document.getElementById('fcsd-legal-overlay');
   if (!overlay) return;
 
   var titleEl  = overlay.querySelector('#fcsd-legal-title');
   var bodyEl   = overlay.querySelector('.legal-modal__body');
   var closeBtn = overlay.querySelector('.legal-modal__close');
+
+  // Accesibilidad: etiqueta del botón de cierre si llega por localización.
+  if (data.closeText && closeBtn) {
+    closeBtn.setAttribute('aria-label', data.closeText);
+  }
 
   function openModal(key) {
     var item = data[key];
@@ -20,7 +26,7 @@
 
     overlay.hidden = false;
     document.body.classList.add('legal-modal-open');
-    closeBtn.focus();
+    if (closeBtn) closeBtn.focus();
   }
 
   function closeModal() {

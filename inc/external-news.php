@@ -80,7 +80,7 @@ function fcsd_news_category_badge_html( $post_id ) {
 
 /** Render del listado dentro del contenido de la página "actualitat". */
 add_filter('the_content', function( $content ) {
-    if ( is_admin() || ! is_page( 'actualitat' ) || ! in_the_loop() || ! is_main_query() ) {
+    if ( is_admin() || ! is_page( array_values( fcsd_slug_map()['news_page'] ) ) || ! in_the_loop() || ! is_main_query() ) {
         return $content;
     }
 

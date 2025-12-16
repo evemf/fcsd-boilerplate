@@ -20,6 +20,22 @@ if ( ! defined( 'FCSD_THEME_URI' ) ) {
     define( 'FCSD_THEME_URI', get_template_directory_uri() );
 }
 
+
+// --------------------------------------------------
+// i18n (sin plugins) – infraestructura
+// --------------------------------------------------
+require_once FCSD_THEME_DIR . '/inc/i18n.php';
+require_once FCSD_THEME_DIR . '/inc/slugs.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-content.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-router.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-links.php';
+
+// Forzar locale del frontend según el idioma detectado
+add_filter('locale', function($locale){
+    if ( is_admin() ) return $locale;
+    return fcsd_current_locale();
+}, 20);
+
 // --------------------------------------------------
 // Soporte del tema
 // --------------------------------------------------
@@ -228,9 +244,15 @@ function fcsd_enqueue_assets() {
             'title'   => get_theme_mod( 'fcsd_legal_cookies_title', __( 'Política de cookies', 'fcsd' ) ),
             'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_cookies_content', '' ) ),
         ],
+        // En el Customizer este bloque se llama "notice" (Avís legal),
+        // pero en el footer se usa data-legal-key="legal".
         'legal'     => [
-            'title'   => get_theme_mod( 'fcsd_legal_legal_title', __( 'Avís legal', 'fcsd' ) ),
-            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_legal_content', '' ) ),
+            'title'   => get_theme_mod( 'fcsd_legal_notice_title', __( 'Avís legal', 'fcsd' ) ),
+            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_notice_content', '' ) ),
+        ],
+        'copyright' => [
+            'title'   => get_theme_mod( 'fcsd_legal_copyright_title', __( 'Copyright', 'fcsd' ) ),
+            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_copyright_content', '' ) ),
         ],
         'closeText' => __( 'Tancar', 'fcsd' ),
     ];
@@ -361,3 +383,5 @@ function fcsd_ajax_load_more_products() {
 }
 add_action( 'wp_ajax_fcsd_load_more_products', 'fcsd_ajax_load_more_products' );
 add_action( 'wp_ajax_nopriv_fcsd_load_more_products', 'fcsd_ajax_load_more_products' );
+// Flush rewrites on theme switch (needed for language prefix routing)
+add_action('after_switch_theme', function(){ flush_rewrite_rules(); });

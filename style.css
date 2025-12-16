@@ -18,7 +18,7 @@ Text Domain: fcsd
   --accent-hover: #cc7e26;
   --accent-light: rgba(231, 161, 90, 0.12);
   --accent-subtle: rgba(231, 161, 90, 0.35);
-  --accent-medium: rgba(231, 161, 90, 0.4);
+  --accent-medium: rgba(231, 161, 90, 0.9);
   --accent-strong: rgba(231, 161, 90, 0.6);
 
   /* === COLORES DE ESTADO === */
@@ -40,6 +40,7 @@ Text Domain: fcsd
   --panel-strong: #181b21;
   --panel-border: #e1e4ea;
   --panel-border-strong: #2c3038;
+  --panel-light: #e4e4c6;
 
   /* === SOMBRAS === */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -3624,12 +3625,13 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
 }
 
 
-.fcsd-home-news-strip{ background-color: var(--accent); }
-    .fcsd-home-news-strip__inner{
+.fcsd-home-news-strip{ background-color: var(--panel-light); }
+.theme-dark .fcsd-home-news-strip{ background-color: var(--panel-border); } 
+.fcsd-home-news-strip__inner{
       display:flex;
       gap:28px;
       align-items:flex-start;
-      padding:18px 22px;
+      padding: 8px 22px;
       overflow-x:auto;
       scroll-snap-type:x mandatory;
       -webkit-overflow-scrolling:touch;
@@ -3644,7 +3646,7 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
       gap:12px;
       align-items:flex-start;
       text-decoration:none;
-      color:#fff;
+      color: var(--text-inverse);
     }
     .fcsd-home-news-strip__thumb{
       width:64px;
@@ -3664,8 +3666,11 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
       font-size:14px;
       line-height:1.15;
       font-weight:700;
-      color:#fff;
+      color:var(--text);
       max-width:240px;
+    }
+    .theme-dark  .fcsd-home-news-strip__title{
+      color:var(--panel-light);
     }
 
     /* scrollbar discreta */

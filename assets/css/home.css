@@ -12,15 +12,108 @@ body.home, html{
   /* full bleed */
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  background: #000;
-
-  /* The media inside the hero is absolutely positioned.
-     If this section has no height, the next section will ride up and
-     visually sit on top of the video.
-
-     Give the hero an explicit height so it owns its space in the layout. */
   position: relative;
-  height: clamp(420px, 70vh, 620px);
+}
+
+/* --- Hero banner (estil “Vodafone”) --- */
+.fcsd-hero-split.fcsd-hero-banner{
+  background: #F6F7F8;
+  padding: clamp(18px, 3vw, 34px) 0;
+  overflow: clip;
+}
+
+.fcsd-hero-banner__inner{
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  gap: clamp(16px, 2.2vw, 26px);
+  align-items: stretch;
+}
+
+.fcsd-hero-banner__copy{
+  background: rgba(255,255,255,.98);
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 18px;
+  padding: clamp(18px, 2.6vw, 30px);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+}
+.theme-dark .fcsd-hero-banner__copy {
+    background: var(--bg-contrast);
+}
+.fcsd-hero-banner__title{
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  font-size: clamp(28px, 3.3vw, 46px);
+}
+.theme-dark .fcsd-hero-banner__title{
+  color: var(--text);
+}
+
+.fcsd-hero-banner__actions{
+  margin-top: 18px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fcsd-hero-banner__media{
+  border-radius: 18px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  /* vermell amb una mica de volum (sense “card” fixa) */
+  background: radial-gradient(120% 140% at 30% 20%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 45%),
+              linear-gradient(135deg, #E7A15A 0%, #cc9157 55%, #E7A15A 100%);
+}
+
+/* “stripes” suaus, per recordar el recurs gràfic del bàner de la captura */
+.fcsd-hero-banner__media::before{
+  content: "";
+  position: absolute;
+  inset: -40% -20% auto -20%;
+  height: 180%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,.10) 0,
+    rgba(255,255,255,.10) 12px,
+    rgba(255,255,255,0) 12px,
+    rgba(255,255,255,0) 28px
+  );
+  opacity: .28;
+  transform: rotate(-6deg);
+  pointer-events: none;
+}
+
+.fcsd-hero-banner__media-inner{
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: clamp(240px, 28vw, 380px);
+  padding: clamp(8px, 0.8vw, 10px);
+}
+
+.fcsd-hero-banner__media-inner iframe{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 14px;
+  background: #000;
+}
+
+@media (max-width: 991.98px){
+  .fcsd-hero-banner__inner{ grid-template-columns: 1fr; }
+  .fcsd-hero-banner__media-inner{ min-height: 220px; }
+}
+
+/* --- (Legacy) split hero video --- */
+.fcsd-hero-split:not(.fcsd-hero-banner){
+  background: #000;
+  /* Mantén una proporció 16:9 perquè el vídeo es vegi sencer (sense retallar).
+     El reproductor de YouTube ja farà el "letterbox" necessari. */
+  aspect-ratio: 16 / 9;
+  height: auto;
   overflow: hidden;
 }
 
@@ -32,6 +125,7 @@ body.home, html{
 
 
 /* media wrapper keeps iframe large enough to cover slice */
+
 .fcsd-hero-split__media{
   position: absolute;
   inset: 0;
@@ -39,16 +133,11 @@ body.home, html{
 }
 
 .fcsd-hero-split__media iframe{
-  /* Responsive "cover" for YouTube iframe.
-     Uses the classic min-width/min-height trick for 16:9. */
+  /* Mostrar el vídeo complet (sense "cover" que el retalli). */
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-width: 177.78vh; /* 16/9 = 1.777... */
-  min-height: 56.25vw; /* 9/16 = 0.5625 */
-  transform: translate(-50%, -50%);
   border: 0;
 }
 
@@ -60,37 +149,18 @@ body.home, html{
 */
 
 
-/* --- Welcome block that “cuts” the video --- */
-.fcsd-home-welcome{
-  /* Overlay content on top of the hero video.
-     If you removed the welcome block in your latest version, this is simply
-     unused and won't affect layout. */
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  z-index: 2;
-  padding: 22px 0;
-  background: transparent;
-}
-
-.fcsd-home-welcome::before{
-  /* subtle dark scrim behind the panel for contrast without “white background” */
-  content:"";
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,.35);
-  pointer-events:none;
+/* --- Welcome block (ara va sota el vídeo, no a sobre) --- */
+.fcsd-home-welcome-block{
+  padding: 22px 0 8px;
 }
 
 .fcsd-home-welcome__panel{
   position: relative;
   border-radius: 18px;
   padding: clamp(18px, 2.8vw, 28px);
-  color: #fff;
-  background: rgba(255,255,255,0); /* becomes white on press/hover */
-  border: 1px solid rgba(255,255,255,.18);
-  backdrop-filter: blur(6px);
+  color: #111;
+  background: rgba(255,255,255,.96);
+  border: 1px solid rgba(0,0,0,.08);
   transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
 }
 
@@ -98,9 +168,9 @@ body.home, html{
 .fcsd-home-welcome__panel:focus,
 .fcsd-home-welcome__panel:active,
 .fcsd-home-welcome__panel.is-pressed{
-  background: rgba(255,255,255,.96);
+  background: rgba(255,255,255,1);
   color: #111;
-  border-color: rgba(0,0,0,.08);
+  border-color: rgba(0,0,0,.12);
   transform: translateY(-1px);
 }
 
@@ -313,4 +383,44 @@ body.home, html{
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+.fcsd-ambits--dark{
+  position: relative;
+  /* deja aire para que el “corte” no se coma el título */
+  padding-top: clamp(3rem, 4vw, 5rem);
+}
+
+/* La pieza se dibuja por encima del inicio de la sección oscura */
+.fcsd-wave-cut{
+  --wave-h: 64px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: var(--wave-h);
+  transform: translateY(calc(-1 * var(--wave-h)));
+  pointer-events: none;
+  z-index: 2;
+}
+
+.fcsd-wave-cut svg{
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fcsd-wave-cut__fill{
+  fill: #F6F7F8; 
+}
+/* Trazo en accent */
+.fcsd-wave-cut__stroke{
+  fill: none;
+  stroke: var(--color-accent, #f0a04b);
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+}
+
+@media (max-width: 768px){
+  .fcsd-wave-cut{ --wave-h: 48px; }
 }

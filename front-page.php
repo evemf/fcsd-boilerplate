@@ -38,51 +38,69 @@ $carousel_news = new WP_Query([
 
 
 <!-- ======================================================
-     HERO VIDEO – FULL WIDTH + AUTOPLAY (UN SOLO IFRAME)
+     HERO – estil “bàner” (com a la captura de Vodafone)
+     - Columna esquerra: text + CTA
+     - Columna dreta: media (iframe YouTube)
 ====================================================== -->
-<section class="fcsd-hero-split" aria-label="<?php esc_attr_e( 'Vídeo destacat', 'fcsd' ); ?>">
+<section class="fcsd-hero-split fcsd-hero-banner" aria-label="<?php esc_attr_e( 'Destacat', 'fcsd' ); ?>">
+  <div class="container fcsd-hero-banner__inner">
 
-  <!-- VIDEO -->
-  <div class="fcsd-hero-split__media">
-    <iframe
-      src="https://www.youtube.com/embed/2LGbN02uhiE?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1&loop=1&playlist=2LGbN02uhiE"
-      title="Vídeo Fundació"
-      frameborder="0"
-      allow="autoplay; encrypted-media; picture-in-picture"
-      referrerpolicy="strict-origin-when-cross-origin"
-      allowfullscreen>
-    </iframe>
-  </div>
+    <!-- Copy -->
+    <div class="fcsd-hero-banner__copy" role="group" tabindex="0">
+      <h1 class="fcsd-hero-banner__title">
+        <?php echo wp_kses_post(
+          fcsd_get_option(
+            'home_intro',
+            __( 'Acompanyem persones i famílies perquè puguin construir una vida més autònoma, plena i connectada.', 'fcsd' )
+          )
+        ); ?>
+      </h1>
 
-  <!-- OVERLAY / BIENVENIDA -->
-  <div class="fcsd-home-welcome">
-    <div class="container">
-      <div
-        class="fcsd-home-welcome__panel paper-border"
-        tabindex="0"
-        role="group"
-        aria-label="<?php esc_attr_e( 'Benvingudes i benvinguts', 'fcsd' ); ?>">
-
-        <h1 class="mb-3">
-          <?php echo wp_kses_post(
-            fcsd_get_option(
-              'home_intro',
-              __( 'Acompanyem persones i famílies perquè puguin construir una vida més autònoma, plena i connectada.', 'fcsd' )
-            )
-          ); ?>
-        </h1>
-
+      <div class="fcsd-hero-banner__actions">
         <a class="btn btn-primary" href="<?php echo esc_url( home_url( '/qui-som/' ) ); ?>">
           <?php _e( 'Qui som', 'fcsd' ); ?>
         </a>
-
       </div>
     </div>
-  </div>
 
+    <!-- Media -->
+    <div class="fcsd-hero-banner__media" aria-label="<?php esc_attr_e( 'Vídeo destacat', 'fcsd' ); ?>">
+      <div class="fcsd-hero-banner__media-inner">
+        <iframe
+          src="https://www.youtube.com/embed/2LGbN02uhiE?start=10&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&loop=1&playlist=2LGbN02uhiE"
+          title="Vídeo Fundació"
+          frameborder="0"
+          allow="autoplay; encrypted-media; picture-in-picture"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+  </div>
 </section>
 
-
+<section class="fcsd-ambits--dark">
+<div class="fcsd-wave-cut" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none" focusable="false">
+      <!-- Relleno: color de la sección anterior (blanco/neutral). Hace el “corte” -->
+      <path class="fcsd-wave-cut__fill"
+        d="M0,0 H1440 V44
+           C1320,20 1200,68 1080,44
+           S840,20 720,44
+           S480,68 360,44
+           S120,20 0,44
+           V0 Z" />
+      <!-- Trazo: accent color -->
+      <path class="fcsd-wave-cut__stroke"
+        d="M0,44
+           C120,20 240,68 360,44
+           S600,20 720,44
+           S960,68 1080,44
+           S1320,20 1440,44" />
+    </svg>
+  </div>
+      </section>
 <!-- ======================================================
      CONTINGUT
 ====================================================== -->

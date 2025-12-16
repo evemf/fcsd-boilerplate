@@ -39,6 +39,17 @@ $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
 
     <div class="d-flex align-items-center gap-3">
 
+<!-- Idiomas -->
+<nav class="topbar__langs" aria-label="<?php esc_attr_e('Idiomes', 'fcsd'); ?>">
+  <ul class="list-inline mb-0">
+    <li class="list-inline-item"><a href="<?php echo esc_url( fcsd_switch_lang_url('ca') ); ?>" rel="alternate" hreflang="ca">CA</a></li>
+    <li class="list-inline-item"><a href="<?php echo esc_url( fcsd_switch_lang_url('es') ); ?>" rel="alternate" hreflang="es">ES</a></li>
+    <li class="list-inline-item"><a href="<?php echo esc_url( fcsd_switch_lang_url('en') ); ?>" rel="alternate" hreflang="en">EN</a></li>
+  </ul>
+</nav>
+
+
+
       <!-- Redes sociales -->
       <nav aria-label="<?php esc_attr_e( 'Xarxes socials', 'fcsd' ); ?>">
         <ul class="list-inline mb-0 topbar__social">
