@@ -74,7 +74,7 @@ $orders = [];
 if ( class_exists( 'fcsd_Shop_Account' ) && method_exists( 'fcsd_Shop_Account', 'get_user_orders' ) ) {
   $orders = fcsd_Shop_Account::get_user_orders( $user_id );
 } elseif ( function_exists( 'wc_get_orders' ) ) {
-  // fallback WooCommerce nativo
+  // fallback e-commerce nativo
   $orders = wc_get_orders([
     'customer_id' => $user_id,
     'limit'       => -1,

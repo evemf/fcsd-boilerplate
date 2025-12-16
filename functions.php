@@ -29,6 +29,9 @@ require_once FCSD_THEME_DIR . '/inc/slugs.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-content.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-router.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-links.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-admin.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-canonical.php';
+require_once FCSD_THEME_DIR . '/inc/theme-activate.php';
 
 // Forzar locale del frontend según el idioma detectado
 add_filter('locale', function($locale){
@@ -400,4 +403,5 @@ add_action( 'pre_get_posts', function ( $query ) {
     }
 } );
 // Flush rewrites on theme switch (needed for language prefix routing)
-add_action('after_switch_theme', function(){ flush_rewrite_rules(); });
+// Activación del tema: crear páginas necesarias + flush de rewrites
+add_action('after_switch_theme', 'fcsd_on_theme_activation');

@@ -22,12 +22,17 @@ function fcsd_add_lang_to_url(string $url): string {
     }
 
     $p = wp_parse_url($url);
-    if ( empty($p['host']) ) return $url; // relativo u otro tipo
 
-    // Solo modificamos URLs del propio sitio
+    // Soportar URLs relativas (muy comunes en componentes que generen URLs relativas).
+    // Si es relativa, la tratamos como path del propio sitio.
+    $is_relative = empty($p['host']);
+
+    // Solo modificamos URLs del propio sitio.
     // Evitar recursión: aquí NO usamos home_url() porque estamos dentro del filtro 'home_url'
     $home = wp_parse_url(get_option('home'));
-    if ( empty($home['host']) || $home['host'] !== $p['host'] ) return $url;
+    if ( ! $is_relative ) {
+        if ( empty($home['host']) || $home['host'] !== $p['host'] ) return $url;
+    }
 
     $path = $p['path'] ?? '/';
     // No tocar wp-admin ni wp-json ni assets
@@ -53,11 +58,17 @@ function fcsd_add_lang_to_url(string $url): string {
     $new_path = '/' . implode('/', array_filter($segments)) . '/';
 
     // Reconstruir URL
-    $scheme = $p['scheme'] ?? ($home['scheme'] ?? 'https');
-    $host = $p['host'];
-    $port = isset($p['port']) ? ':' . $p['port'] : '';
     $query = isset($p['query']) ? '?' . $p['query'] : '';
-    $frag = isset($p['fragment']) ? '#' . $p['fragment'] : '';
+    $frag  = isset($p['fragment']) ? '#' . $p['fragment'] : '';
+
+    if ( $is_relative ) {
+        // Conservamos relativo. Evitamos forzar scheme/host.
+        return $new_path . $query . $frag;
+    }
+
+    $scheme = $p['scheme'] ?? ($home['scheme'] ?? 'https');
+    $host   = $p['host'];
+    $port   = isset($p['port']) ? ':' . $p['port'] : '';
 
     return $scheme . '://' . $host . $port . $new_path . $query . $frag;
 }

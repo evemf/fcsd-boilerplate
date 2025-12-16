@@ -2562,7 +2562,7 @@ body.theme-dark .fcsd-history .history-year__panel {
 }
 
 .fcsd-history .history-event__title::before {
-  content: "–";
+  content: "–-";
   position: absolute;
   left: 0;
   top: 0;

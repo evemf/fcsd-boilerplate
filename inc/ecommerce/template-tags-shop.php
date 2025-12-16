@@ -93,7 +93,8 @@ function fcsd_cart_placeholder_shortcode() {
                 <?php echo esc_html( number_format_i18n( $cart['total'], 2 ) ); ?> €
             </p>
 
-            <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'checkout' ) ) ); ?>"
+            <?php $checkout_id = function_exists('fcsd_get_page_id_by_key') ? fcsd_get_page_id_by_key('checkout') : 0; ?>
+            <a href="<?php echo esc_url( $checkout_id ? get_permalink( $checkout_id ) : home_url('/') ); ?>"
                class="btn btn-primary">
                 <?php esc_html_e( 'Pagar ara', 'fcsd' ); ?>
             </a>

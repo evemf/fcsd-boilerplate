@@ -51,7 +51,8 @@ $cart = fcsd_get_cart_summary();
             </p>
         <?php endif; ?>
 
-        <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'checkout' ) ) ); ?>" class="btn btn-primary">
+        <?php $checkout_id = function_exists('fcsd_get_page_id_by_key') ? fcsd_get_page_id_by_key('checkout') : 0; ?>
+        <a href="<?php echo esc_url( $checkout_id ? get_permalink( $checkout_id ) : home_url('/') ); ?>" class="btn btn-primary">
             <?php esc_html_e( 'Ir a pagar', 'fcsd' ); ?>
         </a>
     <?php endif; ?>

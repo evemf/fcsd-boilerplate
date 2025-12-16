@@ -38,7 +38,13 @@ function fcsd_register_product_cpt() {
         'labels'        => $labels,
         'public'        => true,
         'has_archive'   => true,
-        'rewrite'       => [ 'slug' => 'tienda' ],
+        // IMPORTANT:
+        // - Los rewrites del CPT deben usar el slug canónico (idioma por defecto).
+        // - El enrutador i18n del tema se encarga de:
+        //     /es/tienda  -> /botiga
+        //     /en/shop    -> /botiga
+        // Así evitamos duplicar plantillas (archive-product-es.php, etc.)
+        'rewrite'       => [ 'slug' => function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga' ],
         'supports'      => [ 'title', 'editor', 'thumbnail' ],
         'show_in_rest'  => true,
         'menu_icon'     => 'dashicons-cart',
@@ -398,7 +404,8 @@ function fcsd_ajax_get_cart_content() {
             </p>
         <?php endif; ?>
 
-        <a href="<?php echo esc_url( get_permalink( get_page_by_path( 'checkout' ) ) ); ?>" class="btn btn-primary">
+        <?php $checkout_id = function_exists('fcsd_get_page_id_by_key') ? fcsd_get_page_id_by_key('checkout') : 0; ?>
+        <a href="<?php echo esc_url( $checkout_id ? get_permalink( $checkout_id ) : home_url('/') ); ?>" class="btn btn-primary">
             <?php esc_html_e( 'Ir a pagar', 'fcsd' ); ?>
         </a>
     <?php endif; ?>
