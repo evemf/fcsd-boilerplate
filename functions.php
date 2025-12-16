@@ -383,5 +383,21 @@ function fcsd_ajax_load_more_products() {
 }
 add_action( 'wp_ajax_fcsd_load_more_products', 'fcsd_ajax_load_more_products' );
 add_action( 'wp_ajax_nopriv_fcsd_load_more_products', 'fcsd_ajax_load_more_products' );
+
+// --------------------------------------------------
+// Service Areas (service_area): ensure archive queries return Services
+// --------------------------------------------------
+add_action( 'pre_get_posts', function ( $query ) {
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+
+    if ( $query->is_tax( 'service_area' ) ) {
+        $query->set( 'post_type', 'service' );
+        $query->set( 'posts_per_page', 12 );
+        // Prefer manual ordering if used, otherwise stable by title
+        $query->set( 'orderby', [ 'menu_order' => 'ASC', 'title' => 'ASC' ] );
+    }
+} );
 // Flush rewrites on theme switch (needed for language prefix routing)
 add_action('after_switch_theme', function(){ flush_rewrite_rules(); });

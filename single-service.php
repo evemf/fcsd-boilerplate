@@ -90,7 +90,6 @@ while ( have_posts() ) :
 
                 <?php
                 $fields = [
-                        'nom_servei'           => __( 'Nom del servei', 'fcsd' ),
                         'definicio_breu'       => __( 'Definició breu', 'fcsd' ),
                         'marc_normatiu'        => __( 'Marc normatiu i referents', 'fcsd' ),
                         'historia_i_missio'    => __( 'Història i missió', 'fcsd' ),
@@ -111,7 +110,7 @@ while ( have_posts() ) :
                         'any_creacio'          => __( 'Any de creació', 'fcsd' ),
                         'canvis_nom'           => __( 'Canvis de nom', 'fcsd' ),
                         'destacats'            => __( 'Destacats', 'fcsd' ),
-                        'frase_crida'          => __( 'Frase curta cridanera', 'fcsd' ),
+                        // 'frase_crida' es mostra a la capçalera (hero), no a la fitxa tècnica.
                         'punts_clau'           => __( '3 punts clau diferencials', 'fcsd' ),
                         'que_fem_per_tu'       => __( 'Què fem per tu', 'fcsd' ),
                         'que_fem_entorn'       => __( 'Què fem per l\'entorn', 'fcsd' ),

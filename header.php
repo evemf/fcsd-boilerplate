@@ -9,6 +9,10 @@
 
 <?php wp_body_open(); ?>
 
+<a class="skip-link" href="#content">
+  <?php echo esc_html__( 'Salta al contingut', 'fcsd' ); ?>
+</a>
+
 <?php
 $logo_generic = fcsd_get_option( 'fcsd_logo' );
 $logo_light   = fcsd_get_option( 'fcsd_logo_light' );
@@ -17,6 +21,8 @@ $logo_dark    = fcsd_get_option( 'fcsd_logo_dark' );
 $has_search   = (bool) fcsd_get_option( 'fcsd_enable_search', true );
 $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
 ?>
+
+<header id="site-header" class="site-header" role="banner">
 
 <!-- Top bar -->
 <div class="topbar py-2 small">
@@ -193,4 +199,6 @@ $cart_count = fcsd_Shop_Cart::get_cart_count();
 get_template_part( 'template-parts/navbar' );
 ?>
 
-<main id="content">
+</header>
+
+<main id="content" tabindex="-1">
