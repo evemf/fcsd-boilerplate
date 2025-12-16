@@ -107,18 +107,29 @@ $carousel_news = new WP_Query([
 <main class="container content py-5">
 
 <?php
-$ambits = [
-  [ 'title' => 'Institucional/Genèric', 'color' => '#1D80C4', 'url' => home_url( '/institucional-generic/' ) ],
-  [ 'title' => 'Vida Independent',      'color' => '#E5007E', 'url' => home_url( '/vida-independent/' ) ],
-  [ 'title' => 'Treball',               'color' => '#E45E1A', 'url' => home_url( '/treball/' ) ],
-  [ 'title' => 'Formació',              'color' => '#7D68AC', 'url' => home_url( '/formacio/' ) ],
-  [ 'title' => 'Oci',                   'color' => '#C6D134', 'url' => home_url( '/oci/' ) ],
-  [ 'title' => 'Salut',                 'color' => '#D51116', 'url' => home_url( '/salut/' ) ],
-  [ 'title' => 'Merchandising',         'color' => '#A8A7A7', 'url' => home_url( '/merchandising/' ) ],
-  [ 'title' => 'Èxit 21',               'color' => '#FDC512', 'url' => home_url( '/exit-21/' ) ],
-  [ 'title' => 'Assemblea DH',          'color' => '#FDC512', 'url' => home_url( '/assemblea-dh/' ) ],
-  [ 'title' => 'Voluntariat',           'color' => '#2CA055', 'url' => home_url( '/voluntariat/' ) ],
-];
+$ambits = [];
+
+if ( function_exists( 'fcsd_get_service_areas_config' ) ) {
+  $config = fcsd_get_service_areas_config();
+  // Ordenació fixa definida al codi (camp 'order').
+  uasort( $config, static function( $a, $b ) {
+    return (int) ( $a['order'] ?? 0 ) <=> (int) ( $b['order'] ?? 0 );
+  } );
+
+  foreach ( $config as $slug => $data ) {
+    // Excloem el genèric si no el vols a la home; si el vols, comenta aquesta línia.
+    // if ( $slug === 'generic' ) { continue; }
+
+    $term = get_term_by( 'slug', $slug, 'service_area' );
+    $url  = $term && ! is_wp_error( $term ) ? get_term_link( $term ) : '';
+
+    $ambits[] = [
+      'title' => $data['name'] ?? $slug,
+      'color' => $data['color'] ?? '#e7a15a',
+      'url'   => is_wp_error( $url ) ? '' : $url,
+    ];
+  }
+}
 ?>
 
 <section class="fcsd-ambits" aria-label="<?php esc_attr_e( 'Àmbits', 'fcsd' ); ?>">

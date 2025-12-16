@@ -13,17 +13,29 @@ get_header();
         $areas        = get_the_terms( get_the_ID(), 'service_area' );
         $primary_area = ( ! empty( $areas ) && ! is_wp_error( $areas ) ) ? $areas[0] : null;
 
-        $bg_url = fcsd_get_service_area_bg_image_url( get_the_ID() );
+        $area_data = function_exists( 'fcsd_get_service_area_for_post' )
+          ? fcsd_get_service_area_for_post( get_the_ID() )
+          : null;
+
+        $header_style = '';
+        if ( $area_data && ! empty( $area_data['hero_images'] ) && is_array( $area_data['hero_images'] ) ) {
+          $imgs = array_values( array_filter( $area_data['hero_images'] ) );
+          if ( count( $imgs ) === 1 ) {
+            $header_style = 'background-image:url(' . esc_url( $imgs[0] ) . ');';
+          } elseif ( count( $imgs ) >= 2 ) {
+            $header_style = sprintf(
+              'background-image:url(%1$s),url(%2$s);background-size:50%% 100%%,50%% 100%%;background-position:left center,right center;background-repeat:no-repeat,no-repeat;',
+              esc_url( $imgs[0] ),
+              esc_url( $imgs[1] )
+            );
+          }
+        }
         ?>
 
         <div class="col-12 col-md-6 col-lg-4">
           <article id="post-<?php the_ID(); ?>" <?php post_class( 'card h-100 service-card' ); ?>>
 
-            <div class="service-card__header"
-              <?php if ( $bg_url ) : ?>
-                style="background-image:url('<?php echo esc_url( $bg_url ); ?>');"
-              <?php endif; ?>
-            >
+            <div class="service-card__header"<?php echo $header_style ? ' style="' . esc_attr( $header_style ) . '"' : ''; ?>>
               <?php if ( $primary_area ) : ?>
                 <span class="service-card__area">
                   <?php echo esc_html( $primary_area->name ); ?>

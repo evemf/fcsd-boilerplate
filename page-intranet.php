@@ -37,6 +37,12 @@ if ( empty( $has_access ) ) {
 
 <div class="container py-5">
     <h1 class="mb-4"><?php the_title(); ?></h1>
+    <div class="mt-3 mb-5">
+        <a href="/calendar-work"
+     class="position-relative icon-link"
+     aria-label="<?php esc_attr_e( 'Calendari laboral', 'fcsd' ); ?>">
+    <?php echo esc_attr_e( 'Veure Calendari laboral', 'fcsd' ); ?></a>
+    </div>
 
     <?php
     // 3) Listado de avisos de intranet (CPT intranet_notice).

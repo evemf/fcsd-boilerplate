@@ -59,7 +59,10 @@ function fcsd_news_primary_term( $post_id ) {
     if ( is_string( $raw ) && $raw !== '' ) {
         return (object)[ 'name' => $raw, 'slug' => sanitize_title( $raw ) ];
     }
-    return null;
+
+    // Si no hay categoría asignada, mostramos explícitamente "Sin categoría"
+    // (esto además permite aplicar estilos coherentes en el listado).
+    return (object)[ 'name' => __( 'Sin categoría', 'fcsd' ), 'slug' => 'sin-categoria' ];
 }
 
 /** Color HSL determinista por categoría (pastel). Devuelve [h,s,l]. */

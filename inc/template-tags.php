@@ -124,53 +124,34 @@ function fcsd_render_mega_serveis(){ ?>
 <?php }
 
 /**
- * Retorna la URL de la imatge de fons per a un servei segons la seva "service_area".
+ * Retorna UNA URL d'imatge (legacy) per a un servei segons la seva "service_area".
  *
- * Cerca primer una imatge personalitzada (ex. via Customizer: service_area_<slug>_image)
- * i, si no n'hi ha, fa fallback a /assets/images/services/ambit-<slug>.png
- * o, si tampoc existeix, a ambit-generic.png.
+ * Nota: per a capçaleres (hero) ja fem composició automàtica si un servei té 2 àmbits.
  */
 function fcsd_get_service_area_bg_image_url( $post_id = null ) {
+    // Helper legacy: retorna UNA sola imatge (per components que encara no suporten
+    // la composició 2-àmbits). Prioritat:
+    // 1) imatge de servei del primer àmbit (config estàtica)
+    // 2) fallback a la genèrica.
     if ( ! $post_id ) {
         $post_id = get_the_ID();
     }
 
-    $bg_url = '';
-
-    // 1) Obtenim el terme principal de la taxonomia "service_area"
-    $terms = get_the_terms( $post_id, 'service_area' );
-
-    if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
-        // Agafem el primer terme
-        $primary_area = $terms[0];
-        $slug         = $primary_area->slug;
-
-        // 2) Opcional: imatge personalitzada des del Customizer (service_area_<slug>_image)
-        $custom = get_theme_mod( 'service_area_' . $slug . '_image' );
-        if ( $custom ) {
-          $bg_url = esc_url( $custom );
-        }
-
-        // 3) Fallback a la imatge per defecte del tema: /assets/images/services/ambit-<slug>.png
-        if ( ! $bg_url ) {
-            $relative = '/assets/images/services/service-' . $slug . '.png';
-            $absolute = get_stylesheet_directory() . $relative;
-
-            if ( file_exists( $absolute ) ) {
-                $bg_url = get_stylesheet_directory_uri() . $relative;
+    if ( function_exists( 'fcsd_get_service_area_for_post' ) ) {
+        $area_data = fcsd_get_service_area_for_post( $post_id );
+        if ( $area_data && ! empty( $area_data['service_images'] ) && is_array( $area_data['service_images'] ) ) {
+            $imgs = array_values( array_filter( $area_data['service_images'] ) );
+            if ( ! empty( $imgs[0] ) ) {
+                return esc_url( $imgs[0] );
             }
         }
     }
 
-    // 4) Si no hi ha cap imatge trobada, fem servir la genèrica
-    if ( ! $bg_url ) {
-        $relative = '/assets/images/ambits/ambit-generic.png';
-        $absolute = get_stylesheet_directory() . $relative;
-
-        if ( file_exists( $absolute ) ) {
-            $bg_url = get_stylesheet_directory_uri() . $relative;
-        }
+    $relative = '/assets/images/services/service-generic.png';
+    $absolute = get_stylesheet_directory() . $relative;
+    if ( file_exists( $absolute ) ) {
+        return get_stylesheet_directory_uri() . $relative;
     }
 
-    return $bg_url;
+    return '';
 }

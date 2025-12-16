@@ -21,12 +21,27 @@ while ( have_posts() ) :
     $service_color   = $area_data['color']      ?? '#e7a15a';
     $service_soft    = $area_data['color_soft'] ?? 'rgba(231,161,90,0.10)';
 
+    // Frase curta cridanera (per la capçalera del servei)
+    $service_tagline = get_post_meta( get_the_ID(), 'frase_crida', true );
+
     if ( $area_data && ! empty( $area_data['hero_class'] ) ) {
         $hero_class .= ' ' . $area_data['hero_class'];
     }
 
-    if ( $area_data && ! empty( $area_data['hero_image'] ) ) {
-        $hero_style = 'background-image:url(' . esc_url( $area_data['hero_image'] ) . ');';
+    // Fons de capçalera (hero):
+    // - 1 àmbit: 1 imatge.
+    // - 2 àmbits: composició automàtica (2 imatges a 50/50) sense necessitat d'una imatge “combinada”.
+    if ( $area_data && ! empty( $area_data['hero_images'] ) && is_array( $area_data['hero_images'] ) ) {
+        $imgs = array_values( array_filter( $area_data['hero_images'] ) );
+        if ( count( $imgs ) === 1 ) {
+            $hero_style = 'background-image:url(' . esc_url( $imgs[0] ) . ');';
+        } elseif ( count( $imgs ) >= 2 ) {
+            $hero_style = sprintf(
+                'background-image:url(%1$s),url(%2$s);background-size:50%% 100%%,50%% 100%%;background-position:left center,right center;background-repeat:no-repeat,no-repeat;',
+                esc_url( $imgs[0] ),
+                esc_url( $imgs[1] )
+            );
+        }
     }
     ?>
 
@@ -41,6 +56,12 @@ while ( have_posts() ) :
             <h1 class="service-hero__title" itemprop="name">
                 <?php the_title(); ?>
             </h1>
+
+            <?php if ( ! empty( $service_tagline ) ) : ?>
+                <div class="service-hero__tagline" aria-label="<?php echo esc_attr__( 'Frase curta cridanera', 'fcsd' ); ?>">
+                    <?php echo wp_kses_post( wpautop( $service_tagline ) ); ?>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 
@@ -63,13 +84,12 @@ while ( have_posts() ) :
                 aria-labelledby="ficha-tecnica"
                 style="--service-area-color: <?php echo esc_attr( $service_color ); ?>; --service-area-color-soft: <?php echo esc_attr( $service_soft ); ?>;"
             >
-                <h2 id="ficha-tecnica" class="h5 text-muted mb-3">
+                <h2 id="ficha-tecnica" class="h5 mb-3">
                     <?php echo esc_html__( 'Fitxa tècnica del servei', 'fcsd' ); ?>
                 </h2>
 
-                <div class="accordion service-accordion" id="serviceFichaAccordion">
-                    <?php
-                    $fields = [
+                <?php
+                $fields = [
                         'nom_servei'           => __( 'Nom del servei', 'fcsd' ),
                         'definicio_breu'       => __( 'Definició breu', 'fcsd' ),
                         'marc_normatiu'        => __( 'Marc normatiu i referents', 'fcsd' ),
@@ -97,48 +117,30 @@ while ( have_posts() ) :
                         'que_fem_entorn'       => __( 'Què fem per l\'entorn', 'fcsd' ),
                     ];
 
-                    $i = 0;
+                $has_rows = false;
+                ?>
 
-                    foreach ( $fields as $key => $label ) {
+                <div class="service-ficha-grid" role="table" aria-label="<?php echo esc_attr__( 'Fitxa tècnica del servei', 'fcsd' ); ?>">
+                    <?php foreach ( $fields as $key => $label ) :
                         $value = get_post_meta( get_the_ID(), $key, true );
 
                         if ( empty( $value ) ) {
                             continue;
                         }
 
-                        $i++;
-                        $heading_id = 'service-field-heading-' . $i;
-                        $collapse_id = 'service-field-collapse-' . $i;
+                        $has_rows = true;
                         ?>
-                        <div class="accordion-item service-accordion__item">
-                            <h3 class="accordion-header" id="<?php echo esc_attr( $heading_id ); ?>">
-                                <button
-                                    class="accordion-button collapsed service-accordion__button"
-                                    type="button"
-                                    data-bs-toggle="collapse"
-                                    data-bs-target="#<?php echo esc_attr( $collapse_id ); ?>"
-                                    aria-expanded="false"
-                                    aria-controls="<?php echo esc_attr( $collapse_id ); ?>"
-                                >
-                                    <?php echo esc_html( $label ); ?>
-                                </button>
+                        <section class="service-ficha-item" role="row">
+                            <h3 class="service-ficha-item__label" role="cell">
+                                <?php echo esc_html( $label ); ?>
                             </h3>
-                            <div
-                                id="<?php echo esc_attr( $collapse_id ); ?>"
-                                class="accordion-collapse collapse"
-                                aria-labelledby="<?php echo esc_attr( $heading_id ); ?>"
-                                data-bs-parent="#serviceFichaAccordion"
-                            >
-                                <div class="accordion-body service-accordion__body">
-                                    <?php echo wp_kses_post( wpautop( $value ) ); ?>
-                                </div>
+                            <div class="service-ficha-item__value" role="cell">
+                                <?php echo wp_kses_post( wpautop( $value ) ); ?>
                             </div>
-                        </div>
-                        <?php
-                    }
+                        </section>
+                    <?php endforeach; ?>
 
-                    if ( 0 === $i ) :
-                        ?>
+                    <?php if ( ! $has_rows ) : ?>
                         <p class="text-muted mb-0"><?php esc_html_e( 'No hi ha informació tècnica disponible per aquest servei.', 'fcsd' ); ?></p>
                     <?php endif; ?>
                 </div>

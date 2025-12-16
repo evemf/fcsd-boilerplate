@@ -17,6 +17,11 @@ get_header();
         $primary_cat = null;
         $bg_url      = '';
 
+        // Imagen específica para la categoría por defecto (Sin categoría)
+        $sin_cat_rel = '/assets/images/news/bg-news-sin-categoria.png';
+        $sin_cat_abs = get_stylesheet_directory() . $sin_cat_rel;
+        $sin_cat_url = file_exists( $sin_cat_abs ) ? ( get_stylesheet_directory_uri() . $sin_cat_rel ) : '';
+
         $terms = get_the_terms( get_the_ID(), 'category' );
 
         if ( ! empty( $terms ) && ! is_wp_error( $terms ) ) {
@@ -27,6 +32,12 @@ get_header();
             $normalized = preg_replace( '/[^a-z0-9]+/', '-', $normalized );
             $normalized = trim( $normalized, '-' );
 
+            // Caso especial: SIN CATEGORÍA / Uncategorized
+            if ( $sin_cat_url && in_array( $normalized, [ 'sin-categoria', 'uncategorized', 'sense-categoria' ], true ) ) {
+              $bg_url = $sin_cat_url;
+              break;
+            }
+
             $relative_path = '/assets/images/news/bg-news-' . $normalized . '.png';
             $absolute_path = get_stylesheet_directory() . $relative_path;
 
@@ -35,6 +46,12 @@ get_header();
               break;
             }
           }
+        }
+
+        // Si no hay términos, tratamos la noticia como "Sin categoría"
+        if ( ( empty( $terms ) || is_wp_error( $terms ) ) && $sin_cat_url ) {
+          $primary_cat = (object) [ 'name' => __( 'Sin categoría', 'tu-textdomain' ) ];
+          $bg_url = $sin_cat_url;
         }
 
         if ( ! $bg_url ) {

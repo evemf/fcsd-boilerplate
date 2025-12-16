@@ -1705,6 +1705,37 @@ body.theme-dark .single-news .entry-footer {
   content: none;
 }
 
+/* Frase curta cridanera (capçalera del servei) */
+.service-hero__tagline {
+  position: absolute;
+  right: 5%;
+  top: 98%;
+  transform: translateY(-50%) rotate(-5deg);
+  background: #000000;
+  color: #ffffff;
+  padding: 0.85rem 1.1rem;
+  font-size: 1rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: min(37ch, 30vw);
+  line-height: 1.35;
+  font-weight: var(--font-weight-semibold);
+}
+
+.service-hero__tagline > p:last-child {
+  margin-bottom: 0;
+  color: var(--bg);
+}
+
+body.theme-dark .service-hero__tagline {
+  background: #ffffff;
+  color: #000000;
+}
+
+body.theme-dark .service-hero__tagline > p:last-child {
+  color: var(--bg);
+}
+
 @media (max-width: 991.98px) {
   .service-hero {
     min-height: 220px;
@@ -1716,6 +1747,12 @@ body.theme-dark .single-news .entry-footer {
 
   .service-hero__title {
     font-size: clamp(1.8rem, 2vw + 1.2rem, 2.2rem);
+  }
+
+  .service-hero__tagline {
+    right: var(--space-lg);
+    max-width: min(40ch, 60vw);
+    transform: translateY(-50%) rotate(-4deg);
   }
 }
 
@@ -1731,84 +1768,70 @@ body.theme-dark .single-news .entry-footer {
   .service-hero__title {
     font-size: 1.7rem;
   }
+
+  .service-hero__tagline {
+    position: static;
+    transform: rotate(-3deg);
+    margin-top: var(--space-md);
+    max-width: 100%;
+    align-self: flex-start;
+  }
 }
 
-/* Ficha técnica en modo acordeón coloreado por àmbit */
+/* Fitxa tècnica (grid responsiu) colorejat per àmbit */
 .service-ficha {
   --service-area-color: var(--accent);
   --service-area-color-soft: rgba(231, 161, 90, 0.1);
 }
 
-.service-accordion {
+.service-ficha-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-md);
+}
+
+.service-ficha-item {
+  background: var(--service-area-color-soft);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 6px solid var(--service-area-color);
   border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.service-accordion__item {
-  border: none !important;
-  margin-bottom: var(--space-xs);
+  padding: 1rem 1.1rem;
   box-shadow: var(--shadow-sm);
-  border-radius: var(--radius-md);
   overflow: hidden;
-  background: transparent;
 }
 
-.service-accordion__item:last-child {
+body.theme-dark .service-ficha-item {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.service-ficha-item__label {
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem 0;
+  color: var(--bg);
+  background-color: var(--service-area-color);
+  padding: 3px 5px;
+}
+
+body.theme-dark .service-ficha-item__label {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.service-ficha-item__value {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+}
+
+.service-ficha-item__value > p:last-child,
+.service-ficha-item__value > ul:last-child,
+.service-ficha-item__value > ol:last-child {
   margin-bottom: 0;
 }
 
-/* TAB del acordeón: aquí va el color del servei */
-.service-accordion__button {
-  --bs-accordion-btn-bg: transparent;
-  --bs-accordion-active-bg: transparent;
-  --bs-accordion-btn-focus-box-shadow: none;
-  border-bottom: 3px solid var(--service-area-color) !important;
-  color: var(--text-inverse);
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  padding: 0.9rem 1.2rem;
-  box-shadow: none;
-}
-
-.service-accordion__button::after {
-  filter: brightness(5);
-}
-
-/* Estado abierto: mismo color, sin azul de Bootstrap */
-.service-accordion__button:not(.collapsed) {
-  border-bottom: none;
-  box-shadow: none;
-}
-
-.service-accordion__button:focus {
-  border-color: transparent;
-  color: var(--service-area-color) !important;
-  box-shadow: 0 0 0 0.12rem rgba(0, 0, 0, 0.18);
-}
-
-/* Cuerpo del acordeón con fondo neutro */
-.service-accordion__body {
-  background-color: var(--panel);
-  padding: 0.95rem 1.2rem 1.1rem;
-  font-size: var(--font-size-base);
-  line-height: 1.6;
-  border: none;
-}
-
-body.theme-dark .service-accordion__body {
-  background-color: var(--panel-strong);
-  border-top-color: var(--panel-border-strong);
-}
-
-/* Ajustes responsivos ligeros */
 @media (max-width: 575.98px) {
-  .service-accordion__button {
-    font-size: var(--font-size-xs);
-    padding-inline: var(--space-md);
-  }
-
-  .service-accordion__body {
-    padding-inline: var(--space-md);
+  .service-ficha-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -3432,6 +3455,46 @@ body.theme-dark .org-nodo-children > .org-nodo > .org-nodo-inner::before {
     border-radius: 999px;
     background: #fff3cd;
     color: #856404;
+}
+
+/* ==============================
+   CALENDARI - DARK MODE FIX
+   (el text dels events ha de ser llegible en tema fosc)
+   ============================== */
+
+body.theme-dark .actes-calendar span {
+  color: var(--panel-border-strong);
+}
+
+body.theme-dark .actes-calendar__day {
+  border-color: var(--panel-border);
+  background: var(--panel);
+}
+
+body.theme-dark .actes-calendar__day--empty {
+  background: transparent;
+}
+
+body.theme-dark .actes-calendar__day--has-events {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+body.theme-dark .actes-calendar__event {
+  background: rgba(255, 255, 255, 0.08);
+  border-left-color: var(--accent);
+  color: var(--text);
+}
+
+body.theme-dark .actes-calendar__event-title {
+  color: var(--text);
+}
+
+body.theme-dark span.actes-calendar__event-title {
+  color: var(--text);
+}
+
+body.theme-dark .actes-calendar__event-excerpt {
+  color: var(--text-muted);
 }
 
 /* Versión compacta (vista laboral / anual mini) */
