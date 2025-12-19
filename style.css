@@ -17,9 +17,8 @@ Text Domain: fcsd
  * -------------------------------------------------------------- */
 .service-info-footer{
   margin-top:2rem;
-  border-color: 4px solid var(--accent);
-  background-color: var(--bg-contrast);
-  color: var(--bg);
+  background:#0fb087;
+  color:#fff;
   border-radius:16px;
   overflow:hidden;
 }
@@ -50,13 +49,6 @@ Text Domain: fcsd
   gap:14px;
   align-items:center;
 }
-
-.theme-dark .service-info-footer p,
-.theme-dark .service-info-footer a {
-  background-color: var(--bg-contrast);
-  color: var(--bg);
-}
-
 .service-info-footer__support-label{
   font-weight:700;
 }
@@ -89,9 +81,7 @@ Text Domain: fcsd
   grid-template-columns: 1fr;
   gap:14px;
 }
-.service-entry p {
-  color:var(--bg-contrast);
-}
+
 @media (max-width: 991px){
   .service-info-footer__grid{ grid-template-columns: 1fr; }
 }

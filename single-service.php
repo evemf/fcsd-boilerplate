@@ -73,7 +73,7 @@ while ( have_posts() ) :
                     <h2 id="presentacio" class="h5 text-muted">
                         <?php echo esc_html__( 'Presentació', 'fcsd' ); ?>
                     </h2>
-                    <div class="p-3 rounded border" itemprop="description">
+                    <div class="bg-light p-3 rounded border" itemprop="description">
                         <?php the_content(); ?>
                     </div>
                 </section>
