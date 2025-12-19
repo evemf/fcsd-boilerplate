@@ -9,7 +9,12 @@ function fcsd_main_nav_items(){
         ['label' => __('Botiga','fcsd'),        'url' => get_post_type_archive_link('product')],
         ['label' => __('Transparència','fcsd'), 'url' => get_post_type_archive_link('transparency')],
         ['label' => __('Actualitat','fcsd'),    'url' => get_post_type_archive_link('news')],
-        ['label' => __('Contacte','fcsd'),      'url' => site_url('/contact')],
+        [
+            'label' => __('Contacte','fcsd'),
+            'url'   => function_exists('fcsd_default_slug')
+                ? fcsd_get_page_url_by_slug( fcsd_default_slug('contact') )
+                : fcsd_get_page_url_by_slug( 'contacte' ),
+        ],
     ];
     return array_filter($items, fn($it)=>!empty($it['url']));
 }
@@ -22,23 +27,23 @@ function fcsd_render_mega_quisom(){ ?>
         <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('La Fundació','fcsd'); ?></h6>
           <ul class="mega-list">
-            <li><a href="/patronat"><?php _e('Patronat','fcsd'); ?></a></li>
-            <li><a href="/organigrama"><?php _e('Organigrama','fcsd'); ?></a></li>
-            <li><a href="/historia"><?php _e('Història','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_get_page_url_by_slug') ? fcsd_get_page_url_by_slug('patronat') : site_url('/patronat/') ); ?>"><?php _e('Patronat','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_get_page_url_by_slug') ? fcsd_get_page_url_by_slug('organigrama') : site_url('/organigrama/') ); ?>"><?php _e('Organigrama','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_get_page_url_by_slug') ? fcsd_get_page_url_by_slug('historia') : site_url('/historia/') ); ?>"><?php _e('Història','fcsd'); ?></a></li>
           </ul>
         </div>
         <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('Recursos','fcsd'); ?></h6>
           <ul class="mega-list">
-            <li><a href="#"><?php _e('Memòries','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Premsa','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_default_slug') ? fcsd_get_page_url_by_slug( fcsd_default_slug('memories') ) : home_url('/') ); ?>"><?php _e('Memòries','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_default_slug') ? fcsd_get_page_url_by_slug( fcsd_default_slug('press') ) : home_url('/') ); ?>"><?php _e('Premsa','fcsd'); ?></a></li>
           </ul>
         </div>
         <div class="col-12 col-md-4">
           <h6 class="mega-title"><?php _e('Participa','fcsd'); ?></h6>
           <ul class="mega-list">
-            <li><a href="#"><?php _e('Voluntariat','fcsd'); ?></a></li>
-            <li><a href="#"><?php _e('Aliances','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_default_slug') ? fcsd_get_page_url_by_slug( fcsd_default_slug('volunteering') ) : home_url('/') ); ?>"><?php _e('Voluntariat','fcsd'); ?></a></li>
+            <li><a href="<?php echo esc_url( function_exists('fcsd_default_slug') ? fcsd_get_page_url_by_slug( fcsd_default_slug('alliances') ) : home_url('/') ); ?>"><?php _e('Aliances','fcsd'); ?></a></li>
           </ul>
         </div>
       </div>
@@ -154,4 +159,119 @@ function fcsd_get_service_area_bg_image_url( $post_id = null ) {
     }
 
     return '';
+}
+
+/**
+ * Renderitza el "footer" d'informació imprescindible d'un servei.
+ *
+ * Mostra contacte, horari, adreça i (opcionalment) els logos d'apoi / suport.
+ *
+ * @param int  $post_id  ID del servei.
+ * @param bool $compact  Si true, ús pensat per a cards de l'arxiu.
+ */
+function fcsd_render_service_info_footer( $post_id = 0, $compact = false ) {
+    $post_id = $post_id ? (int) $post_id : (int) get_the_ID();
+    if ( ! $post_id ) {
+        return;
+    }
+
+    $phone   = get_post_meta( $post_id, 'fcsd_service_contact_phone', true );
+    $email   = get_post_meta( $post_id, 'fcsd_service_contact_email', true );
+    $hours   = get_post_meta( $post_id, 'fcsd_service_hours', true );
+    $address = get_post_meta( $post_id, 'fcsd_service_address', true );
+
+    // Target ("Adreçat a") reutilitza camp existent.
+    $audience = get_post_meta( $post_id, 'a_quien_s_adreca', true );
+
+    // Fallback bàsic si encara s'està usant el camp legacy "adreca_i_contacte".
+    if ( ( ! $phone || ! $email || ! $address ) ) {
+        $legacy = (string) get_post_meta( $post_id, 'adreca_i_contacte', true );
+        if ( $legacy ) {
+            if ( ! $email && preg_match( '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i', $legacy, $m ) ) {
+                $email = $m[0];
+            }
+            if ( ! $phone && preg_match( '/(\+?\d[\d\s().-]{6,}\d)/', $legacy, $m ) ) {
+                $phone = trim( $m[1] );
+            }
+            if ( ! $address ) {
+                $address = $legacy;
+            }
+        }
+    }
+
+    $support_ids_raw = (string) get_post_meta( $post_id, 'fcsd_service_support_images', true );
+    $support_ids     = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', $support_ids_raw ) ) );
+
+    $has_any = ( $phone || $email || $hours || $address || $audience || ! empty( $support_ids ) );
+    if ( ! $has_any ) {
+        return;
+    }
+
+    $phone_clean = $phone ? preg_replace( '/\s+/', '', (string) $phone ) : '';
+
+    $classes = 'service-info-footer';
+    if ( $compact ) {
+        $classes .= ' service-info-footer--compact';
+    }
+
+    ?>
+    <section class="<?php echo esc_attr( $classes ); ?>" aria-label="<?php echo esc_attr__( 'Informació imprescindible', 'fcsd' ); ?>">
+        <div class="service-info-footer__inner">
+            <h3 class="service-info-footer__title"><?php echo esc_html__( 'Informació imprescindible', 'fcsd' ); ?></h3>
+
+            <div class="service-info-footer__grid">
+                <div class="service-info-footer__col">
+                    <h4 class="service-info-footer__heading"><?php echo esc_html__( 'Contacte', 'fcsd' ); ?></h4>
+                    <div class="service-info-footer__text">
+                        <?php if ( $phone ) : ?>
+                            <p class="mb-1"><a href="tel:<?php echo esc_attr( $phone_clean ); ?>"><?php echo esc_html( $phone ); ?></a></p>
+                        <?php endif; ?>
+                        <?php if ( $email ) : ?>
+                            <p class="mb-1"><a href="mailto:<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $email ); ?></a></p>
+                        <?php endif; ?>
+                        <?php if ( $address ) : ?>
+                            <div class="service-info-footer__address"><?php echo wp_kses_post( wpautop( $address ) ); ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="service-info-footer__col">
+                    <h4 class="service-info-footer__heading"><?php echo esc_html__( 'Horari d’atenció al públic', 'fcsd' ); ?></h4>
+                    <div class="service-info-footer__text">
+                        <?php if ( $hours ) : ?>
+                            <?php echo wp_kses_post( wpautop( $hours ) ); ?>
+                        <?php else : ?>
+                            <p class="mb-0"><?php echo esc_html__( 'Visites concertades', 'fcsd' ); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div class="service-info-footer__col">
+                    <h4 class="service-info-footer__heading"><?php echo esc_html__( 'Adreçat a', 'fcsd' ); ?></h4>
+                    <div class="service-info-footer__text">
+                        <?php if ( $audience ) : ?>
+                            <?php echo wp_kses_post( wpautop( $audience ) ); ?>
+                        <?php else : ?>
+                            <p class="mb-0"><?php echo esc_html__( '—', 'fcsd' ); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+            <?php if ( ! empty( $support_ids ) ) : ?>
+                <div class="service-info-footer__support">
+                    <span class="service-info-footer__support-label"><?php echo esc_html__( 'Amb suport de:', 'fcsd' ); ?></span>
+                    <div class="service-info-footer__support-logos" role="list">
+                        <?php foreach ( $support_ids as $id ) :
+                            $img = wp_get_attachment_image( $id, 'medium', false, [ 'class' => 'service-info-footer__logo', 'role' => 'listitem' ] );
+                            if ( $img ) {
+                                echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            }
+                        endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+    </section>
+    <?php
 }

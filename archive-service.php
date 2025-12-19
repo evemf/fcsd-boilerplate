@@ -55,12 +55,6 @@ get_header();
               </div>
             <?php endif; ?>
 
-            <div class="card-body service-card__body">
-              <p class="card-text">
-                <?php echo wp_trim_words( get_the_excerpt(), 20 ); ?>
-              </p>
-            </div>
-
           </article>
         </div>
 

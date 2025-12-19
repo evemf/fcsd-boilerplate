@@ -16,7 +16,7 @@ $cart = fcsd_get_cart_summary();
     <h1><?php esc_html_e( 'Finalizar compra', 'fcsd' ); ?></h1>
 
     <?php if ( empty( $cart['items'] ) ) : ?>
-        <p><?php esc_html_e( 'Tu carrito está vacío.', 'fcsd' ); ?></p>
+        <p><?php esc_html_e( 'La cistella és buida.', 'fcsd' ); ?></p>
     <?php else : ?>
         <?php get_template_part( 'template-parts/shop/cart', 'table', [ 'cart' => $cart ] ); ?>
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * Template Name: Mi perfil
+ * Template Name: Perfil
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;
@@ -12,12 +12,12 @@ if ( ! is_user_logged_in() ) : ?>
     <div class="row justify-content-center">
       <div class="col-md-8 col-lg-6">
         <div class="card p-4 text-center">
-          <h1 class="h3 mb-3"><?php esc_html_e( 'Mi perfil', 'fcsd' ); ?></h1>
+          <h1 class="h3 mb-3"><?php esc_html_e( 'El meu perfil', 'fcsd' ); ?></h1>
           <p class="text-muted mb-4">
-            <?php esc_html_e( 'Debes iniciar sesión para acceder a tu perfil y gestionar tus datos.', 'fcsd' ); ?>
+            <?php esc_html_e( "Has d'iniciar sessió per accedir al teu perfil i gestionar les teves dades.", 'fcsd' ); ?>
           </p>
           <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="btn btn-accent">
-            <?php esc_html_e( 'Iniciar sesión', 'fcsd' ); ?>
+            <?php esc_html_e( 'Iniciar sessió', 'fcsd' ); ?>
           </a>
         </div>
       </div>
@@ -437,7 +437,7 @@ function fcsd_profile_order_status($order){
             </div>
 
             <div class="col-md-6">
-              <label class="form-label"><?php esc_html_e('Adreça (linea 2)','fcsd'); ?></label>
+              <label class="form-label"><?php esc_html_e("Adreça (línia 2)",'fcsd'); ?></label>
               <input type="text" name="shipping_address_2" class="form-control" value="<?php echo esc_attr($shipping_address_2); ?>">
             </div>
 
@@ -452,7 +452,7 @@ function fcsd_profile_order_status($order){
             </div>
 
             <div class="col-md-4">
-              <label class="form-label"><?php esc_html_e('Provincia / Estat','fcsd'); ?></label>
+              <label class="form-label"><?php esc_html_e('Província / Estat','fcsd'); ?></label>
               <input type="text" name="shipping_state" class="form-control" value="<?php echo esc_attr($shipping_state); ?>">
             </div>
 
@@ -493,7 +493,7 @@ function fcsd_profile_order_status($order){
               <table class="table table-sm align-middle">
                 <thead>
                   <tr>
-                    <th><?php esc_html_e( 'Evento / Formació', 'fcsd' ); ?></th>
+                    <th><?php esc_html_e( 'Esdeveniment / Formació', 'fcsd' ); ?></th>
                     <th><?php esc_html_e( 'Data', 'fcsd' ); ?></th>
                     <th><?php esc_html_e( 'Estat inscripció', 'fcsd' ); ?></th>
                     <th><?php esc_html_e( 'Estat esdeveniment', 'fcsd' ); ?></th>
@@ -624,7 +624,7 @@ function fcsd_profile_order_status($order){
 
           <?php if ( empty( $sinergia_id ) ) : ?>
             <div class="alert alert-secondary mb-0">
-              <?php esc_html_e('El teu usuari no està sincronitzat amb SinergiaCRM. Si crees que esto es un error, contacta con soporte.','fcsd'); ?>
+              <?php esc_html_e("El teu usuari no està sincronitzat amb SinergiaCRM. Si creus que això és un error, contacta amb suport.",'fcsd'); ?>
             </div>
           <?php else : ?>
             <div class="alert alert-success">
@@ -647,7 +647,7 @@ function fcsd_profile_order_status($order){
                 </table>
               </div>
             <?php else : ?>
-              <p class="text-muted mb-0"><?php esc_html_e('No hi han dades adicionals desde Sinergia.','fcsd'); ?></p>
+              <p class="text-muted mb-0"><?php esc_html_e('No hi ha dades addicionals de Sinergia.','fcsd'); ?></p>
             <?php endif; ?>
           <?php endif; ?>
         </section>

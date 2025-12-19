@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-15T14:05:01+00:00\n"
+"POT-Creation-Date: 2025-12-17T13:12:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fcsd\n"
@@ -39,7 +39,6 @@ msgstr ""
 #: inc/cpts.php:52
 #: inc/cpts.php:54
 #: page-profile.php:362
-#: template-parts/navbar.php:51
 msgid "Formacions i esdeveniments"
 msgstr ""
 
@@ -58,6 +57,7 @@ msgstr ""
 #: archive-event.php:99
 #: inc/sinergia-events.php:68
 #: single-event.php:113
+#: template-parts/cart-table.php:20
 msgid "Preu"
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "No hay productos disponibles."
 msgstr ""
 
-#: archive-service.php:61
+#: archive-service.php:67
 msgid "No hi ha serveis encara."
 msgstr ""
 
@@ -274,7 +274,9 @@ msgstr ""
 
 #: calendar-actes.php:517
 #: calendar-work.php:613
-#: functions.php:251
+#: functions.php:343
+#: inc/ecommerce/shop-core.php:117
+#: page-cart.php:24
 #: template-parts/legal.php:37
 msgid "Tancar"
 msgstr ""
@@ -318,7 +320,7 @@ msgid "Donar"
 msgstr ""
 
 #: footer.php:102
-#: header.php:54
+#: header.php:60
 msgid "Xarxes socials"
 msgstr ""
 
@@ -334,104 +336,125 @@ msgstr ""
 msgid "Notícies destacades"
 msgstr ""
 
-#: front-page.php:43
-msgid "Vídeo destacat"
+#: front-page.php:45
+msgid "Destacat"
 msgstr ""
 
-#: front-page.php:64
-msgid "Benvingudes i benvinguts"
-msgstr ""
-
-#: front-page.php:70
+#: front-page.php:54
 msgid "Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada."
 msgstr ""
 
-#: front-page.php:76
+#: front-page.php:61
 #: inc/template-tags.php:6
-#: template-parts/navbar.php:30
 msgid "Qui som"
 msgstr ""
 
-#: front-page.php:106
+#: front-page.php:67
+msgid "Vídeo destacat"
+msgstr ""
+
+#: front-page.php:71
+msgid "Vídeo Fundació"
+msgstr ""
+
+#: front-page.php:135
 msgid "Àmbits"
 msgstr ""
 
-#: front-page.php:107
+#: front-page.php:136
 msgid "Àmbits de treball"
 msgstr ""
 
-#: front-page.php:124
+#: front-page.php:153
 msgid "Saber més"
 msgstr ""
 
-#: functions.php:57
+#: functions.php:64
 msgid "Menú principal"
 msgstr ""
 
-#: functions.php:58
+#: functions.php:65
 msgid "Franja superior"
 msgstr ""
 
-#: functions.php:59
+#: functions.php:66
 msgid "Menú del peu de pàgina"
 msgstr ""
 
-#: functions.php:60
+#: functions.php:67
 msgid "Enllaços socials"
 msgstr ""
 
-#: functions.php:81
+#. translators: %s = language code (ES/EN)
+#: functions.php:78
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr ""
+
+#: functions.php:167
 msgid "Barra lateral"
 msgstr ""
 
-#: functions.php:83
+#: functions.php:169
 msgid "Afegeix aquí els teus widgets."
 msgstr ""
 
-#: functions.php:240
+#: functions.php:326
 #: inc/customizer.php:430
 #: template-parts/legal.php:14
 msgid "Política de privacitat"
 msgstr ""
 
-#: functions.php:244
+#: functions.php:330
 #: inc/customizer.php:463
 #: template-parts/legal.php:19
 msgid "Política de cookies"
 msgstr ""
 
-#: functions.php:248
+#: functions.php:336
 #: inc/customizer.php:496
 #: template-parts/legal.php:24
 msgid "Avís legal"
 msgstr ""
 
-#: header.php:43
+#: functions.php:340
+#: inc/customizer.php:529
+#: template-parts/legal.php:29
+msgid "Copyright"
+msgstr ""
+
+#: header.php:13
+msgid "Salta al contingut"
+msgstr ""
+
+#: header.php:49
 msgid "Idiomes"
 msgstr ""
 
-#: header.php:86
+#: header.php:92
 msgid "Alterna contrast"
 msgstr ""
 
-#: header.php:87
+#: header.php:93
 msgid "Contrast"
 msgstr ""
 
-#: header.php:105
+#: header.php:111
 msgid "Cerca al lloc"
 msgstr ""
 
-#: header.php:110
+#: header.php:116
 msgid "Cerca"
 msgstr ""
 
-#: header.php:174
+#: header.php:180
 msgid "Compte d'usuari"
 msgstr ""
 
-#: header.php:179
+#. Template Name of the theme
+#: header.php:185
 #: inc/ecommerce/template-tags-shop.php:79
+#: page-cart.php:34
 msgid "Cistella"
 msgstr ""
 
@@ -761,7 +784,7 @@ msgstr ""
 #: inc/customizer.php:283
 #: inc/ecommerce/orders.php:79
 #: inc/ecommerce/orders.php:150
-#: inc/ecommerce/template-tags-shop.php:164
+#: inc/ecommerce/template-tags-shop.php:165
 #: page-checkout.php:32
 msgid "Email"
 msgstr ""
@@ -833,7 +856,6 @@ msgstr ""
 
 #: inc/auth.php:775
 #: inc/template-tags.php:12
-#: template-parts/navbar.php:75
 msgid "Contacte"
 msgstr ""
 
@@ -994,7 +1016,7 @@ msgid "Aquestes dades provenen de SinergiaCRM (mòdul Contacts). Per modificar-l
 msgstr ""
 
 #: inc/auth.php:1016
-#: inc/ecommerce/template-tags-shop.php:157
+#: inc/ecommerce/template-tags-shop.php:158
 msgid "Nom complet"
 msgstr ""
 
@@ -1359,11 +1381,6 @@ msgstr ""
 msgid "Avís legal – Contingut (HTML permès)"
 msgstr ""
 
-#: inc/customizer.php:529
-#: template-parts/legal.php:29
-msgid "Copyright"
-msgstr ""
-
 #: inc/customizer.php:536
 msgid "Copyright – Títol"
 msgstr ""
@@ -1515,11 +1532,13 @@ msgstr ""
 
 #: inc/ecommerce/orders.php:191
 #: inc/ecommerce/shop-core.php:25
+#: template-parts/cart-table.php:18
 msgid "Producte"
 msgstr ""
 
 #: inc/ecommerce/orders.php:192
 #: single-product.php:304
+#: template-parts/cart-table.php:19
 msgid "Quantitat"
 msgstr ""
 
@@ -1698,150 +1717,173 @@ msgstr ""
 msgid "Productos"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:56
+#: inc/ecommerce/shop-core.php:62
 msgid "Categorías de producto"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:57
+#: inc/ecommerce/shop-core.php:63
 msgid "Categoría de producto"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:58
+#: inc/ecommerce/shop-core.php:64
 msgid "Buscar categorías"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:59
+#: inc/ecommerce/shop-core.php:65
 msgid "Todas las categorías"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:60
+#: inc/ecommerce/shop-core.php:66
 msgid "Editar categoría"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:61
+#: inc/ecommerce/shop-core.php:67
 msgid "Actualizar categoría"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:62
+#: inc/ecommerce/shop-core.php:68
 msgid "Añadir nueva categoría"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:63
+#: inc/ecommerce/shop-core.php:69
 msgid "Nuevo nombre de categoría"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:99
+#: inc/ecommerce/shop-core.php:105
 #: single-product.php:311
 msgid "Afegint..."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:100
+#: inc/ecommerce/shop-core.php:106
 msgid "Producte afegit!"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:101
+#: inc/ecommerce/shop-core.php:107
 #: single-product.php:312
-#: template-parts/product-card.php:150
+#: template-parts/product-card.php:148
 msgid "Afegir a la cistella"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:102
+#: inc/ecommerce/shop-core.php:108
 msgid "Error"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:140
+#: inc/ecommerce/shop-core.php:110
+msgid "Error en afegir el producte."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:111
+msgid "Error de connexió. Si us plau, torna-ho a provar."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:112
+msgid "Error de connexió. Si us plau, recarrega la pàgina."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:113
+msgid "Error en actualitzar la cistella."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:114
+msgid "Error en eliminar de la cistella."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:115
+msgid "Producte eliminat de la cistella."
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:116
+msgid "Estàs segur que vols eliminar aquest producte de la cistella?"
+msgstr ""
+
+#: inc/ecommerce/shop-core.php:156
 msgid "Producto no válido."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:267
+#: inc/ecommerce/shop-core.php:283
 msgid "Dades invàlides"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:277
+#: inc/ecommerce/shop-core.php:293
 msgid "Producte no vàlid"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:310
+#: inc/ecommerce/shop-core.php:326
 msgid "Producte afegit a la cistella"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:324
-#: inc/ecommerce/shop-core.php:351
+#: inc/ecommerce/shop-core.php:340
+#: inc/ecommerce/shop-core.php:367
 msgid "Datos inválidos"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:334
+#: inc/ecommerce/shop-core.php:350
 msgid "Carrito actualizado"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:338
+#: inc/ecommerce/shop-core.php:354
 msgid "Error al actualizar el carrito"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:360
+#: inc/ecommerce/shop-core.php:376
 msgid "Producto eliminado del carrito"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:364
+#: inc/ecommerce/shop-core.php:380
 msgid "Error al eliminar del carrito"
 msgstr ""
 
-#. Template Name of the theme
-#: inc/ecommerce/shop-core.php:381
-#: page-cart.php:34
+#: inc/ecommerce/shop-core.php:397
 msgid "Carrito"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:387
+#: inc/ecommerce/shop-core.php:403
 #: inc/ecommerce/template-tags-shop.php:92
 #: page-cart.php:40
 msgid "Total:"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:393
-#: page-cart.php:46
+#: inc/ecommerce/shop-core.php:409
 msgid "Se han aplicado descuentos de usuario registrado (si corresponden)."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:397
-#: page-cart.php:50
+#: inc/ecommerce/shop-core.php:413
 msgid "Regístrate o inicia sesión para obtener descuentos exclusivos."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:402
-#: page-cart.php:55
+#: inc/ecommerce/shop-core.php:419
 msgid "Ir a pagar"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:536
+#: inc/ecommerce/shop-core.php:553
 msgid "Negre"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:540
+#: inc/ecommerce/shop-core.php:557
 msgid "Blanc"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:544
+#: inc/ecommerce/shop-core.php:561
 msgid "Vermell"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:548
+#: inc/ecommerce/shop-core.php:565
 msgid "Blau"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:552
+#: inc/ecommerce/shop-core.php:569
 msgid "Verd"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:556
+#: inc/ecommerce/shop-core.php:573
 msgid "Groc"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:560
+#: inc/ecommerce/shop-core.php:577
 msgid "Porpra"
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:564
+#: inc/ecommerce/shop-core.php:581
 msgid "Taronja"
 msgstr ""
 
@@ -1849,32 +1891,59 @@ msgstr ""
 msgid "La teva cistella està buida."
 msgstr ""
 
-#: inc/ecommerce/template-tags-shop.php:98
+#: inc/ecommerce/template-tags-shop.php:99
 msgid "Pagar ara"
 msgstr ""
 
-#: inc/ecommerce/template-tags-shop.php:128
+#: inc/ecommerce/template-tags-shop.php:129
 #: page-checkout.php:16
 msgid "Finalizar compra"
 msgstr ""
 
-#: inc/ecommerce/template-tags-shop.php:132
+#: inc/ecommerce/template-tags-shop.php:133
 #: page-checkout.php:19
 #: template-parts/cart-table.php:13
-#: template-parts/shop/cart-table.php:19
-msgid "Tu carrito está vacío."
+msgid "La cistella és buida."
 msgstr ""
 
-#: inc/ecommerce/template-tags-shop.php:172
+#: inc/ecommerce/template-tags-shop.php:173
 msgid "Realitzar la comanda"
 msgstr ""
 
-#: inc/external-news.php:136
+#: inc/external-news.php:65
+msgid "Sin categoría"
+msgstr ""
+
+#: inc/external-news.php:139
 msgid "No hi ha notícies disponibles."
 msgstr ""
 
-#: inc/external-news.php:141
+#: inc/external-news.php:144
 msgid "Paginació"
+msgstr ""
+
+#: inc/i18n-admin.php:26
+msgid "Traducciones (FCSD)"
+msgstr ""
+
+#: inc/i18n-admin.php:41
+msgid "Rellena sólo los idiomas que quieras. Si un campo está vacío, se usa el contenido por defecto."
+msgstr ""
+
+#: inc/i18n-admin.php:53
+msgid "Slug"
+msgstr ""
+
+#: inc/i18n-admin.php:54
+msgid "p. ej. tienda, shop…"
+msgstr ""
+
+#: inc/i18n-admin.php:56
+msgid "Título"
+msgstr ""
+
+#: inc/i18n-admin.php:59
+msgid "Contenido"
 msgstr ""
 
 #: inc/intranet.php:18
@@ -2068,84 +2137,84 @@ msgstr ""
 msgid "Usa aquest document"
 msgstr ""
 
-#: inc/services-areas.php:19
-msgid "Genèric"
+#: inc/services-areas.php:23
+msgid "Institucional / Genèric"
 msgstr ""
 
-#: inc/services-areas.php:20
+#: inc/services-areas.php:24
 msgid "Serveis d’àmbit genèric o transversal."
 msgstr ""
 
-#: inc/services-areas.php:26
+#: inc/services-areas.php:31
 msgid "Vida independent"
 msgstr ""
 
-#: inc/services-areas.php:27
+#: inc/services-areas.php:32
 msgid "Serveis per a la vida autònoma i suport al dia a dia."
 msgstr ""
 
-#: inc/services-areas.php:33
+#: inc/services-areas.php:39
 msgid "Treball"
 msgstr ""
 
-#: inc/services-areas.php:34
+#: inc/services-areas.php:40
 msgid "Serveis relacionats amb l’ocupació i el món laboral."
 msgstr ""
 
-#: inc/services-areas.php:40
+#: inc/services-areas.php:47
 msgid "Formació"
 msgstr ""
 
-#: inc/services-areas.php:41
+#: inc/services-areas.php:48
 msgid "Serveis de formació, capacitació i aprenentatge."
 msgstr ""
 
-#: inc/services-areas.php:47
+#: inc/services-areas.php:55
 msgid "Oci"
 msgstr ""
 
-#: inc/services-areas.php:48
+#: inc/services-areas.php:56
 msgid "Serveis i activitats de lleure i oci."
 msgstr ""
 
-#: inc/services-areas.php:54
+#: inc/services-areas.php:63
 msgid "Salut"
 msgstr ""
 
-#: inc/services-areas.php:55
+#: inc/services-areas.php:64
 msgid "Serveis relacionats amb l’àmbit de la salut."
 msgstr ""
 
-#: inc/services-areas.php:61
+#: inc/services-areas.php:71
 msgid "Merchandising"
 msgstr ""
 
-#: inc/services-areas.php:62
+#: inc/services-areas.php:72
 msgid "Productes i serveis de marxandatge solidari."
 msgstr ""
 
-#: inc/services-areas.php:68
-msgid "EXIT 21"
+#: inc/services-areas.php:79
+msgid "Èxit 21"
 msgstr ""
 
-#: inc/services-areas.php:69
-msgid "Projectes i serveis vinculats a EXIT21."
+#: inc/services-areas.php:80
+msgid "Projectes i serveis vinculats a Èxit 21."
 msgstr ""
 
-#: inc/services-areas.php:75
+#: inc/services-areas.php:87
 msgid "Assemblea DH"
 msgstr ""
 
-#: inc/services-areas.php:76
+#: inc/services-areas.php:88
 msgid "Serveis i projectes vinculats a l’Assemblea de Drets Humans."
 msgstr ""
 
-#: inc/services-areas.php:82
+#: inc/services-areas.php:95
 #: inc/template-tags.php:40
 msgid "Voluntariat"
 msgstr ""
 
-#: inc/services-areas.php:83
+#: inc/services-areas.php:96
 msgid "Serveis i programes de voluntariat."
 msgstr ""
 
@@ -2170,7 +2239,6 @@ msgid "Formulari temporalment no disponible."
 msgstr ""
 
 #: inc/template-tags.php:7
-#: template-parts/navbar.php:43
 msgid "Serveis"
 msgstr ""
 
@@ -2179,17 +2247,14 @@ msgid "Events"
 msgstr ""
 
 #: inc/template-tags.php:9
-#: template-parts/navbar.php:57
 msgid "Botiga"
 msgstr ""
 
 #: inc/template-tags.php:10
-#: template-parts/navbar.php:63
 msgid "Transparència"
 msgstr ""
 
 #: inc/template-tags.php:11
-#: template-parts/navbar.php:69
 msgid "Actualitat"
 msgstr ""
 
@@ -2450,7 +2515,19 @@ msgstr ""
 
 #: page-cart.php:21
 #, php-format
-msgid "\"%s\" se ha añadido al carrito correctamente."
+msgid "\"%s\" s'ha afegit a la cistella correctament."
+msgstr ""
+
+#: page-cart.php:46
+msgid "S'han aplicat els descomptes d'usuari registrat (si escau)."
+msgstr ""
+
+#: page-cart.php:50
+msgid "Registra't o inicia sessió per obtenir descomptes exclusius."
+msgstr ""
+
+#: page-cart.php:56
+msgid "Anar a pagar"
 msgstr ""
 
 #. Template Name of the theme
@@ -2486,7 +2563,15 @@ msgstr ""
 msgid "No tienes acceso a la intranet."
 msgstr ""
 
-#: page-intranet.php:69
+#: page-intranet.php:43
+msgid "Calendari laboral"
+msgstr ""
+
+#: page-intranet.php:44
+msgid "Veure Calendari laboral"
+msgstr ""
+
+#: page-intranet.php:75
 msgid "De momento no hay anuncios internos."
 msgstr ""
 
@@ -2793,137 +2878,127 @@ msgstr ""
 msgid "Talla"
 msgstr ""
 
-#: single-service.php:53
-msgid "Presentació"
-msgstr ""
-
-#: single-service.php:67
-msgid "Fitxa tècnica del servei"
-msgstr ""
-
-#: single-service.php:73
-msgid "Nom del servei"
-msgstr ""
-
-#: single-service.php:74
-msgid "Definició breu"
-msgstr ""
-
-#: single-service.php:75
-msgid "Marc normatiu i referents"
-msgstr ""
-
-#: single-service.php:76
-msgid "Història i missió"
-msgstr ""
-
-#: single-service.php:77
-msgid "A qui s’adreça"
-msgstr ""
-
-#: single-service.php:78
-msgid "Què oferim"
-msgstr ""
-
-#: single-service.php:79
-msgid "Programes principals"
-msgstr ""
-
-#: single-service.php:80
-msgid "Altres activitats relacionades"
-msgstr ""
-
-#: single-service.php:81
-msgid "Durada / freqüència / modalitats"
-msgstr ""
-
-#: single-service.php:82
-msgid "Cost o finançament"
-msgstr ""
-
-#: single-service.php:83
-msgid "Reconeixements o aliances"
-msgstr ""
-
-#: single-service.php:84
-msgid "Compliment amb normativa ISO"
-msgstr ""
-
-#: single-service.php:85
-msgid "Prestació social / cartera de serveis"
-msgstr ""
-
-#: single-service.php:86
-msgid "Registre Generalitat"
-msgstr ""
-
-#: single-service.php:87
-msgid "Equip professional"
-msgstr ""
-
-#: single-service.php:88
-msgid "Adreça i contacte"
-msgstr ""
-
-#: single-service.php:89
-msgid "Vídeos o testimonis"
-msgstr ""
-
-#: single-service.php:90
-msgid "Frase explicativa en primera persona"
-msgstr ""
-
-#: single-service.php:91
-msgid "Any de creació"
-msgstr ""
-
-#: single-service.php:92
-msgid "Canvis de nom"
-msgstr ""
-
-#: single-service.php:93
-msgid "Destacats"
-msgstr ""
-
-#: single-service.php:94
+#: single-service.php:61
 msgid "Frase curta cridanera"
 msgstr ""
 
+#: single-service.php:74
+msgid "Presentació"
+msgstr ""
+
+#: single-service.php:88
+#: single-service.php:122
+msgid "Fitxa tècnica del servei"
+msgstr ""
+
+#: single-service.php:93
+msgid "Definició breu"
+msgstr ""
+
+#: single-service.php:94
+msgid "Marc normatiu i referents"
+msgstr ""
+
 #: single-service.php:95
-msgid "3 punts clau diferencials"
+msgid "Història i missió"
 msgstr ""
 
 #: single-service.php:96
-msgid "Què fem per tu"
+msgid "A qui s’adreça"
 msgstr ""
 
 #: single-service.php:97
+msgid "Què oferim"
+msgstr ""
+
+#: single-service.php:98
+msgid "Programes principals"
+msgstr ""
+
+#: single-service.php:99
+msgid "Altres activitats relacionades"
+msgstr ""
+
+#: single-service.php:100
+msgid "Durada / freqüència / modalitats"
+msgstr ""
+
+#: single-service.php:101
+msgid "Cost o finançament"
+msgstr ""
+
+#: single-service.php:102
+msgid "Reconeixements o aliances"
+msgstr ""
+
+#: single-service.php:103
+msgid "Compliment amb normativa ISO"
+msgstr ""
+
+#: single-service.php:104
+msgid "Prestació social / cartera de serveis"
+msgstr ""
+
+#: single-service.php:105
+msgid "Registre Generalitat"
+msgstr ""
+
+#: single-service.php:106
+msgid "Equip professional"
+msgstr ""
+
+#: single-service.php:107
+msgid "Adreça i contacte"
+msgstr ""
+
+#: single-service.php:108
+msgid "Vídeos o testimonis"
+msgstr ""
+
+#: single-service.php:109
+msgid "Frase explicativa en primera persona"
+msgstr ""
+
+#: single-service.php:110
+msgid "Any de creació"
+msgstr ""
+
+#: single-service.php:111
+msgid "Canvis de nom"
+msgstr ""
+
+#: single-service.php:112
+msgid "Destacats"
+msgstr ""
+
+#: single-service.php:114
+msgid "3 punts clau diferencials"
+msgstr ""
+
+#: single-service.php:115
+msgid "Què fem per tu"
+msgstr ""
+
+#: single-service.php:116
 msgid "Què fem per l'entorn"
 msgstr ""
 
-#: single-service.php:142
+#: single-service.php:143
 msgid "No hi ha informació tècnica disponible per aquest servei."
 msgstr ""
 
 #. translators: %s: file name
-#: single-service.php:162
+#: single-service.php:163
 #, php-format
 msgid "Descarrega el document (%s)"
 msgstr ""
 
-#: template-parts/cart-table.php:18
-#: template-parts/shop/cart-table.php:32
-msgid "Producto"
+#: taxonomy-service_area.php:13
+msgid "Àmbit"
 msgstr ""
 
-#: template-parts/cart-table.php:19
-#: template-parts/shop/cart-table.php:34
-msgid "Cantidad"
-msgstr ""
-
-#: template-parts/cart-table.php:20
-#: template-parts/shop/cart-table.php:33
-msgid "Precio"
+#: taxonomy-service_area.php:79
+msgid "No hi ha serveis en aquest àmbit encara."
 msgstr ""
 
 #: template-parts/map.php:17
@@ -2938,11 +3013,11 @@ msgstr ""
 msgid "Com arribar-hi"
 msgstr ""
 
-#: template-parts/navbar.php:10
+#: template-parts/navbar.php:21
 msgid "Navegació principal"
 msgstr ""
 
-#: template-parts/navbar.php:15
+#: template-parts/navbar.php:26
 msgid "Commuta navegació"
 msgstr ""
 
@@ -2950,8 +3025,24 @@ msgstr ""
 msgid "Preu especial per usuaris registrats"
 msgstr ""
 
+#: template-parts/shop/cart-table.php:19
+msgid "Tu carrito está vacío."
+msgstr ""
+
 #: template-parts/shop/cart-table.php:23
 msgid "Ir a la tienda"
+msgstr ""
+
+#: template-parts/shop/cart-table.php:32
+msgid "Producto"
+msgstr ""
+
+#: template-parts/shop/cart-table.php:33
+msgid "Precio"
+msgstr ""
+
+#: template-parts/shop/cart-table.php:34
+msgid "Cantidad"
 msgstr ""
 
 #: template-parts/shop/cart-table.php:98

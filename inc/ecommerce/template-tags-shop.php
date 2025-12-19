@@ -130,7 +130,7 @@ function fcsd_checkout_shortcode() {
 
         <?php if ( empty( $cart['items'] ) ) : ?>
 
-            <p><?php esc_html_e( 'Tu carrito está vacío.', 'fcsd' ); ?></p>
+            <p><?php esc_html_e( 'La cistella és buida.', 'fcsd' ); ?></p>
 
         <?php else : ?>
 

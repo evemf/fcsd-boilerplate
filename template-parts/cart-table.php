@@ -10,14 +10,14 @@ $cart = isset( $args['cart'] ) ? $args['cart'] : fcsd_get_cart_summary();
 ?>
 
 <?php if ( empty( $cart['items'] ) ) : ?>
-    <p><?php esc_html_e( 'Tu carrito está vacío.', 'fcsd' ); ?></p>
+    <p><?php esc_html_e( 'La cistella és buida.', 'fcsd' ); ?></p>
 <?php else : ?>
     <table class="cart-table table">
         <thead>
             <tr>
-                <th><?php esc_html_e( 'Producto', 'fcsd' ); ?></th>
-                <th><?php esc_html_e( 'Cantidad', 'fcsd' ); ?></th>
-                <th><?php esc_html_e( 'Precio', 'fcsd' ); ?></th>
+                <th><?php esc_html_e( 'Producte', 'fcsd' ); ?></th>
+                <th><?php esc_html_e( 'Quantitat', 'fcsd' ); ?></th>
+                <th><?php esc_html_e( 'Preu', 'fcsd' ); ?></th>
                 <th><?php esc_html_e( 'Subtotal', 'fcsd' ); ?></th>
             </tr>
         </thead>

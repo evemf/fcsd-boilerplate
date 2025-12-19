@@ -142,6 +142,10 @@ function fcsd_handle_auth_forms() {
             return;
         }
 
+        // Legacy users (manually created/imported) might not have the worker role.
+        // If they use an @fcsd.org email, we grant it on login.
+        fcsd_maybe_add_worker_role( $user );
+
         wp_safe_redirect( fcsd_get_page_url_by_slug( 'perfil-usuari' ) );
         exit;
     }
@@ -227,6 +231,37 @@ add_action(
             )
         );
     }
+);
+
+/**
+ * Ensure users from FCSD domain have the "worker" role.
+ *
+ * Note: we use add_role (NOT set_role) to avoid overriding existing roles
+ * (e.g. administrator, intranet_admin, etc.).
+ */
+function fcsd_maybe_add_worker_role( $user ) {
+    if ( ! $user instanceof WP_User ) {
+        return;
+    }
+
+    $email = (string) $user->user_email;
+    if ( ! $email || ! preg_match( '/@fcsd\.org$/i', $email ) ) {
+        return;
+    }
+
+    if ( ! in_array( 'worker', (array) $user->roles, true ) ) {
+        $user->add_role( 'worker' );
+    }
+}
+
+// Also enforce role on every login (covers legacy/imported users).
+add_action(
+    'wp_login',
+    function ( $user_login, $user ) {
+        fcsd_maybe_add_worker_role( $user );
+    },
+    10,
+    2
 );
 
 
@@ -490,6 +525,12 @@ function fcsd_login_form_shortcode() {
         <button type="submit" class="btn btn-secondary w-100">
             <?php _e( 'Entrar', 'fcsd' ); ?>
         </button>
+
+        <div class="mt-3 text-center">
+            <a class="small" href="<?php echo esc_url( wp_lostpassword_url( get_permalink() ) ); ?>">
+                <?php esc_html_e( 'Reseteja el teu compte', 'fcsd' ); ?>
+            </a>
+        </div>
     </form>
     <?php
     return ob_get_clean();
@@ -1079,7 +1120,7 @@ add_shortcode( 'fcsd_profile', 'fcsd_profile_shortcode' );
 
 
 /**
- * Shortcode [fcsd_intranet_link]: show link to intranet if user is worker.
+ * Shortcode [fcsd_intranet_link]: show link to intranet if user can access.
  */
 function fcsd_intranet_link_shortcode() {
 
@@ -1089,7 +1130,13 @@ function fcsd_intranet_link_shortcode() {
 
     $user = wp_get_current_user();
 
-    if ( in_array( 'worker', (array) $user->roles, true ) ) {
+    // Keep roles in sync for FCSD emails (legacy/imported users).
+    fcsd_maybe_add_worker_role( $user );
+
+    $role_access  = ( in_array( 'worker', (array) $user->roles, true ) || in_array( 'intranet_admin', (array) $user->roles, true ) || in_array( 'administrator', (array) $user->roles, true ) );
+    $email_access = (bool) preg_match( '/@fcsd\.org$/i', (string) $user->user_email );
+
+    if ( $role_access || $email_access ) {
         $url = fcsd_get_option( 'fcsd_intranet_url' );
         if ( $url ) {
             return '<p><a href="' . esc_url( $url ) . '" class="btn btn-outline-primary" target="_blank" rel="noopener">' .

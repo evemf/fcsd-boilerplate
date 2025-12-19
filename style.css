@@ -7,6 +7,101 @@ Version: 2.0.0
 Text Domain: fcsd
 */
 
+/* --- Idiomas: destacar el idioma activo --- */
+.topbar__langs {
+  margin-right: 50px;
+}
+
+/* --------------------------------------------------------------
+ * Service: Informació imprescindible (footer)
+ * -------------------------------------------------------------- */
+.service-info-footer{
+  margin-top:2rem;
+  border-color: 4px solid var(--accent);
+  background-color: var(--bg-contrast);
+  color: var(--bg);
+  border-radius:16px;
+  overflow:hidden;
+}
+.service-info-footer__inner{
+  padding:32px 28px;
+}
+.service-info-footer__title{
+  margin:0 0 18px;
+  font-weight:700;
+}
+.service-info-footer__grid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:24px;
+}
+.service-info-footer__heading{
+  font-size:1.05rem;
+  font-weight:700;
+  margin:0 0 10px;
+}
+.service-info-footer__text p{ color:#fff; }
+.service-info-footer__text a{ color:#fff; text-decoration:underline; }
+.service-info-footer__address p{ margin-bottom:6px; }
+.service-info-footer__support{
+  margin-top:22px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:center;
+}
+
+.theme-dark .service-info-footer p,
+.theme-dark .service-info-footer a {
+  background-color: var(--bg-contrast);
+  color: var(--bg);
+}
+
+.service-info-footer__support-label{
+  font-weight:700;
+}
+.service-info-footer__support-logos{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.service-info-footer__logo{
+  max-height:44px;
+  width:auto;
+  height:auto;
+  filter: brightness(0) invert(1);
+}
+
+/* Versió compacta (cards de l'arxiu) */
+.service-info-footer--compact{
+  margin-top:0;
+  border-radius:0 0 12px 12px;
+}
+.service-info-footer--compact .service-info-footer__inner{
+  padding:18px 16px;
+}
+.service-info-footer--compact .service-info-footer__title{
+  font-size:1rem;
+  margin-bottom:14px;
+}
+.service-info-footer--compact .service-info-footer__grid{
+  grid-template-columns: 1fr;
+  gap:14px;
+}
+.service-entry p {
+  color:var(--bg-contrast);
+}
+@media (max-width: 991px){
+  .service-info-footer__grid{ grid-template-columns: 1fr; }
+}
+
+.topbar__langs a.is-active{
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 /* Accessibility: skip link */
 .skip-link{
   position:absolute;
@@ -127,7 +222,16 @@ Text Domain: fcsd
    ============================== */
 
 body.theme-dark {
-  --bg: var(--bg-contrast);
+  /*
+   * IMPORTANT:
+   * In dark mode we must also invert the "contrast" token.
+   * Several UI pieces (badges/pills) rely on:
+   *   background: var(--bg)
+   *   color:      var(--bg-contrast)
+   * If --bg-contrast stays dark, text becomes unreadable.
+   */
+  --bg: #111318;
+  --bg-contrast: #f5f6f8;
   --text: #f4f4f5;
   --text-muted: #c0c3cc;
   --text-inverse: #111318;
@@ -216,6 +320,97 @@ body.theme-dark .bg-accent {
 
 .border-accent-subtle {
   border-color: var(--accent-subtle) !important;
+}
+
+/* ==============================
+   NAVEGACIÓ PRINCIPAL (MENÚ + DROPDOWNS)
+   ============================== */
+
+.mainnav {
+  background: var(--panel);
+}
+
+.mainnav .navbar-nav > .nav-item > .nav-link {
+  color: var(--text);
+  font-weight: var(--font-weight-semibold);
+  padding: 1rem .85rem;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.mainnav .navbar-nav > .nav-item > .nav-link:hover,
+.mainnav .navbar-nav > .nav-item > .nav-link:focus {
+  background: var(--accent-light);
+  color: var(--text);
+  text-decoration: none;
+}
+
+/* Dropdown (submenú natiu) */
+.mainnav .dropdown-menu {
+  background: var(--panel);
+  border: 1px solid var(--accent-subtle);
+  border-top: 3px solid var(--accent);
+  border-radius: var(--radius-lg);
+  padding: .5rem;
+  margin-top: .65rem;
+  box-shadow: var(--shadow-sm);
+  min-width: 14rem;
+}
+
+/* Evita l'efecte de "reflex" del Bootstrap per defecte en alguns navegadors */
+.mainnav .dropdown-menu {
+  filter: none;
+}
+
+.mainnav .dropdown-item {
+  color: var(--text);
+  border-radius: var(--radius-md);
+  padding: .6rem .85rem;
+  font-weight: var(--font-weight-medium);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.mainnav .dropdown-item:hover,
+.mainnav .dropdown-item:focus {
+  background: var(--accent-light);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.mainnav .dropdown-item.active,
+.mainnav .dropdown-item:active {
+  background: var(--accent-subtle);
+  color: var(--text);
+}
+
+/* Animació suau d'obertura */
+.mainnav .dropdown-menu.show {
+  animation: fcsdDropdownIn 160ms ease-out;
+  transform-origin: top;
+}
+
+@keyframes fcsdDropdownIn {
+  from { opacity: 0; transform: translateY(-6px) scale(.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Mode fosc: assegura contrast i separació */
+body.theme-dark .mainnav .dropdown-menu {
+  background: var(--panel);
+  border-color: rgba(231, 161, 90, 0.28);
+  border-top-color: var(--accent);
+}
+
+body.theme-dark .mainnav .navbar-nav > .nav-item > .nav-link:hover,
+body.theme-dark .mainnav .navbar-nav > .nav-item > .nav-link:focus,
+body.theme-dark .mainnav .dropdown-item:hover,
+body.theme-dark .mainnav .dropdown-item:focus {
+  background: rgba(231, 161, 90, 0.16);
+}
+
+/* Ajust del caret perquè s'integri millor */
+.mainnav .dropdown-toggle::after {
+  margin-left: .45rem;
+  vertical-align: .18rem;
 }
 
 /* ==============================
@@ -1670,13 +1865,102 @@ body.theme-dark .single-news .entry-footer {
    ============================== */
 
 .service-card__header {
-  padding: 10px;
+  /*
+   * Service cards rely on background images.
+   * Guarantee legibility by layering a contrast overlay and
+   * placing the label/title on a subtle background.
+   */
+  position: relative;
+  padding: 14px;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  height: 100%;
+  background-color: var(--panel-strong);
+  background-size: cover;
+  background-position: center;
+  isolation: isolate;
+}
+
+.service-card__header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Default (light theme): darker at the bottom for the text */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.20) 0%, rgba(0, 0, 0, 0.15) 45%, rgba(0, 0, 0, 0.10) 100%);
+}
+
+.service-card__header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.service-card__area {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  /*
+   * Solid pill that always contrasts with the page theme:
+   * - Light theme: dark pill + light text
+   * - Dark theme : light pill + dark text
+   */
+  background-color: var(--bg-contrast);
+  color: var(--bg);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+}
+
+.service-card__title {
+  margin: 0;
 }
 
 .service-card__title a {
-  color: white;
+  display: inline;
+  color: #fff;
   text-decoration: none;
+  /* Give the title its own background to handle very bright images */
+  background: rgba(17, 19, 24, 0.72);
+  padding: 0.15em 0.25em;
+  border-radius: 0.4rem;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  line-height: 1.8;
 }
+
+.service-card__title a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.service-card__title a:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Dark theme tuning: slightly stronger overlay and a clearer pill */
+body.theme-dark .service-card__header::before {
+  /* Stronger dark overlay for bright images */
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.22) 45%, rgba(0, 0, 0, 0.12) 100%);
+}
+
+body.theme-dark .service-card__area {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+body.theme-dark .service-card__title a {
+  background: rgba(0, 0, 0, 0.62);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
 
 /* ==============================
    SERVICES - HERO & FICHA TÈCNICA
@@ -1699,7 +1983,7 @@ body.theme-dark .single-news .entry-footer {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: var(--space-xs);
+  gap: var(--space-md);
   padding: var(--space-2xl) 10%;
 }
 
@@ -1795,6 +2079,133 @@ body.theme-dark .service-hero__tagline > p:last-child {
   }
 }
 
+/* ==============================
+   SERVICE - VIDEO "TV" EMBED
+   ============================== */
+
+.service-video {
+  margin: var(--space-2xl) 0;
+}
+
+.service-video__frame {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px;
+  border-radius: calc(var(--radius-2xl) + 10px);
+  background: linear-gradient(180deg, rgba(20, 20, 20, 1), rgba(8, 8, 8, 1));
+  box-shadow: var(--shadow-lg);
+  position: relative;
+}
+
+/* "Bezel" suau */
+.service-video__frame::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: calc(var(--radius-2xl) + 6px);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+  pointer-events: none;
+}
+
+/* Peana */
+.service-video__frame::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -18px;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.service-video__screen {
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+/* Overlay "tap to play" (accessibility + start with user gesture) */
+.service-video__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.55));
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.service-video__overlay-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.service-video__play {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  font-size: 18px;
+}
+
+.service-video__overlay:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.85);
+  outline-offset: -3px;
+}
+
+.service-video.is-playing .service-video__overlay {
+  display: none;
+}
+
+body.theme-dark .service-video__overlay-inner {
+  background: rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.service-video__screen iframe,
+.service-video__screen video,
+.service-video__screen object,
+.service-video__screen embed {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+body.theme-dark .service-video__frame {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+}
+
+body.theme-dark .service-video__frame::before {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
+}
+
+body.theme-dark .service-video__frame::after {
+  background: rgba(255, 255, 255, 0.10);
+}
+
 /* Fitxa tècnica (grid responsiu) colorejat per àmbit */
 .service-ficha {
   --service-area-color: var(--accent);
@@ -1803,7 +2214,8 @@ body.theme-dark .service-hero__tagline > p:last-child {
 
 .service-ficha-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /* Máximo 3 columnas (desktop) */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-md);
 }
 
@@ -1822,22 +2234,30 @@ body.theme-dark .service-ficha-item {
 }
 
 .service-ficha-item__label {
-  font-size: var(--font-size-xs);
+  /* Un poco más grande para legibilidad */
+  font-size: var(--font-size-sm);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 0.5rem 0;
-  color: var(--bg);
+  /* Siempre alto contraste sobre el color de área */
+  color: #fff;
   background-color: var(--service-area-color);
-  padding: 3px 5px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  display: inline-block;
 }
 
-body.theme-dark .service-ficha-item__label {
-  color: rgba(255, 255, 255, 0.72);
-}
 
 .service-ficha-item__value {
-  font-size: var(--font-size-base);
+  /* Aumentamos un punto para legibilidad */
+  font-size: var(--font-size-md);
   line-height: 1.6;
+}
+
+@media (max-width: 991.98px) {
+  .service-ficha-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .service-ficha-item__value > p:last-child,

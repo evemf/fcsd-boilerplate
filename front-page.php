@@ -68,7 +68,7 @@ $carousel_news = new WP_Query([
       <div class="fcsd-hero-banner__media-inner">
         <iframe
           src="https://www.youtube.com/embed/2LGbN02uhiE?start=10&autoplay=1&mute=1&playsinline=1&controls=1&rel=0&modestbranding=1&loop=1&playlist=2LGbN02uhiE"
-          title="Vídeo Fundació"
+          title="<?php echo esc_attr__( 'Vídeo Fundació', 'fcsd' ); ?>"
           frameborder="0"
           allow="autoplay; encrypted-media; picture-in-picture"
           referrerpolicy="strict-origin-when-cross-origin"

@@ -74,7 +74,7 @@ jQuery(document).ready(function($) {
                            .addClass('is-error')
                            .text(fcsd_shop.error_text);
                     
-                    alert(response.data.message || 'Error al afegir el producte');
+                    alert(response.data.message || fcsd_shop.i18n.add_error_fallback);
                     
                     // Restaurar después de 2 segundos
                     setTimeout(function() {
@@ -89,7 +89,7 @@ jQuery(document).ready(function($) {
                        .addClass('is-error')
                        .text(fcsd_shop.error_text);
                 
-                alert('Error de connexió. Si us plau, torna-ho a provar.');
+                alert(fcsd_shop.i18n.connection_error);
                 
                 // Restaurar después de 2 segundos
                 setTimeout(function() {
@@ -121,7 +121,7 @@ jQuery(document).ready(function($) {
         const $button = $(this);
         const cartKey = $button.data('cart-key');
         
-        if (!confirm('¿Estàs segur que vols eliminar aquest producte del carret?')) {
+        if (!confirm(fcsd_shop.i18n.confirm_remove)) {
             return;
         }
         
@@ -151,12 +151,12 @@ jQuery(document).ready(function($) {
                     // Actualizar el contador del header
                     updateCartBadge(response.data.cart_count);
                 } else {
-                    alert(response.data.message || 'Error al actualitzar el carret');
+                    alert(response.data.message || fcsd_shop.i18n.update_error);
                     location.reload();
                 }
             },
             error: function() {
-                alert('Error de connexió. Si us plau, recarrega la pàgina.');
+                alert(fcsd_shop.i18n.reload_error);
                 location.reload();
             }
         });
@@ -185,14 +185,14 @@ jQuery(document).ready(function($) {
                     updateCartBadge(response.data.cart_count);
                     
                     // Mostrar mensaje de éxito
-                    showCartMessage('Producte eliminat del carret', 'success');
+                    showCartMessage(fcsd_shop.i18n.removed_success, 'success');
                 } else {
-                    alert(response.data.message || 'Error al eliminar del carret');
+                    alert(response.data.message || fcsd_shop.i18n.remove_error);
                     location.reload();
                 }
             },
             error: function() {
-                alert('Error de connexió. Si us plau, recarrega la pàgina.');
+                alert(fcsd_shop.i18n.reload_error);
                 location.reload();
             }
         });
@@ -262,7 +262,7 @@ jQuery(document).ready(function($) {
             '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">' +
                 '<i class="bi bi-' + icon + ' me-2"></i>' +
                 message +
-                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="' + fcsd_shop.i18n.close + '"></button>' +
             '</div>'
         );
         

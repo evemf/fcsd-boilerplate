@@ -30,15 +30,19 @@ require_once FCSD_THEME_DIR . '/inc/i18n-content.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-router.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-links.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-admin.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-menu.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-menu-admin.php';
 require_once FCSD_THEME_DIR . '/inc/i18n-canonical.php';
+require_once FCSD_THEME_DIR . '/inc/i18n-rewrites.php';
 require_once FCSD_THEME_DIR . '/inc/theme-activate.php';
 
+require_once FCSD_THEME_DIR . '/inc/class-nav-walker-mega.php';
+
 // Forzar locale del frontend según el idioma detectado
-add_filter('locale', function($locale){
+add_filter('locale', function($locale) {
     if ( is_admin() ) return $locale;
     return fcsd_current_locale();
-}, 20);
-
+});
 // --------------------------------------------------
 // Soporte del tema
 // --------------------------------------------------
@@ -56,14 +60,61 @@ function fcsd_theme_setup() {
         'flex-width'  => true,
     ] );
 
-    register_nav_menus( [
+    // Menús base (idioma por defecto)
+    $menus = [
         'primary' => __( 'Menú principal', 'fcsd' ),
         'topbar'  => __( 'Franja superior', 'fcsd' ),
         'footer'  => __( 'Menú del peu de pàgina', 'fcsd' ),
         'social'  => __( 'Enllaços socials', 'fcsd' ),
-    ] );
+    ];
+
+    // Menús per idioma: el tema utilitza un sol conjunt d'ubicacions.
+    // Els títols i URLs dels ítems es tradueixen via inc/i18n-menu.php.
+
+    register_nav_menus( $menus );
 }
 add_action( 'after_setup_theme', 'fcsd_theme_setup' );
+ 
+
+// Añade clases semánticas a items concretos del menú (sin que el editor tenga que hacerlo).
+add_filter('nav_menu_css_class', function($classes, $item, $args, $depth){
+    if ( ! ($item instanceof WP_Post) ) return $classes;
+    if ( empty($args->theme_location) ) return $classes;
+
+    // Solo en menús principales.
+    if ( ! in_array($args->theme_location, ['primary'], true) ) {
+        return $classes;
+    }
+
+    $url = (string) ($item->url ?? '');
+    if ( $url === '' ) return $classes;
+
+    $path = (string) parse_url($url, PHP_URL_PATH);
+    $path = trim($path, '/');
+    if ( $path === '' ) return $classes;
+    $parts = explode('/', $path);
+    // quitar prefijo de idioma si existe
+    if ( ! empty($parts[0]) && defined('FCSD_LANGUAGES') && isset(FCSD_LANGUAGES[$parts[0]]) ) {
+        array_shift($parts);
+    }
+
+    $first = $parts[0] ?? '';
+    if ( $first === '' ) return $classes;
+
+    // Mapeo: slug -> clase de mega menú
+    $key = function_exists('fcsd_slug_key_from_translated') ? fcsd_slug_key_from_translated($first) : null;
+    $slug = $key ? $key : $first;
+
+    // Secciones (puedes ampliar el mapa en inc/slugs.php)
+    if ( in_array($slug, ['about','quisom','qui-som'], true) || in_array($first, ['qui-som','quisom'], true) ) {
+        $classes[] = 'fcsd-mega-quisom';
+    }
+    if ( in_array($slug, ['services','serveis'], true) || $first === 'serveis' ) {
+        $classes[] = 'fcsd-mega-serveis';
+    }
+
+    return array_values(array_unique($classes));
+}, 20, 4);
 
 // --------------------------------------------------
 // Tamaños de imagen
@@ -232,6 +283,17 @@ function fcsd_enqueue_assets() {
             'fcsd-actes-calendar-public',
             FCSD_THEME_URI . '/assets/js/actes-calendar-public.js',
             [ 'bootstrap' ],
+            FCSD_VERSION,
+            true
+        );
+    }
+
+    // Single servei: iniciar el vídeo de YouTube amb so després d'una interacció (scroll/click).
+    if ( is_singular( 'service' ) ) {
+        wp_enqueue_script(
+            'fcsd-service-video-autoplay',
+            FCSD_THEME_URI . '/assets/js/service-video-autoplay.js',
+            [],
             FCSD_VERSION,
             true
         );

@@ -73,8 +73,88 @@ while ( have_posts() ) :
                     <h2 id="presentacio" class="h5 text-muted">
                         <?php echo esc_html__( 'Presentació', 'fcsd' ); ?>
                     </h2>
-                    <div class="bg-light p-3 rounded border" itemprop="description">
+                    <div class="p-3 rounded border" itemprop="description">
                         <?php the_content(); ?>
+                    </div>
+                </section>
+            <?php endif; ?>
+
+            <?php
+            // Vídeo (YouTube) — el backend només ha d'enganxar l'URL.
+            // Prioritat: camp nou "youtube_video_url".
+            // Compatibilitat: si no existeix, intentem detectar una URL de YouTube dins del camp legacy "videos".
+            $youtube_url = trim( (string) get_post_meta( get_the_ID(), 'youtube_video_url', true ) );
+
+            if ( empty( $youtube_url ) ) {
+                $legacy_videos = (string) get_post_meta( get_the_ID(), 'videos', true );
+                if ( $legacy_videos ) {
+                    // Agafa la primera URL que sembli de YouTube.
+                    if ( preg_match( '/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[\w\-\?&=\/%#\.]+/i', $legacy_videos, $m ) ) {
+                        $youtube_url = trim( $m[0] );
+                    }
+                }
+            }
+
+            // Generem l'embed via oEmbed (més segur i responsiu amb WordPress).
+            $youtube_embed = '';
+            if ( $youtube_url ) {
+                $youtube_embed = wp_oembed_get( $youtube_url, [
+                    'width'  => 1280,
+                    'height' => 720,
+                ] );
+
+                // Fallback: shortcode d'embed si l'oEmbed no respon (per plugins/entorns restringits).
+                if ( empty( $youtube_embed ) ) {
+                    $youtube_embed = do_shortcode( '[embed]' . esc_url( $youtube_url ) . '[/embed]' );
+                }
+            }
+
+            /**
+             * IMPORTANT: per poder iniciar el vídeo amb so després d'una interacció
+             * (scroll/click), necessitem l'API de YouTube habilitada.
+             * Injectem enablejsapi + playsinline i assegurem un id estable.
+             */
+            if ( ! empty( $youtube_embed ) && false !== stripos( $youtube_embed, '<iframe' ) ) {
+                // 1) Forcem un id a l'iframe (si no en té).
+                if ( ! preg_match( '/\sid\s*=\s*"[^"]+"/i', $youtube_embed ) ) {
+                    $youtube_embed = preg_replace( '/<iframe\b/i', '<iframe id="service-youtube-iframe"', $youtube_embed, 1 );
+                }
+
+                // 2) Afegim query params a src.
+                if ( preg_match( '/src\s*=\s*"([^"]+)"/i', $youtube_embed, $m ) ) {
+                    $src = html_entity_decode( $m[1], ENT_QUOTES );
+                    $src = add_query_arg(
+                        [
+                            'enablejsapi'      => '1',
+                            'playsinline'      => '1',
+                            'rel'              => '0',
+                            'modestbranding'   => '1',
+                            // Autoplay es farà via JS després d'interacció (no aquí).
+                        ],
+                        $src
+                    );
+                    $youtube_embed = str_replace( $m[0], 'src="' . esc_attr( $src ) . '"', $youtube_embed );
+                }
+
+                // 3) Donem permisos explícits d'autoplay.
+                if ( ! preg_match( '/\sallow\s*=\s*"/i', $youtube_embed ) ) {
+                    $youtube_embed = preg_replace( '/<iframe\b/i', '<iframe allow="autoplay; fullscreen; picture-in-picture"', $youtube_embed, 1 );
+                }
+            }
+            ?>
+
+            <?php if ( ! empty( $youtube_embed ) ) : ?>
+                <section class="service-video" aria-label="<?php echo esc_attr__( 'Vídeo del servei', 'fcsd' ); ?>">
+                    <div class="service-video__frame" role="group" aria-roledescription="<?php echo esc_attr__( 'Pantalla de vídeo', 'fcsd' ); ?>">
+                        <div class="service-video__screen">
+                            <button class="service-video__overlay" type="button">
+                                <span class="service-video__overlay-inner">
+                                    <span class="service-video__play" aria-hidden="true">▶</span>
+                                    <span class="service-video__overlay-text"><?php echo esc_html__( 'Reproduir vídeo', 'fcsd' ); ?></span>
+                                </span>
+                            </button>
+                            <?php echo $youtube_embed; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                        </div>
                     </div>
                 </section>
             <?php endif; ?>
@@ -93,7 +173,6 @@ while ( have_posts() ) :
                         'definicio_breu'       => __( 'Definició breu', 'fcsd' ),
                         'marc_normatiu'        => __( 'Marc normatiu i referents', 'fcsd' ),
                         'historia_i_missio'    => __( 'Història i missió', 'fcsd' ),
-                        'a_quien_s_adreca'     => __( 'A qui s’adreça', 'fcsd' ),
                         'que_oferim'           => __( 'Què oferim', 'fcsd' ),
                         'programes_inclosos'   => __( 'Programes principals', 'fcsd' ),
                         'altres_activitats'    => __( 'Altres activitats relacionades', 'fcsd' ),
@@ -104,7 +183,6 @@ while ( have_posts() ) :
                         'prestacio_social'     => __( 'Prestació social / cartera de serveis', 'fcsd' ),
                         'registre_generalitat' => __( 'Registre Generalitat', 'fcsd' ),
                         'equip_professional'   => __( 'Equip professional', 'fcsd' ),
-                        'adreca_i_contacte'    => __( 'Adreça i contacte', 'fcsd' ),
                         'videos'               => __( 'Vídeos o testimonis', 'fcsd' ),
                         'frase_explicativa'    => __( 'Frase explicativa en primera persona', 'fcsd' ),
                         'any_creacio'          => __( 'Any de creació', 'fcsd' ),
@@ -122,6 +200,18 @@ while ( have_posts() ) :
                 <div class="service-ficha-grid" role="table" aria-label="<?php echo esc_attr__( 'Fitxa tècnica del servei', 'fcsd' ); ?>">
                     <?php foreach ( $fields as $key => $label ) :
                         $value = get_post_meta( get_the_ID(), $key, true );
+
+                        // Si ja hem mostrat el vídeo com a embed i el camp legacy "videos" només
+                        // conté un enllaç de YouTube, evitem duplicar informació a la fitxa.
+                        if ( 'videos' === $key && ! empty( $youtube_embed ) && ! empty( $youtube_url ) ) {
+                            $v = trim( (string) $value );
+                            if ( $v && preg_match( '/^(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/.+)$/i', $v ) ) {
+                                // Normalitzem de manera simple (sense resoldre redirects) per comparar.
+                                if ( trim( $youtube_url ) === $v ) {
+                                    continue;
+                                }
+                            }
+                        }
 
                         if ( empty( $value ) ) {
                             continue;
@@ -167,6 +257,13 @@ while ( have_posts() ) :
                     </a>
                 </div>
             <?php endif; ?>
+
+            <?php
+            // Informació imprescindible: s'ha de mostrar com a footer (no com a "cajitas").
+            if ( function_exists( 'fcsd_render_service_info_footer' ) ) {
+                fcsd_render_service_info_footer( get_the_ID(), false );
+            }
+            ?>
 
         </article>
     </div><!-- /.container -->

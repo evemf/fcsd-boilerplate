@@ -100,12 +100,22 @@ function fcsd_shop_assets() {
     );
 
     wp_localize_script( 'fcsd-shop', 'fcsd_shop', [
-        'ajax_url'        => admin_url( 'admin-ajax.php' ),
-        'nonce'           => wp_create_nonce( 'fcsd_shop_nonce' ),
-        'adding_text'     => __( 'Afegint...', 'fcsd' ),
-        'added_text'      => __( 'Producte afegit!', 'fcsd' ),
-        'default_text'    => __( 'Afegir a la cistella', 'fcsd' ),
-        'error_text'      => __( 'Error', 'fcsd' ),
+        'ajax_url'     => admin_url( 'admin-ajax.php' ),
+        'nonce'        => wp_create_nonce( 'fcsd_shop_nonce' ),
+        'adding_text'  => __( 'Afegint...', 'fcsd' ),
+        'added_text'   => __( 'Producte afegit!', 'fcsd' ),
+        'default_text' => __( 'Afegir a la cistella', 'fcsd' ),
+        'error_text'   => __( 'Error', 'fcsd' ),
+        'i18n'         => [
+            'add_error_fallback' => __( 'Error en afegir el producte.', 'fcsd' ),
+            'connection_error'   => __( 'Error de connexió. Si us plau, torna-ho a provar.', 'fcsd' ),
+            'reload_error'       => __( 'Error de connexió. Si us plau, recarrega la pàgina.', 'fcsd' ),
+            'update_error'       => __( 'Error en actualitzar la cistella.', 'fcsd' ),
+            'remove_error'       => __( 'Error en eliminar de la cistella.', 'fcsd' ),
+            'removed_success'    => __( 'Producte eliminat de la cistella.', 'fcsd' ),
+            'confirm_remove'     => __( 'Estàs segur que vols eliminar aquest producte de la cistella?', 'fcsd' ),
+            'close'             => __( 'Tancar', 'fcsd' ),
+        ],
     ] );
 }
 add_action( 'wp_enqueue_scripts', 'fcsd_shop_assets' );

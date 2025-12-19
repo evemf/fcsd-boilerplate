@@ -14,6 +14,7 @@ msgstr ""
 "PO-Revision-Date: 2025-12-15 15:05+0100\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: fcsd\n"
+"\n"
 
 #. Theme Name of the theme
 #: style.css
@@ -27,7 +28,7 @@ msgstr "https://example.com/fcsd-boilerplate"
 
 #. Description of the theme
 #: style.css
-msgid "Tema WordPress para FCSD con sistema de diseño unificado"
+msgid "Tema WordPress para FCSD con sistema de diseÃ±o unificado"
 msgstr "WordPress theme for FCSD with a unified design system"
 
 #. Author of the theme
@@ -88,12 +89,12 @@ msgid "Auditoria %s"
 msgstr "Audit %s"
 
 #: archive-transparency.php:121
-msgid "Memòries d’activitats"
+msgid "MemÃ²ries dâactivitats"
 msgstr "Activity reports"
 
 #: archive-transparency.php:128
 #, php-format
-msgid "Memòria %s"
+msgid "MemÃ²ria %s"
 msgstr "Report %s"
 
 #. Template Name of the theme
@@ -118,7 +119,7 @@ msgstr "February"
 #: calendar-work.php:84
 #: inc/actes.php:582
 #: inc/actes.php:1261
-msgid "Març"
+msgid "MarÃ§"
 msgstr "March"
 
 #: calendar-actes.php:51
@@ -241,7 +242,7 @@ msgstr "Vacation"
 #: calendar-actes.php:91
 #: calendar-work.php:125
 #: inc/actes.php:141
-msgid "Horari reduït"
+msgid "Horari reduÃ¯t"
 msgstr "Reduced hours"
 
 #: calendar-actes.php:92
@@ -265,7 +266,7 @@ msgid "Anual"
 msgstr "Yearly"
 
 #: calendar-actes.php:367
-msgid "Entrada prèvia"
+msgid "Entrada prÃ¨via"
 msgstr "Ticket required"
 
 #: calendar-actes.php:516
@@ -285,7 +286,7 @@ msgid "Calendari laboral d'actes"
 msgstr "Work events calendar"
 
 #: calendar-work.php:46
-msgid "Aquest calendari només és accessible per a persones treballadores de la Fundació (correu @fcsd.org)."
+msgid "Aquest calendari nomÃ©s Ã©s accessible per a persones treballadores de la FundaciÃ³ (correu @fcsd.org)."
 msgstr "This calendar is only accessible to Foundation staff (emails @fcsd.org)."
 
 #: calendar-work.php:215
@@ -310,7 +311,7 @@ msgstr "35h contract"
 
 #: footer.php:15
 #: inc/customizer.php:225
-msgid "Treballem per la plena inclusió i igualtat de drets."
+msgid "Treballem per la plena inclusiÃ³ i igualtat de drets."
 msgstr "We work for full inclusion and equal rights."
 
 #: footer.php:17
@@ -324,19 +325,19 @@ msgid "Xarxes socials"
 msgstr "Social networks"
 
 #: footer.php:173
-msgid "Ayuda rápida"
+msgid "Ayuda rÃ¡pida"
 msgstr "Quick help"
 
 #: footer.php:180
-msgid "Escribe tu pregunta…"
-msgstr "Type your question…"
+msgid "Escribe tu preguntaâ¦"
+msgstr "Type your questionâ¦"
 
 #: front-page.php:19
-msgid "Notícies destacades"
+msgid "NotÃ­cies destacades"
 msgstr "Featured news"
 
 #: front-page.php:43
-msgid "Vídeo destacat"
+msgid "VÃ­deo destacat"
 msgstr "Featured video"
 
 #: front-page.php:64
@@ -344,7 +345,7 @@ msgid "Benvingudes i benvinguts"
 msgstr "Welcome"
 
 #: front-page.php:70
-msgid "Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada."
+msgid "Acompanyem a persones amb SD a construir una vida mÃ©s autÃ²noma, plena i connectada."
 msgstr "We support people with SD to build a more independent, fulfilling, and connected life."
 
 #: front-page.php:76
@@ -354,19 +355,19 @@ msgid "Qui som"
 msgstr "Who we are"
 
 #: front-page.php:106
-msgid "Àmbits"
+msgid "Ãmbits"
 msgstr "Areas"
 
 #: front-page.php:107
-msgid "Àmbits de treball"
+msgid "Ãmbits de treball"
 msgstr "Areas of work"
 
 #: front-page.php:124
-msgid "Saber més"
+msgid "Saber mÃ©s"
 msgstr "Learn more"
 
 #: functions.php:57
-msgid "Menú principal"
+msgid "MenÃº principal"
 msgstr "Main menu"
 
 #: functions.php:58
@@ -374,11 +375,11 @@ msgid "Franja superior"
 msgstr "Top bar"
 
 #: functions.php:59
-msgid "Menú del peu de pàgina"
+msgid "MenÃº del peu de pÃ gina"
 msgstr "Footer menu"
 
 #: functions.php:60
-msgid "Enllaços socials"
+msgid "EnllaÃ§os socials"
 msgstr "Social links"
 
 #: functions.php:81
@@ -386,25 +387,25 @@ msgid "Barra lateral"
 msgstr "Sidebar"
 
 #: functions.php:83
-msgid "Afegeix aquí els teus widgets."
+msgid "Afegeix aquÃ­ els teus widgets."
 msgstr "Add your widgets here."
 
 #: functions.php:240
 #: inc/customizer.php:430
 #: template-parts/legal.php:14
-msgid "Política de privacitat"
+msgid "PolÃ­tica de privacitat"
 msgstr "Privacy policy"
 
 #: functions.php:244
 #: inc/customizer.php:463
 #: template-parts/legal.php:19
-msgid "Política de cookies"
+msgid "PolÃ­tica de cookies"
 msgstr "Cookie policy"
 
 #: functions.php:248
 #: inc/customizer.php:496
 #: template-parts/legal.php:24
-msgid "Avís legal"
+msgid "AvÃ­s legal"
 msgstr "Legal notice"
 
 #: header.php:43
@@ -488,7 +489,7 @@ msgid "Acte general (visible per tothom)"
 msgstr "General event (visible to everyone)"
 
 #: inc/actes.php:121
-msgid "Acte laboral (només treballadors @fcsd.org)"
+msgid "Acte laboral (nomÃ©s treballadors @fcsd.org)"
 msgstr "Work event (only @fcsd.org staff)"
 
 #: inc/actes.php:128
@@ -496,12 +497,12 @@ msgid "Categoria del dia (calendari laboral)"
 msgstr "Day category (work calendar)"
 
 #: inc/actes.php:132
-msgid "— Cap —"
-msgstr "— None —"
+msgid "â Cap â"
+msgstr "â None â"
 
 #: inc/actes.php:148
-msgid "Serveix per pintar el contorn del dia al calendari (p. ex. “Festiu: Any nou”)."
-msgstr "Used to highlight the day outline in the calendar (e.g., “Holiday: New Year’s Day”)."
+msgid "Serveix per pintar el contorn del dia al calendari (p. ex. âFestiu: Any nouâ)."
+msgstr "Used to highlight the day outline in the calendar (e.g., âHoliday: New Yearâs Dayâ)."
 
 #: inc/actes.php:154
 msgid "Data i hora d'inici"
@@ -540,11 +541,11 @@ msgid "Contracte de 35 hores"
 msgstr "35-hour contract"
 
 #: inc/actes.php:224
-msgid "Requereix entrada prèvia"
+msgid "Requereix entrada prÃ¨via"
 msgstr "Ticket required"
 
 #: inc/actes.php:229
-msgid "El títol, la descripció i la imatge destacada es gestionen amb els camps estàndard de WordPress."
+msgid "El tÃ­tol, la descripciÃ³ i la imatge destacada es gestionen amb els camps estÃ ndard de WordPress."
 msgstr "The title, description, and featured image are managed using the standard WordPress fields."
 
 #: inc/actes.php:525
@@ -577,7 +578,7 @@ msgid "Vista en llista"
 msgstr "List view"
 
 #: inc/actes.php:1481
-msgid "No hi ha actes per a aquest any i àmbit."
+msgid "No hi ha actes per a aquest any i Ã mbit."
 msgstr "There are no events for this year and area."
 
 #: inc/actes.php:1533
@@ -612,7 +613,7 @@ msgstr "Time"
 
 #: inc/actes.php:1561
 #: inc/auth.php:943
-msgid "Títol"
+msgid "TÃ­tol"
 msgstr "Title"
 
 #: inc/actes.php:1564
@@ -637,11 +638,11 @@ msgid "No tens permisos per crear actes."
 msgstr "You don't have permission to create events."
 
 #: inc/actes.php:1744
-msgid "Falta títol o data."
+msgid "Falta tÃ­tol o data."
 msgstr "Missing title or date."
 
 #: inc/actes.php:1763
-msgid "Dates invàlides."
+msgid "Dates invÃ lides."
 msgstr "Invalid dates."
 
 #: inc/actes.php:1808
@@ -649,7 +650,7 @@ msgid "No tens permisos per eliminar actes."
 msgstr "You don't have permission to delete events."
 
 #: inc/actes.php:1818
-msgid "Acte no vàlid."
+msgid "Acte no vÃ lid."
 msgstr "Invalid event."
 
 #: inc/actes.php:1828
@@ -663,7 +664,7 @@ msgstr "You must fill in all registration fields."
 #: inc/auth.php:56
 #: inc/contact-form.php:37
 #: inc/ecommerce/orders.php:279
-msgid "L'email no és vàlid."
+msgid "L'email no Ã©s vÃ lid."
 msgstr "The email is not valid."
 
 #: inc/auth.php:61
@@ -671,7 +672,7 @@ msgid "Ja existeix un usuari amb aquest email."
 msgstr "A user with this email already exists."
 
 #: inc/auth.php:77
-msgid "S'ha produït un error en crear l'usuari."
+msgid "S'ha produÃ¯t un error en crear l'usuari."
 msgstr "An error occurred while creating the user."
 
 #: inc/auth.php:125
@@ -679,17 +680,17 @@ msgid "Credencials incorrectes."
 msgstr "Incorrect credentials."
 
 #: inc/auth.php:141
-msgid "Has de verificar el teu email abans d'iniciar sessió."
+msgid "Has de verificar el teu email abans d'iniciar sessiÃ³."
 msgstr "You must verify your email before logging in."
 
 #: inc/auth.php:161
 #: inc/auth.php:509
-msgid "Enllaç invàlid."
+msgid "EnllaÃ§ invÃ lid."
 msgstr "Invalid link."
 
 #: inc/auth.php:167
 #: inc/auth.php:514
-msgid "L'enllaç de verificació no és correcte o ja s'ha utilitzat."
+msgid "L'enllaÃ§ de verificaciÃ³ no Ã©s correcte o ja s'ha utilitzat."
 msgstr "The verification link is incorrect or has already been used."
 
 #: inc/auth.php:175
@@ -701,7 +702,7 @@ msgid "Les contrasenyes no coincideixen."
 msgstr "Passwords do not match."
 
 #: inc/auth.php:185
-msgid "La contrasenya ha de tenir mínim 6 caràcters, una lletra i un número."
+msgid "La contrasenya ha de tenir mÃ­nim 6 carÃ cters, una lletra i un nÃºmero."
 msgstr "The password must be at least 6 characters long and include a letter and a number."
 
 #: inc/auth.php:306
@@ -710,36 +711,18 @@ msgstr "Confirm your registration at FCSD"
 
 #: inc/auth.php:308
 #, php-format
-msgid ""
-"Hola %s,\n"
-"\n"
-"Per completar el teu registre fes clic en aquest enllaç:\n"
-"\n"
-"%s\n"
-"\n"
-"Si no has fet aquesta sol·licitud, ignora aquest missatge.\n"
-"\n"
-"Gràcies."
-msgstr ""
-"Hello %s,\n"
-"\n"
-"To complete your registration, click this link:\n"
-"\n"
-"%s\n"
-"\n"
-"If you did not make this request, ignore this message.\n"
-"\n"
-"Thank you."
+msgid "Hola %s,\n\nPer completar el teu registre fes clic en aquest enllaÃ§:\n\n%s\n\nSi no has fet aquesta solÂ·licitud, ignora aquest missatge.\n\nGrÃ cies."
+msgstr "Hello %s,\n\nTo complete your registration, click this link:\n\n%s\n\nIf you did not make this request, ignore this message.\n\nThank you."
 
 #: inc/auth.php:329
 #, php-format
-msgid "Ja tens la sessió iniciada. Ves al teu <a href=\"%s\">perfil</a>."
+msgid "Ja tens la sessiÃ³ iniciada. Ves al teu <a href=\"%s\">perfil</a>."
 msgstr "You are already logged in. Go to your <a href=\"%s\">profile</a>."
 
 #: inc/auth.php:343
 #: inc/auth.php:420
-msgid "T'hem enviat un email amb un enllaç per completar el registre."
-msgstr "We’ve sent you an email with a link to complete your registration."
+msgid "T'hem enviat un email amb un enllaÃ§ per completar el registre."
+msgstr "Weâve sent you an email with a link to complete your registration."
 
 #: inc/auth.php:357
 #: inc/auth.php:432
@@ -783,7 +766,7 @@ msgstr "Sign me up"
 
 #: inc/auth.php:379
 #: inc/auth.php:479
-msgid "Iniciar sessió"
+msgid "Iniciar sessiÃ³"
 msgstr "Log in"
 
 #: inc/auth.php:387
@@ -810,7 +793,7 @@ msgid "Desar contrasenya"
 msgstr "Save password"
 
 #: inc/auth.php:555
-msgid "Has d'iniciar sessió per veure el teu perfil."
+msgid "Has d'iniciar sessiÃ³ per veure el teu perfil."
 msgstr "You must log in to view your profile."
 
 #: inc/auth.php:699
@@ -823,7 +806,7 @@ msgid "Connectat a SinergiaCRM"
 msgstr "Connected to SinergiaCRM"
 
 #: inc/auth.php:748
-msgid "Aquest compte encara no està vinculat a SinergiaCRM."
+msgid "Aquest compte encara no estÃ  vinculat a SinergiaCRM."
 msgstr "This account is not linked to SinergiaCRM yet."
 
 #: inc/auth.php:756
@@ -832,7 +815,7 @@ msgid "Desar canvis"
 msgstr "Save changes"
 
 #: inc/auth.php:759
-msgid "Tancar sessió"
+msgid "Tancar sessiÃ³"
 msgstr "Log out"
 
 #: inc/auth.php:770
@@ -854,7 +837,7 @@ msgstr "Addresses"
 #: inc/auth.php:785
 #: page-profile.php:369
 #: page-profile.php:578
-msgid "Històric de compres"
+msgid "HistÃ²ric de compres"
 msgstr "Purchase history"
 
 #: inc/auth.php:796
@@ -874,15 +857,15 @@ msgstr "Briefly explain who you are, your role, interests..."
 
 #: inc/auth.php:825
 #: page-profile.php:394
-msgid "Correu electrònic"
+msgid "Correu electrÃ²nic"
 msgstr "Email address"
 
 #: inc/auth.php:828
-msgid "Per canviar el correu, contacta amb l'administració."
+msgid "Per canviar el correu, contacta amb l'administraciÃ³."
 msgstr "To change the email, contact administration."
 
 #: inc/auth.php:832
-msgid "Telèfon de contacte"
+msgid "TelÃ¨fon de contacte"
 msgstr "Contact phone"
 
 #: inc/auth.php:837
@@ -899,11 +882,11 @@ msgid "Encara no has pujat cap foto."
 msgstr "You haven't uploaded a photo yet."
 
 #: inc/auth.php:849
-msgid "Formats recomanats: JPG o PNG. Mida màxima 2MB."
+msgid "Formats recomanats: JPG o PNG. Mida mÃ xima 2MB."
 msgstr "Recommended formats: JPG or PNG. Max size 2MB."
 
 #: inc/auth.php:859
-msgid "Adreça principal"
+msgid "AdreÃ§a principal"
 msgstr "Primary address"
 
 #: inc/auth.php:860
@@ -911,7 +894,7 @@ msgstr "Primary address"
 #: page-profile.php:352
 #: page-profile.php:421
 #: page-profile.php:435
-msgid "Adreça"
+msgid "AdreÃ§a"
 msgstr "Address"
 
 #: inc/auth.php:865
@@ -919,7 +902,7 @@ msgid "Tinc una discapacitat"
 msgstr "I have a disability"
 
 #: inc/auth.php:873
-msgid "Adreça d'enviament per a compres"
+msgid "AdreÃ§a d'enviament per a compres"
 msgstr "Shipping address for purchases"
 
 #: inc/auth.php:876
@@ -927,7 +910,7 @@ msgid "Nom i cognoms per al paquet"
 msgstr "Full name for the package"
 
 #: inc/auth.php:880
-msgid "Adreça d'enviament"
+msgid "AdreÃ§a d'enviament"
 msgstr "Shipping address"
 
 #: inc/auth.php:884
@@ -936,11 +919,11 @@ msgid "Codi postal"
 msgstr "Postal code"
 
 #: inc/auth.php:888
-msgid "Població"
+msgid "PoblaciÃ³"
 msgstr "City"
 
 #: inc/auth.php:892
-msgid "Província"
+msgid "ProvÃ­ncia"
 msgstr "Province"
 
 #: inc/auth.php:896
@@ -975,7 +958,7 @@ msgid "Estat"
 msgstr "Status"
 
 #: inc/auth.php:936
-msgid "Encara no tens inscripcions actives. Quan et donis d'alta a una formació o esdeveniment, apareixerà aquí."
+msgid "Encara no tens inscripcions actives. Quan et donis d'alta a una formaciÃ³ o esdeveniment, apareixerÃ  aquÃ­."
 msgstr "You don't have any active registrations yet. When you sign up for a training or event, it will appear here."
 
 #: inc/auth.php:978
@@ -983,7 +966,7 @@ msgid "Confirmada"
 msgstr "Confirmed"
 
 #: inc/auth.php:981
-msgid "Cancel·lada"
+msgid "CancelÂ·lada"
 msgstr "Cancelled"
 
 #: inc/auth.php:984
@@ -996,11 +979,11 @@ msgid "Veure detall"
 msgstr "View details"
 
 #: inc/auth.php:1007
-msgid "Aquest compte encara no té dades vinculades de SinergiaCRM."
+msgid "Aquest compte encara no tÃ© dades vinculades de SinergiaCRM."
 msgstr "This account has no linked data from SinergiaCRM yet."
 
 #: inc/auth.php:1011
-msgid "Aquestes dades provenen de SinergiaCRM (mòdul Contacts). Per modificar-les de manera oficial, cal fer-ho des de Sinergia."
+msgid "Aquestes dades provenen de SinergiaCRM (mÃ²dul Contacts). Per modificar-les de manera oficial, cal fer-ho des de Sinergia."
 msgstr "This data comes from SinergiaCRM (Contacts module). To officially change it, you must do it in Sinergia."
 
 #: inc/auth.php:1016
@@ -1010,7 +993,7 @@ msgstr "Full name"
 
 #: inc/auth.php:1034
 #: page-profile.php:399
-msgid "Telèfon"
+msgid "TelÃ¨fon"
 msgstr "Phone"
 
 #: inc/auth.php:1058
@@ -1034,37 +1017,19 @@ msgstr "New contact message from %s"
 
 #: inc/contact-form.php:58
 #, php-format
-msgid ""
-"Nom: %s\n"
-"Dada de contacte: %s\n"
-"\n"
-"Missatge:\n"
-"%s\n"
-"\n"
-"---\n"
-"Enviat des del formulari de contacte:\n"
-"%s"
-msgstr ""
-"Name: %s\n"
-"Contact detail: %s\n"
-"\n"
-"Message:\n"
-"%s\n"
-"\n"
-"---\n"
-"Sent from the contact form:\n"
-"%s"
+msgid "Nom: %s\nDada de contacte: %s\n\nMissatge:\n%s\n\n---\nEnviat des del formulari de contacte:\n%s"
+msgstr "Name: %s\nContact detail: %s\n\nMessage:\n%s\n\n---\nSent from the contact form:\n%s"
 
 #: inc/contact-form.php:73
-msgid "S'ha produït un error en enviar el missatge. Torna-ho a intentar més tard."
+msgid "S'ha produÃ¯t un error en enviar el missatge. Torna-ho a intentar mÃ©s tard."
 msgstr "An error occurred while sending the message. Please try again later."
 
 #: inc/contact-form.php:98
-msgid "Hem rebut el teu missatge. Et respondrem el més aviat possible."
+msgid "Hem rebut el teu missatge. Et respondrem el mÃ©s aviat possible."
 msgstr "We have received your message. We'll reply as soon as possible."
 
 #: inc/contact-form.php:131
-msgid "Email o telèfon de contacte"
+msgid "Email o telÃ¨fon de contacte"
 msgstr "Email or contact phone"
 
 #: inc/contact-form.php:145
@@ -1203,47 +1168,43 @@ msgid "Selecciona l'any d'aquest esdeveniment"
 msgstr "Select the year for this event"
 
 #: inc/cpts.php:191
-msgid "— Sense any —"
-msgstr "— No year —"
+msgid "â Sense any â"
+msgstr "â No year â"
 
 #: inc/cpts.php:235
 msgid "Detalls del Patronat"
 msgstr "Board details"
 
 #: inc/cpts.php:252
-msgid "Càrrec al Patronat"
+msgid "CÃ rrec al Patronat"
 msgstr "Role on the Board"
 
 #: inc/cpts.php:258
-msgid "Presidència, Vicepresidència, Tresoreria, Vocal…"
-msgstr "President, Vice President, Treasurer, Member…"
+msgid "PresidÃ¨ncia, VicepresidÃ¨ncia, Tresoreria, Vocalâ¦"
+msgstr "President, Vice President, Treasurer, Memberâ¦"
 
 #: inc/cpts.php:262
-msgid "Enllaç a LinkedIn"
+msgid "EnllaÃ§ a LinkedIn"
 msgstr "LinkedIn link"
 
 #: inc/cpts.php:272
-msgid "Altres enllaços (un per línia)"
+msgid "Altres enllaÃ§os (un per lÃ­nia)"
 msgstr "Other links (one per line)"
 
 #: inc/cpts.php:277
-msgid ""
-"https://exemple.com\n"
-"https://twitter.com/..."
-msgstr ""
-"https://example.com\n"
-"https://twitter.com/..."
+msgid "https://exemple.com\nhttps://twitter.com/..."
+msgstr "https://example.com\nhttps://twitter.com/..."
 
 #: inc/cpts.php:330
-msgid "Carrusel de la pàgina d'inici"
+msgid "Carrusel de la pÃ gina d'inici"
 msgstr "Homepage carousel"
 
 #: inc/cpts.php:345
-msgid "Mostrar esta notícia al carrusel de la pàgina d'inici"
+msgid "Mostrar esta notÃ­cia al carrusel de la pÃ gina d'inici"
 msgstr "Show this news item in the homepage carousel"
 
 #: inc/cpts.php:349
-msgid "Sí, mostrar"
+msgid "SÃ­, mostrar"
 msgstr "Yes, show"
 
 #: inc/cpts.php:391
@@ -1325,7 +1286,7 @@ msgid "Email formulari de contacte"
 msgstr "Contact form email"
 
 #: inc/customizer.php:302
-msgid "Si el deixes en blanc, s'utilitzarà el correu del footer."
+msgid "Si el deixes en blanc, s'utilitzarÃ  el correu del footer."
 msgstr "If left blank, the footer email will be used."
 
 #: inc/customizer.php:320
@@ -1357,28 +1318,28 @@ msgid "YouTube URL"
 msgstr "YouTube URL"
 
 #: inc/customizer.php:437
-msgid "Privacitat – Títol"
-msgstr "Privacy – Title"
+msgid "Privacitat â TÃ­tol"
+msgstr "Privacy â Title"
 
 #: inc/customizer.php:453
-msgid "Privacitat – Contingut (HTML permès)"
-msgstr "Privacy – Content (HTML allowed)"
+msgid "Privacitat â Contingut (HTML permÃ¨s)"
+msgstr "Privacy â Content (HTML allowed)"
 
 #: inc/customizer.php:470
-msgid "Cookies – Títol"
-msgstr "Cookies – Title"
+msgid "Cookies â TÃ­tol"
+msgstr "Cookies â Title"
 
 #: inc/customizer.php:486
-msgid "Cookies – Contingut (HTML permès)"
-msgstr "Cookies – Content (HTML allowed)"
+msgid "Cookies â Contingut (HTML permÃ¨s)"
+msgstr "Cookies â Content (HTML allowed)"
 
 #: inc/customizer.php:503
-msgid "Avís legal – Títol"
-msgstr "Legal notice – Title"
+msgid "AvÃ­s legal â TÃ­tol"
+msgstr "Legal notice â Title"
 
 #: inc/customizer.php:519
-msgid "Avís legal – Contingut (HTML permès)"
-msgstr "Legal notice – Content (HTML allowed)"
+msgid "AvÃ­s legal â Contingut (HTML permÃ¨s)"
+msgstr "Legal notice â Content (HTML allowed)"
 
 #: inc/customizer.php:529
 #: template-parts/legal.php:29
@@ -1386,12 +1347,12 @@ msgid "Copyright"
 msgstr "Copyright"
 
 #: inc/customizer.php:536
-msgid "Copyright – Títol"
-msgstr "Copyright – Title"
+msgid "Copyright â TÃ­tol"
+msgstr "Copyright â Title"
 
 #: inc/customizer.php:552
-msgid "Copyright – Contingut (HTML permès)"
-msgstr "Copyright – Content (HTML allowed)"
+msgid "Copyright â Contingut (HTML permÃ¨s)"
+msgstr "Copyright â Content (HTML allowed)"
 
 #: inc/customizer.php:562
 msgid "SMTP (Email)"
@@ -1439,7 +1400,7 @@ msgid "Hola,"
 msgstr "Hello,"
 
 #: inc/ecommerce/class-shop-orders.php:92
-msgid "Gràcies per la teva compra a FCSD."
+msgid "GrÃ cies per la teva compra a FCSD."
 msgstr "Thank you for your purchase at FCSD."
 
 #: inc/ecommerce/class-shop-orders.php:94
@@ -1448,8 +1409,8 @@ msgstr "Order details:"
 
 #: inc/ecommerce/class-shop-orders.php:116
 #, php-format
-msgid "Total (amb descomptes aplicats): %s €"
-msgstr "Total (with discounts applied): %s €"
+msgid "Total (amb descomptes aplicats): %s â¬"
+msgstr "Total (with discounts applied): %s â¬"
 
 #: inc/ecommerce/class-shop-orders.php:129
 #, php-format
@@ -1514,7 +1475,7 @@ msgid "Completat"
 msgstr "Completed"
 
 #: inc/ecommerce/orders.php:58
-msgid "Cancel·lat"
+msgid "CancelÂ·lat"
 msgstr "Cancelled"
 
 #: inc/ecommerce/orders.php:82
@@ -1563,11 +1524,11 @@ msgid "No hi ha productes associats a aquesta comanda."
 msgstr "There are no products associated with this order."
 
 #: inc/ecommerce/orders.php:283
-msgid "No s'ha trobat la funció de cistella."
+msgid "No s'ha trobat la funciÃ³ de cistella."
 msgstr "Cart function not found."
 
 #: inc/ecommerce/orders.php:289
-msgid "La cistella està buida."
+msgid "La cistella estÃ  buida."
 msgstr "The cart is empty."
 
 #: inc/ecommerce/orders.php:306
@@ -1576,7 +1537,7 @@ msgid "Comanda %s - %s"
 msgstr "Order %s - %s"
 
 #: inc/ecommerce/orders.php:440
-msgid "Has d'iniciar sessió per veure els teus productes favorits."
+msgid "Has d'iniciar sessiÃ³ per veure els teus productes favorits."
 msgstr "You must log in to view your favorite products."
 
 #: inc/ecommerce/orders.php:447
@@ -1592,27 +1553,27 @@ msgid "Preus"
 msgstr "Prices"
 
 #: inc/ecommerce/product-meta.php:67
-msgid "Preu base (€)"
-msgstr "Base price (€)"
+msgid "Preu base (â¬)"
+msgstr "Base price (â¬)"
 
 #: inc/ecommerce/product-meta.php:70
 msgid "Preu principal del producte."
 msgstr "Main product price."
 
 #: inc/ecommerce/product-meta.php:74
-msgid "Preu rebaixat (€)"
-msgstr "Sale price (€)"
+msgid "Preu rebaixat (â¬)"
+msgstr "Sale price (â¬)"
 
 #: inc/ecommerce/product-meta.php:77
-msgid "Opcional. Si és inferior al preu base, es mostrarà com a oferta."
+msgid "Opcional. Si Ã©s inferior al preu base, es mostrarÃ  com a oferta."
 msgstr "Optional. If lower than the base price, it will be shown as an offer."
 
 #: inc/ecommerce/product-meta.php:81
-msgid "Preu per usuaris registrats (€)"
-msgstr "Price for registered users (€)"
+msgid "Preu per usuaris registrats (â¬)"
+msgstr "Price for registered users (â¬)"
 
 #: inc/ecommerce/product-meta.php:84
-msgid "Opcional. Si hi ha sessió iniciada i aquest preu és > 0, s'utilitza en lloc del preu base/rebaixat."
+msgid "Opcional. Si hi ha sessiÃ³ iniciada i aquest preu Ã©s > 0, s'utilitza en lloc del preu base/rebaixat."
 msgstr "Optional. If the user is logged in and this price is > 0, it is used instead of the base/sale price."
 
 #: inc/ecommerce/product-meta.php:89
@@ -1625,7 +1586,7 @@ msgstr "Type"
 
 #: inc/ecommerce/product-meta.php:96
 #: single-product.php:148
-msgid "Producte físic"
+msgid "Producte fÃ­sic"
 msgstr "Physical product"
 
 #: inc/ecommerce/product-meta.php:97
@@ -1635,7 +1596,7 @@ msgstr "Service / online product"
 
 #: inc/ecommerce/product-meta.php:98
 #: single-product.php:150
-msgid "Subscripció"
+msgid "SubscripciÃ³"
 msgstr "Subscription"
 
 #: inc/ecommerce/product-meta.php:99
@@ -1644,7 +1605,7 @@ msgid "Servei puntual"
 msgstr "One-off service"
 
 #: inc/ecommerce/product-meta.php:110
-msgid "Condiciona si cal adreça física, enviament, etc."
+msgid "Condiciona si cal adreÃ§a fÃ­sica, enviament, etc."
 msgstr "Determines whether a physical address, shipping, etc. is required."
 
 #: inc/ecommerce/product-meta.php:115
@@ -1652,7 +1613,7 @@ msgid "Dades internes"
 msgstr "Internal data"
 
 #: inc/ecommerce/product-meta.php:118
-msgid "SKU / Referència"
+msgid "SKU / ReferÃ¨ncia"
 msgstr "SKU / Reference"
 
 #: inc/ecommerce/product-meta.php:124
@@ -1660,7 +1621,7 @@ msgid "Estoc"
 msgstr "Stock"
 
 #: inc/ecommerce/product-meta.php:127
-msgid "Opcional. Només informatiu, la lògica de control d'estoc es pot afegir més endavant."
+msgid "Opcional. NomÃ©s informatiu, la lÃ²gica de control d'estoc es pot afegir mÃ©s endavant."
 msgstr "Optional. Informational only; stock control logic can be added later."
 
 #: inc/ecommerce/product-meta.php:193
@@ -1668,7 +1629,7 @@ msgid "Colores disponibles"
 msgstr "Available colors"
 
 #: inc/ecommerce/product-meta.php:227
-msgid "Añadir color"
+msgid "AÃ±adir color"
 msgstr "Add color"
 
 #: inc/ecommerce/product-meta.php:310
@@ -1684,11 +1645,11 @@ msgid "Productes"
 msgstr "Products"
 
 #: inc/ecommerce/shop-core.php:26
-msgid "Añadir nuevo"
+msgid "AÃ±adir nuevo"
 msgstr "Add new"
 
 #: inc/ecommerce/shop-core.php:27
-msgid "Añadir nuevo producto"
+msgid "AÃ±adir nuevo producto"
 msgstr "Add new product"
 
 #: inc/ecommerce/shop-core.php:28
@@ -1720,35 +1681,35 @@ msgid "Productos"
 msgstr "Products"
 
 #: inc/ecommerce/shop-core.php:56
-msgid "Categorías de producto"
+msgid "CategorÃ­as de producto"
 msgstr "Product categories"
 
 #: inc/ecommerce/shop-core.php:57
-msgid "Categoría de producto"
+msgid "CategorÃ­a de producto"
 msgstr "Product category"
 
 #: inc/ecommerce/shop-core.php:58
-msgid "Buscar categorías"
+msgid "Buscar categorÃ­as"
 msgstr "Search categories"
 
 #: inc/ecommerce/shop-core.php:59
-msgid "Todas las categorías"
+msgid "Todas las categorÃ­as"
 msgstr "All categories"
 
 #: inc/ecommerce/shop-core.php:60
-msgid "Editar categoría"
+msgid "Editar categorÃ­a"
 msgstr "Edit category"
 
 #: inc/ecommerce/shop-core.php:61
-msgid "Actualizar categoría"
+msgid "Actualizar categorÃ­a"
 msgstr "Update category"
 
 #: inc/ecommerce/shop-core.php:62
-msgid "Añadir nueva categoría"
+msgid "AÃ±adir nueva categorÃ­a"
 msgstr "Add new category"
 
 #: inc/ecommerce/shop-core.php:63
-msgid "Nuevo nombre de categoría"
+msgid "Nuevo nombre de categorÃ­a"
 msgstr "New category name"
 
 #: inc/ecommerce/shop-core.php:99
@@ -1771,15 +1732,15 @@ msgid "Error"
 msgstr "Error"
 
 #: inc/ecommerce/shop-core.php:140
-msgid "Producto no válido."
+msgid "Producto no vÃ¡lido."
 msgstr "Invalid product."
 
 #: inc/ecommerce/shop-core.php:267
-msgid "Dades invàlides"
+msgid "Dades invÃ lides"
 msgstr "Invalid data"
 
 #: inc/ecommerce/shop-core.php:277
-msgid "Producte no vàlid"
+msgid "Producte no vÃ lid"
 msgstr "Invalid product"
 
 #: inc/ecommerce/shop-core.php:310
@@ -1788,7 +1749,7 @@ msgstr "Product added to cart"
 
 #: inc/ecommerce/shop-core.php:324
 #: inc/ecommerce/shop-core.php:351
-msgid "Datos inválidos"
+msgid "Datos invÃ¡lidos"
 msgstr "Invalid data"
 
 #: inc/ecommerce/shop-core.php:334
@@ -1826,7 +1787,7 @@ msgstr "Registered user discounts have been applied (if applicable)."
 
 #: inc/ecommerce/shop-core.php:397
 #: page-cart.php:50
-msgid "Regístrate o inicia sesión para obtener descuentos exclusivos."
+msgid "RegÃ­strate o inicia sesiÃ³n para obtener descuentos exclusivos."
 msgstr "Sign up or log in to get exclusive discounts."
 
 #: inc/ecommerce/shop-core.php:402
@@ -1867,7 +1828,7 @@ msgid "Taronja"
 msgstr "Orange"
 
 #: inc/ecommerce/template-tags-shop.php:82
-msgid "La teva cistella està buida."
+msgid "La teva cistella estÃ  buida."
 msgstr "Your cart is empty."
 
 #: inc/ecommerce/template-tags-shop.php:98
@@ -1883,7 +1844,7 @@ msgstr "Complete purchase"
 #: page-checkout.php:19
 #: template-parts/cart-table.php:13
 #: template-parts/shop/cart-table.php:19
-msgid "Tu carrito está vacío."
+msgid "Tu carrito estÃ¡ vacÃ­o."
 msgstr "Your cart is empty."
 
 #: inc/ecommerce/template-tags-shop.php:172
@@ -1891,11 +1852,11 @@ msgid "Realitzar la comanda"
 msgstr "Place order"
 
 #: inc/external-news.php:136
-msgid "No hi ha notícies disponibles."
+msgid "No hi ha notÃ­cies disponibles."
 msgstr "No news available."
 
 #: inc/external-news.php:141
-msgid "Paginació"
+msgid "PaginaciÃ³"
 msgstr "Pagination"
 
 #: inc/intranet.php:18
@@ -1907,7 +1868,7 @@ msgid "Permisos insuficientes."
 msgstr "Insufficient permissions."
 
 #: inc/intranet.php:81
-msgid "Usuario no válido."
+msgid "Usuario no vÃ¡lido."
 msgstr "Invalid user."
 
 #: inc/intranet.php:89
@@ -1935,11 +1896,11 @@ msgid "Aviso intranet"
 msgstr "Intranet notice"
 
 #: inc/intranet.php:191
-msgid "Añadir aviso"
+msgid "AÃ±adir aviso"
 msgstr "Add notice"
 
 #: inc/intranet.php:192
-msgid "Añadir nuevo aviso"
+msgid "AÃ±adir nuevo aviso"
 msgstr "Add new notice"
 
 #: inc/intranet.php:193
@@ -1972,11 +1933,11 @@ msgid "Sync EXIT21"
 msgstr "Sync EXIT21"
 
 #: inc/news-sync-exit21.php:689
-msgid "Importació completada!"
+msgid "ImportaciÃ³ completada!"
 msgstr "Import completed!"
 
 #: inc/news-sync-exit21.php:693
-msgid "Sincronización EXIT21"
+msgid "SincronizaciÃ³n EXIT21"
 msgstr "EXIT21 synchronization"
 
 #: inc/news-sync-exit21.php:696
@@ -1984,7 +1945,7 @@ msgid "Importar Feed EXIT21"
 msgstr "Import EXIT21 feed"
 
 #: inc/news-sync-exit21.php:697
-msgid "Importa el feed completo de exit21.org extrayendo todo el contenido disponible de cada artículo."
+msgid "Importa el feed completo de exit21.org extrayendo todo el contenido disponible de cada artÃ­culo."
 msgstr "Imports the full feed from exit21.org, extracting all available content from each article."
 
 #: inc/news-sync-exit21.php:703
@@ -2037,7 +1998,7 @@ msgid "Fins"
 msgstr "To"
 
 #: inc/news-sync-exit21.php:931
-msgid "Información de Sincronización"
+msgid "InformaciÃ³n de SincronizaciÃ³n"
 msgstr "Synchronization information"
 
 #: inc/news-sync-exit21.php:944
@@ -2062,7 +2023,7 @@ msgstr "Thank you for your order"
 
 #: inc/page-order-success.php:22
 #, php-format
-msgid "Tu número de pedido es #%d."
+msgid "Tu nÃºmero de pedido es #%d."
 msgstr "Your order number is #%d."
 
 #: inc/page-order-success.php:31
@@ -2074,7 +2035,7 @@ msgid "Detalls del Servei"
 msgstr "Service details"
 
 #: inc/service-meta.php:86
-msgid "Documentació adjunta (PDF, DOC...)"
+msgid "DocumentaciÃ³ adjunta (PDF, DOC...)"
 msgstr "Attached documentation (PDF, DOC...)"
 
 #: inc/service-meta.php:88
@@ -2090,11 +2051,11 @@ msgid "Usa aquest document"
 msgstr "Use this document"
 
 #: inc/services-areas.php:19
-msgid "Genèric"
+msgid "GenÃ¨ric"
 msgstr "Generic"
 
 #: inc/services-areas.php:20
-msgid "Serveis d’àmbit genèric o transversal."
+msgid "Serveis dâÃ mbit genÃ¨ric o transversal."
 msgstr "Services with a generic or cross-cutting scope."
 
 #: inc/services-areas.php:26
@@ -2102,7 +2063,7 @@ msgid "Vida independent"
 msgstr "Independent living"
 
 #: inc/services-areas.php:27
-msgid "Serveis per a la vida autònoma i suport al dia a dia."
+msgid "Serveis per a la vida autÃ²noma i suport al dia a dia."
 msgstr "Services for independent living and day-to-day support."
 
 #: inc/services-areas.php:33
@@ -2110,15 +2071,15 @@ msgid "Treball"
 msgstr "Employment"
 
 #: inc/services-areas.php:34
-msgid "Serveis relacionats amb l’ocupació i el món laboral."
+msgid "Serveis relacionats amb lâocupaciÃ³ i el mÃ³n laboral."
 msgstr "Services related to employment and the workplace."
 
 #: inc/services-areas.php:40
-msgid "Formació"
+msgid "FormaciÃ³"
 msgstr "Training"
 
 #: inc/services-areas.php:41
-msgid "Serveis de formació, capacitació i aprenentatge."
+msgid "Serveis de formaciÃ³, capacitaciÃ³ i aprenentatge."
 msgstr "Training, upskilling, and learning services."
 
 #: inc/services-areas.php:47
@@ -2134,7 +2095,7 @@ msgid "Salut"
 msgstr "Health"
 
 #: inc/services-areas.php:55
-msgid "Serveis relacionats amb l’àmbit de la salut."
+msgid "Serveis relacionats amb lâÃ mbit de la salut."
 msgstr "Services related to health."
 
 #: inc/services-areas.php:61
@@ -2158,7 +2119,7 @@ msgid "Assemblea DH"
 msgstr "Human Rights Assembly"
 
 #: inc/services-areas.php:76
-msgid "Serveis i projectes vinculats a l’Assemblea de Drets Humans."
+msgid "Serveis i projectes vinculats a lâAssemblea de Drets Humans."
 msgstr "Services and projects linked to the Human Rights Assembly."
 
 #: inc/services-areas.php:82
@@ -2179,11 +2140,11 @@ msgid "Publicar"
 msgstr "Publish"
 
 #: inc/sinergia-api.php:249
-msgid "Configuració de Sinergia incompleta."
+msgid "ConfiguraciÃ³ de Sinergia incompleta."
 msgstr "Sinergia configuration is incomplete."
 
 #: inc/sinergia-api.php:256
-msgid "No s'ha pogut iniciar sessió a Sinergia."
+msgid "No s'ha pogut iniciar sessiÃ³ a Sinergia."
 msgstr "Could not log in to Sinergia."
 
 #: inc/sinergia-form.php:75
@@ -2206,7 +2167,7 @@ msgstr "Shop"
 
 #: inc/template-tags.php:10
 #: template-parts/navbar.php:63
-msgid "Transparència"
+msgid "TransparÃ¨ncia"
 msgstr "Transparency"
 
 #: inc/template-tags.php:11
@@ -2215,7 +2176,7 @@ msgid "Actualitat"
 msgstr "News"
 
 #: inc/template-tags.php:23
-msgid "La Fundació"
+msgid "La FundaciÃ³"
 msgstr "The Foundation"
 
 #. Template Name of the theme
@@ -2229,7 +2190,7 @@ msgstr "Organization chart"
 
 #. Template Name of the theme
 #: inc/template-tags.php:27
-msgid "Història"
+msgid "HistÃ²ria"
 msgstr "History"
 
 #: inc/template-tags.php:31
@@ -2237,7 +2198,7 @@ msgid "Recursos"
 msgstr "Resources"
 
 #: inc/template-tags.php:33
-msgid "Memòries"
+msgid "MemÃ²ries"
 msgstr "Reports"
 
 #: inc/template-tags.php:34
@@ -2253,7 +2214,7 @@ msgid "Aliances"
 msgstr "Alliances"
 
 #: inc/template-tags.php:56
-msgid "Àrees"
+msgid "Ãrees"
 msgstr "Areas"
 
 #: inc/template-tags.php:74
@@ -2265,8 +2226,8 @@ msgid "Altres serveis"
 msgstr "Other services"
 
 #: inc/template-tags.php:114
-msgid "Descobreix què estem fent ara mateix."
-msgstr "Discover what we’re doing right now."
+msgid "Descobreix quÃ¨ estem fent ara mateix."
+msgstr "Discover what weâre doing right now."
 
 #: inc/template-tags.php:116
 msgid "Explora tots els serveis"
@@ -2279,20 +2240,18 @@ msgid "Eines de cronologia"
 msgstr "Timeline tools"
 
 #: inc/timeline-admin.php:33
-msgid "No tens permisos per veure aquesta pàgina."
+msgid "No tens permisos per veure aquesta pÃ gina."
 msgstr "You don't have permission to view this page."
 
 #: inc/timeline-admin.php:56
-msgid "Any inicial no vàlid."
+msgid "Any inicial no vÃ lid."
 msgstr "Invalid starting year."
 
 #. translators: %d: número de años creados
 #: inc/timeline-admin.php:82
 #, php-format
 msgid "S'ha creat %d any."
-msgid_plural "S'han creat %d anys."
-msgstr[0] "%d year has been created."
-msgstr[1] "%d years have been created."
+msgstr ""
 
 #: inc/timeline-admin.php:84
 msgid "Tots els anys ja existien, no s'ha creat cap any nou."
@@ -2306,16 +2265,14 @@ msgstr "No event was specified to be created."
 #: inc/timeline-admin.php:144
 #, php-format
 msgid "S'ha creat %d esdeveniment."
-msgid_plural "S'han creat %d esdeveniments."
-msgstr[0] "%d event has been created."
-msgstr[1] "%d events have been created."
+msgstr ""
 
 #: inc/timeline-admin.php:146
-msgid "No s'ha creat cap esdeveniment. Revisa que hi hagi títols vàlids."
+msgid "No s'ha creat cap esdeveniment. Revisa que hi hagi tÃ­tols vÃ lids."
 msgstr "No events were created. Check that there are valid titles."
 
 #: inc/timeline-admin.php:157
-msgid "Esdeveniment no vàlid."
+msgid "Esdeveniment no vÃ lid."
 msgstr "Invalid event."
 
 #: inc/timeline-admin.php:165
@@ -2331,7 +2288,7 @@ msgid "No tens permisos per eliminar aquest esdeveniment."
 msgstr "You don't have permission to delete this event."
 
 #: inc/timeline-admin.php:200
-msgid "Generar anys automàticament"
+msgid "Generar anys automÃ ticament"
 msgstr "Generate years automatically"
 
 #: inc/timeline-admin.php:201
@@ -2359,7 +2316,7 @@ msgid "Encara no hi ha cap any a la cronologia. Genera els anys amb el formulari
 msgstr "There are no years in the timeline yet. Generate the years using the form above."
 
 #: inc/timeline-admin.php:240
-msgid "Fes servir els formularis següents per afegir o eliminar esdeveniments ràpidament i desa-ho tot amb un sol botó per les altes."
+msgid "Fes servir els formularis segÃ¼ents per afegir o eliminar esdeveniments rÃ pidament i desa-ho tot amb un sol botÃ³ per les altes."
 msgstr "Use the following forms to quickly add or remove events, and save everything with a single button for new entries."
 
 #: inc/timeline-admin.php:277
@@ -2375,15 +2332,15 @@ msgid "Encara no hi ha esdeveniments per aquest any."
 msgstr "There are no events for this year yet."
 
 #: inc/timeline-admin.php:304
-msgid "Afegir esdeveniments ràpids per aquest any"
+msgid "Afegir esdeveniments rÃ pids per aquest any"
 msgstr "Add quick events for this year"
 
 #: inc/timeline-admin.php:310
-msgid "Títol de l'esdeveniment"
+msgid "TÃ­tol de l'esdeveniment"
 msgstr "Event title"
 
 #: inc/timeline-admin.php:321
-msgid "Descripció breu (opcional)"
+msgid "DescripciÃ³ breu (opcional)"
 msgstr "Short description (optional)"
 
 #: inc/timeline-admin.php:336
@@ -2395,19 +2352,19 @@ msgid "Afegir esdeveniments"
 msgstr "Add events"
 
 #: inc/transparency-meta.php:35
-msgid "Dades de transparència"
+msgid "Dades de transparÃ¨ncia"
 msgstr "Transparency data"
 
 #: inc/transparency-meta.php:87
-msgid "Tipus d’element"
+msgid "Tipus dâelement"
 msgstr "Item type"
 
 #: inc/transparency-meta.php:90
-msgid "Any (Auditoria + Memòria)"
+msgid "Any (Auditoria + MemÃ²ria)"
 msgstr "Year (Audit + Report)"
 
 #: inc/transparency-meta.php:93
-msgid "Recuadre únic (PDF)"
+msgid "Recuadre Ãºnic (PDF)"
 msgstr "Single box (PDF)"
 
 #: inc/transparency-meta.php:96
@@ -2415,15 +2372,15 @@ msgid "Apartat desplegable"
 msgstr "Expandable section"
 
 #: inc/transparency-meta.php:100
-msgid "Any = un registre per any amb auditoria i memòria. Recuadre únic = un box rosa amb un sol PDF. Desplegable = usa el títol i el contingut del post."
+msgid "Any = un registre per any amb auditoria i memÃ²ria. Recuadre Ãºnic = un box rosa amb un sol PDF. Desplegable = usa el tÃ­tol i el contingut del post."
 msgstr "Year = one record per year with audit and report. Single box = a pink box with a single PDF. Expandable = uses the post title and content."
 
 #: inc/transparency-meta.php:116
-msgid "Només es fa servir per al tipus \"Any\"."
+msgid "NomÃ©s es fa servir per al tipus \"Any\"."
 msgstr "Only used for the \"Year\" type."
 
 #: inc/transparency-meta.php:121
-msgid "PDF únic (recuadre rosa)"
+msgid "PDF Ãºnic (recuadre rosa)"
 msgstr "Single PDF (pink box)"
 
 #: inc/transparency-meta.php:129
@@ -2437,7 +2394,7 @@ msgid "Seleccionar PDF"
 msgstr "Select PDF"
 
 #: inc/transparency-meta.php:136
-msgid "Es mostrarà com un bloc rosa amb el títol del post."
+msgid "Es mostrarÃ  com un bloc rosa amb el tÃ­tol del post."
 msgstr "It will be shown as a pink block with the post title."
 
 #: inc/transparency-meta.php:141
@@ -2454,15 +2411,15 @@ msgid "Per als elements de tipus \"Any\"."
 msgstr "For items of type \"Year\"."
 
 #: inc/transparency-meta.php:161
-msgid "PDF Memòria"
+msgid "PDF MemÃ²ria"
 msgstr "Report PDF"
 
 #: inc/transparency-meta.php:169
-msgid "Selecciona PDF de memòria"
+msgid "Selecciona PDF de memÃ²ria"
 msgstr "Select report PDF"
 
 #: inc/transparency-meta.php:183
-msgid "Per als elements de tipus \"Apartat desplegable\" utilitza el títol i l’editor de continguts del post."
+msgid "Per als elements de tipus \"Apartat desplegable\" utilitza el tÃ­tol i lâeditor de continguts del post."
 msgstr "For items of type \"Expandable section\", use the post title and content editor."
 
 #: index.php:11
@@ -2471,7 +2428,7 @@ msgstr "No content found."
 
 #: page-cart.php:21
 #, php-format
-msgid "\"%s\" se ha añadido al carrito correctamente."
+msgid "\"%s\" se ha aÃ±adido al carrito correctamente."
 msgstr "\"%s\" has been added to the cart successfully."
 
 #. Template Name of the theme
@@ -2520,7 +2477,7 @@ msgid "No tens compte?"
 msgstr "Don't have an account?"
 
 #: page-login.php:35
-msgid "Registra't aquí"
+msgid "Registra't aquÃ­"
 msgstr "Sign up here"
 
 #. Template Name of the theme
@@ -2529,7 +2486,7 @@ msgid "Mi cuenta"
 msgstr "My account"
 
 #: page-my-account.php:16
-msgid "Debes iniciar sesión para ver tus pedidos."
+msgid "Debes iniciar sesiÃ³n para ver tus pedidos."
 msgstr "You must log in to view your orders."
 
 #: page-my-account.php:19
@@ -2537,7 +2494,7 @@ msgid "Mis pedidos"
 msgstr "My orders"
 
 #: page-my-account.php:26
-msgid "Todavía no has realizado ningún pedido."
+msgid "TodavÃ­a no has realizado ningÃºn pedido."
 msgstr "You haven't placed any orders yet."
 
 #: page-my-account.php:32
@@ -2557,7 +2514,7 @@ msgid "Repetir pedido"
 msgstr "Reorder"
 
 #. Template Name of the theme
-msgid "Página organigrama"
+msgid "PÃ¡gina organigrama"
 msgstr "Organization chart page"
 
 #: page-patronat.php:98
@@ -2575,31 +2532,31 @@ msgid "Mi perfil"
 msgstr "My profile"
 
 #: page-profile.php:17
-msgid "Debes iniciar sesión para acceder a tu perfil y gestionar tus datos."
+msgid "Debes iniciar sesiÃ³n para acceder a tu perfil y gestionar tus datos."
 msgstr "You must log in to access your profile and manage your data."
 
 #: page-profile.php:20
-msgid "Iniciar sesión"
+msgid "Iniciar sesiÃ³n"
 msgstr "Log in"
 
 #: page-profile.php:93
-msgid "Ha ocurrido un problema al validar el formulario. Inténtalo de nuevo."
+msgid "Ha ocurrido un problema al validar el formulario. IntÃ©ntalo de nuevo."
 msgstr "There was a problem validating the form. Please try again."
 
 #: page-profile.php:101
-msgid "El nombre no puede estar vacío."
+msgid "El nombre no puede estar vacÃ­o."
 msgstr "The name cannot be empty."
 
 #: page-profile.php:102
-msgid "El email no es válido."
+msgid "El email no es vÃ¡lido."
 msgstr "The email is not valid."
 
 #: page-profile.php:117
-msgid "Las contraseñas no coinciden."
+msgid "Las contraseÃ±as no coinciden."
 msgstr "Passwords do not match."
 
 #: page-profile.php:118
-msgid "La contraseña debe tener al menos 8 caracteres."
+msgid "La contraseÃ±a debe tener al menos 8 caracteres."
 msgstr "The password must be at least 8 characters long."
 
 #: page-profile.php:128
@@ -2616,11 +2573,11 @@ msgid "No connectat a SinergiaCRM"
 msgstr "Not connected to SinergiaCRM"
 
 #: page-profile.php:312
-msgid "Comandes i facturació"
+msgid "Comandes i facturaciÃ³"
 msgstr "Orders and billing"
 
 #: page-profile.php:318
-msgid "Tanca sessió"
+msgid "Tanca sessiÃ³"
 msgstr "Log out"
 
 #: page-profile.php:326
@@ -2629,7 +2586,7 @@ msgstr "Your profile has been updated successfully."
 
 #: page-profile.php:357
 #: page-profile.php:469
-msgid "Seguretat i accés"
+msgid "Seguretat i accÃ©s"
 msgstr "Security and access"
 
 #: page-profile.php:412
@@ -2637,7 +2594,7 @@ msgid "Biografia"
 msgstr "Biography"
 
 #: page-profile.php:440
-msgid "Adreça (linea 2)"
+msgid "AdreÃ§a (linea 2)"
 msgstr "Address (line 2)"
 
 #: page-profile.php:445
@@ -2649,7 +2606,7 @@ msgid "Provincia / Estat"
 msgstr "Province / State"
 
 #: page-profile.php:460
-msgid "País"
+msgid "PaÃ­s"
 msgstr "Country"
 
 #: page-profile.php:473
@@ -2669,11 +2626,11 @@ msgid "No tens inscripcions encara."
 msgstr "You don't have any registrations yet."
 
 #: page-profile.php:496
-msgid "Evento / Formació"
+msgid "Evento / FormaciÃ³"
 msgstr "Event / Training"
 
 #: page-profile.php:498
-msgid "Estat inscripció"
+msgid "Estat inscripciÃ³"
 msgstr "Registration status"
 
 #: page-profile.php:499
@@ -2698,7 +2655,7 @@ msgid "Finalitzat"
 msgstr "Finished"
 
 #: page-profile.php:627
-msgid "El teu usuari no està sincronitzat amb SinergiaCRM. Si crees que esto es un error, contacta con soporte."
+msgid "El teu usuari no estÃ  sincronitzat amb SinergiaCRM. Si crees que esto es un error, contacta con soporte."
 msgstr "Your user is not synced with SinergiaCRM. If you think this is an error, contact support."
 
 #: page-profile.php:631
@@ -2718,7 +2675,7 @@ msgid "Ja tens compte?"
 msgstr "Already have an account?"
 
 #: page-register.php:35
-msgid "Inicia sessió"
+msgid "Inicia sessiÃ³"
 msgstr "Log in"
 
 #: recommendations.php:16
@@ -2730,7 +2687,7 @@ msgid "Selecciona un horari"
 msgstr "Select a time slot"
 
 #: single-event.php:83
-msgid "Inscripció a aquest esdeveniment"
+msgid "InscripciÃ³ a aquest esdeveniment"
 msgstr "Registration for this event"
 
 #: single-event.php:98
@@ -2742,8 +2699,8 @@ msgid "Dades addicionals (Sinergia)"
 msgstr "Additional data (Sinergia)"
 
 #: single-product.php:70
-msgid "Vista 360º"
-msgstr "360º view"
+msgid "Vista 360Âº"
+msgstr "360Âº view"
 
 #: single-product.php:73
 msgid "Arrossega per girar el producte"
@@ -2755,8 +2712,8 @@ msgstr "Product on sale"
 
 #: single-product.php:136
 #, php-format
-msgid "Preu per usuaris registrats: %s €"
-msgstr "Price for registered users: %s €"
+msgid "Preu per usuaris registrats: %s â¬"
+msgstr "Price for registered users: %s â¬"
 
 #: single-product.php:164
 #, php-format
@@ -2798,11 +2755,11 @@ msgstr "Share on TikTok"
 #: single-product.php:235
 #: single-product.php:236
 #: single-product.php:239
-msgid "Copiar enllaç"
+msgid "Copiar enllaÃ§"
 msgstr "Copy link"
 
 #: single-product.php:244
-msgid "Enllaç copiat"
+msgid "EnllaÃ§ copiat"
 msgstr "Link copied"
 
 #: single-product.php:265
@@ -2815,11 +2772,11 @@ msgid "Talla"
 msgstr "Size"
 
 #: single-service.php:53
-msgid "Presentació"
+msgid "PresentaciÃ³"
 msgstr "Overview"
 
 #: single-service.php:67
-msgid "Fitxa tècnica del servei"
+msgid "Fitxa tÃ¨cnica del servei"
 msgstr "Service technical sheet"
 
 #: single-service.php:73
@@ -2827,7 +2784,7 @@ msgid "Nom del servei"
 msgstr "Service name"
 
 #: single-service.php:74
-msgid "Definició breu"
+msgid "DefiniciÃ³ breu"
 msgstr "Brief definition"
 
 #: single-service.php:75
@@ -2835,15 +2792,15 @@ msgid "Marc normatiu i referents"
 msgstr "Regulatory framework and references"
 
 #: single-service.php:76
-msgid "Història i missió"
+msgid "HistÃ²ria i missiÃ³"
 msgstr "History and mission"
 
 #: single-service.php:77
-msgid "A qui s’adreça"
+msgid "A qui sâadreÃ§a"
 msgstr "Who it is for"
 
 #: single-service.php:78
-msgid "Què oferim"
+msgid "QuÃ¨ oferim"
 msgstr "What we offer"
 
 #: single-service.php:79
@@ -2855,11 +2812,11 @@ msgid "Altres activitats relacionades"
 msgstr "Other related activities"
 
 #: single-service.php:81
-msgid "Durada / freqüència / modalitats"
+msgid "Durada / freqÃ¼Ã¨ncia / modalitats"
 msgstr "Duration / frequency / formats"
 
 #: single-service.php:82
-msgid "Cost o finançament"
+msgid "Cost o finanÃ§ament"
 msgstr "Cost or funding"
 
 #: single-service.php:83
@@ -2871,7 +2828,7 @@ msgid "Compliment amb normativa ISO"
 msgstr "ISO compliance"
 
 #: single-service.php:85
-msgid "Prestació social / cartera de serveis"
+msgid "PrestaciÃ³ social / cartera de serveis"
 msgstr "Social benefit / service portfolio"
 
 #: single-service.php:86
@@ -2883,11 +2840,11 @@ msgid "Equip professional"
 msgstr "Professional team"
 
 #: single-service.php:88
-msgid "Adreça i contacte"
+msgid "AdreÃ§a i contacte"
 msgstr "Address and contact"
 
 #: single-service.php:89
-msgid "Vídeos o testimonis"
+msgid "VÃ­deos o testimonis"
 msgstr "Videos or testimonials"
 
 #: single-service.php:90
@@ -2895,7 +2852,7 @@ msgid "Frase explicativa en primera persona"
 msgstr "Explanatory sentence in first person"
 
 #: single-service.php:91
-msgid "Any de creació"
+msgid "Any de creaciÃ³"
 msgstr "Year created"
 
 #: single-service.php:92
@@ -2915,15 +2872,15 @@ msgid "3 punts clau diferencials"
 msgstr "3 key differentiators"
 
 #: single-service.php:96
-msgid "Què fem per tu"
+msgid "QuÃ¨ fem per tu"
 msgstr "What we do for you"
 
 #: single-service.php:97
-msgid "Què fem per l'entorn"
+msgid "QuÃ¨ fem per l'entorn"
 msgstr "What we do for the community"
 
 #: single-service.php:142
-msgid "No hi ha informació tècnica disponible per aquest servei."
+msgid "No hi ha informaciÃ³ tÃ¨cnica disponible per aquest servei."
 msgstr "There is no technical information available for this service."
 
 #. translators: %s: file name
@@ -2948,7 +2905,7 @@ msgid "Precio"
 msgstr "Price"
 
 #: template-parts/map.php:17
-msgid "Mapa de localització"
+msgid "Mapa de localitzaciÃ³"
 msgstr "Location map"
 
 #: template-parts/map.php:20
@@ -2960,11 +2917,11 @@ msgid "Com arribar-hi"
 msgstr "How to get there"
 
 #: template-parts/navbar.php:10
-msgid "Navegació principal"
+msgid "NavegaciÃ³ principal"
 msgstr "Main navigation"
 
 #: template-parts/navbar.php:15
-msgid "Commuta navegació"
+msgid "Commuta navegaciÃ³"
 msgstr "Toggle navigation"
 
 #: template-parts/product-card.php:61
@@ -2992,8 +2949,8 @@ msgid "Buscar"
 msgstr "Search"
 
 #: template-parts/shop/navbar-filters.php:49
-msgid "Cerca productes…"
-msgstr "Search products…"
+msgid "Cerca productesâ¦"
+msgstr "Search productsâ¦"
 
 #: template-parts/shop/navbar-filters.php:61
 msgid "Totes"
@@ -3004,11 +2961,11 @@ msgid "Qualsevol"
 msgstr "Any"
 
 #: template-parts/shop/navbar-filters.php:138
-msgid "Preu mín."
+msgid "Preu mÃ­n."
 msgstr "Min price"
 
 #: template-parts/shop/navbar-filters.php:151
-msgid "Preu màx."
+msgid "Preu mÃ x."
 msgstr "Max price"
 
 #: template-parts/shop/navbar-filters.php:166
@@ -3018,3 +2975,42 @@ msgstr "Apply filters"
 #: template-parts/shop/navbar-filters.php:171
 msgid "Netejar"
 msgstr "Clear"
+
+msgid "El meu compte"
+msgstr "My account"
+
+msgid "Has d'iniciar sessió per veure les teves comandes."
+msgstr "You must log in to view your orders."
+
+msgid "Les meves comandes"
+msgstr "My orders"
+
+msgid "Encara no has fet cap comanda."
+msgstr "You haven't placed any orders yet."
+
+msgid "Repetir comanda"
+msgstr "Repeat order"
+
+msgid "El meu perfil"
+msgstr "My profile"
+
+msgid "Has d'iniciar sessió per accedir al teu perfil i gestionar les teves dades."
+msgstr "You must log in to access your profile and manage your data."
+
+msgid "Iniciar sessió"
+msgstr "Log in"
+
+msgid "Adreça (línia 2)"
+msgstr "Address (line 2)"
+
+msgid "Província / Estat"
+msgstr "Province / State"
+
+msgid "Esdeveniment / Formació"
+msgstr "Event / Training"
+
+msgid "El teu usuari no està sincronitzat amb SinergiaCRM. Si creus que això és un error, contacta amb suport."
+msgstr "Your user is not synced with SinergiaCRM. If you think this is a mistake, contact support."
+
+msgid "No hi ha dades addicionals de Sinergia."
+msgstr "No additional data from Sinergia."

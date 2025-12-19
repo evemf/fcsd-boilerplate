@@ -19,12 +19,15 @@ if ( ! is_user_logged_in() ) {
 $user   = wp_get_current_user();
 $roles  = (array) $user->roles;
 
-// 2) Solo damos acceso a empleados (worker). Opcionalmente puedes
-//    permitir también administrators o intranet_admin.
-$allowed_roles = array( 'worker' );
+// 2) Acceso a empleados.
+//    - Por rol: worker / intranet_admin / administrator
+//    - Por email: @fcsd.org (cubre usuarios legacy/importados sin rol)
+$allowed_roles = array( 'worker', 'intranet_admin', 'administrator' );
 $has_access    = array_intersect( $allowed_roles, $roles );
 
-if ( empty( $has_access ) ) {
+$email_domain_access = (bool) preg_match( '/@fcsd\.org$/i', (string) $user->user_email );
+
+if ( empty( $has_access ) && ! $email_domain_access ) {
     ?>
     <div class="container py-5">
         <p><?php esc_html_e( 'No tienes acceso a la intranet.', 'fcsd' ); ?></p>

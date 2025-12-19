@@ -8,6 +8,72 @@ defined('ABSPATH') || exit;
 
 function fcsd_slug_map(): array {
     return [
+        // Secciones principales (para routing + menús)
+        'about' => [
+            'ca' => 'qui-som',
+            'es' => 'quienes-somos',
+            'en' => 'about',
+        ],
+        'patronat' => [
+            'ca' => 'patronat',
+            'es' => 'patronato',
+            'en' => 'board-of-trustees',
+        ],
+        'organigrama' => [
+            'ca' => 'organigrama',
+            'es' => 'organigrama',
+            'en' => 'organisation-chart',
+        ],
+        'history' => [
+            'ca' => 'historia',
+            'es' => 'historia',
+            'en' => 'history',
+        ],
+        'intranet' => [
+            'ca' => 'intranet',
+            'es' => 'intranet',
+            'en' => 'intranet',
+        ],
+        'offers' => [
+            'ca' => 'ofertes',
+            'es' => 'ofertas',
+            'en' => 'offers',
+        ],
+        'calendar_actes' => [
+            'ca' => 'calendar-actes',
+            'es' => 'calendario-actos',
+            'en' => 'events-calendar',
+        ],
+        'calendar_work' => [
+            'ca' => 'calendar-work',
+            'es' => 'calendario-laboral',
+            'en' => 'work-calendar',
+        ],
+        'memories' => [
+            'ca' => 'memories',
+            'es' => 'memorias',
+            'en' => 'annual-reports',
+        ],
+        'press' => [
+            'ca' => 'premsa',
+            'es' => 'prensa',
+            'en' => 'press',
+        ],
+        'volunteering' => [
+            'ca' => 'voluntariat',
+            'es' => 'voluntariado',
+            'en' => 'volunteering',
+        ],
+        'alliances' => [
+            'ca' => 'aliances',
+            'es' => 'alianzas',
+            'en' => 'partnerships',
+        ],
+        'services' => [
+            'ca' => 'serveis',
+            'es' => 'servicios',
+            'en' => 'services',
+        ],
         'news' => [
             'ca' => 'noticies',
             'es' => 'noticias',
@@ -19,23 +85,24 @@ function fcsd_slug_map(): array {
             'en' => 'shop',
         ],
         'cart' => [
-            'ca' => 'carro',
+            'ca' => 'cistella',
             'es' => 'carrito',
             'en' => 'cart',
         ],
         'checkout' => [
-            'ca' => 'finalitzar-compra',
-            'es' => 'finalizar-compra',
+            // Mantingut per compatibilitat amb el tema existent.
+            'ca' => 'checkout',
+            'es' => 'checkout',
             'en' => 'checkout',
         ],
         'my_account' => [
-            'ca' => 'el-meu-compte',
+            'ca' => 'mi-cuenta',
             'es' => 'mi-cuenta',
             'en' => 'my-account',
         ],
         'login' => [
-            'ca' => 'iniciar-sessio',
-            'es' => 'iniciar-sesion',
+            'ca' => 'accedir',
+            'es' => 'acceder',
             'en' => 'login',
         ],
         'register' => [
@@ -44,7 +111,7 @@ function fcsd_slug_map(): array {
             'en' => 'register',
         ],
         'profile' => [
-            'ca' => 'perfil',
+            'ca' => 'perfil-usuari',
             'es' => 'perfil',
             'en' => 'profile',
         ],
