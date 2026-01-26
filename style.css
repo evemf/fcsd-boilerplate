@@ -3,7 +3,7 @@ Theme Name: FCSD Boilerplate
 Theme URI: https://example.com/fcsd-boilerplate
 Author: Evelia
 Description: Tema WordPress para FCSD con sistema de diseño unificado
-Version: 2.0.0
+Version: 2.0.1
 Text Domain: fcsd
 */
 
@@ -17,8 +17,9 @@ Text Domain: fcsd
  * -------------------------------------------------------------- */
 .service-info-footer{
   margin-top:2rem;
-  background:#0fb087;
-  color:#fff;
+  border-color: 4px solid var(--accent);
+  background-color: var(--bg-contrast);
+  color: var(--bg);
   border-radius:16px;
   overflow:hidden;
 }
@@ -49,8 +50,33 @@ Text Domain: fcsd
   gap:14px;
   align-items:center;
 }
+
+/* Partners (Suport + Conveni + Col·laboració) */
+.service-info-footer__partners{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:24px;
+  align-items:start;
+}
+.service-info-footer__partner-col{ min-width:0; }
+.service-info-footer__partner-col--support .service-info-footer__support-logos{ margin-top:10px; }
+.service-info-footer__partner-list{
+  margin:10px 0 0;
+  padding-left:18px;
+}
+.service-info-footer__partner-list li{ margin:0 0 6px; }
+.service-info-footer__partner-list a{ color:#fff; text-decoration:underline; }
+
+.theme-dark .service-info-footer p,
+.theme-dark .service-info-footer a {
+  background-color: var(--bg-contrast);
+  color: var(--bg);
+}
+
 .service-info-footer__support-label{
   font-weight:700;
+  color:inherit;
 }
 .service-info-footer__support-logos{
   display:flex;
@@ -59,10 +85,9 @@ Text Domain: fcsd
   align-items:center;
 }
 .service-info-footer__logo{
-  max-height:44px;
+  max-height:84px;
   width:auto;
   height:auto;
-  filter: brightness(0) invert(1);
 }
 
 /* Versió compacta (cards de l'arxiu) */
@@ -81,9 +106,12 @@ Text Domain: fcsd
   grid-template-columns: 1fr;
   gap:14px;
 }
-
+.service-entry p {
+  color:var(--bg-contrast);
+}
 @media (max-width: 991px){
   .service-info-footer__grid{ grid-template-columns: 1fr; }
+  .service-info-footer__partners{ grid-template-columns: 1fr; }
 }
 
 .topbar__langs a.is-active{
@@ -2242,6 +2270,13 @@ body.theme-dark .service-ficha-item {
   /* Aumentamos un punto para legibilidad */
   font-size: var(--font-size-md);
   line-height: 1.6;
+}
+
+.service-ficha-item__image{
+  display:block;
+  width:100%;
+  height:auto;
+  border-radius:12px;
 }
 
 @media (max-width: 991.98px) {

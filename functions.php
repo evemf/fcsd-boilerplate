@@ -13,11 +13,12 @@ if ( ! defined( 'FCSD_VERSION' ) ) {
 }
 
 if ( ! defined( 'FCSD_THEME_DIR' ) ) {
-    define( 'FCSD_THEME_DIR', get_template_directory() );
+    // Usa la carpeta del tema activo (soporta tema hijo sin romper rutas).
+    define( 'FCSD_THEME_DIR', get_stylesheet_directory() );
 }
 
 if ( ! defined( 'FCSD_THEME_URI' ) ) {
-    define( 'FCSD_THEME_URI', get_template_directory_uri() );
+    define( 'FCSD_THEME_URI', get_stylesheet_directory_uri() );
 }
 
 
@@ -38,11 +39,6 @@ require_once FCSD_THEME_DIR . '/inc/theme-activate.php';
 
 require_once FCSD_THEME_DIR . '/inc/class-nav-walker-mega.php';
 
-// Forzar locale del frontend según el idioma detectado
-add_filter('locale', function($locale) {
-    if ( is_admin() ) return $locale;
-    return fcsd_current_locale();
-});
 // --------------------------------------------------
 // Soporte del tema
 // --------------------------------------------------
@@ -352,6 +348,7 @@ if ( is_admin() ) {
 }
 require_once FCSD_THEME_DIR . '/inc/external-news.php';
 require_once FCSD_THEME_DIR . '/inc/news-sync-exit21.php';
+require_once FCSD_THEME_DIR . '/inc/ecommerce/helpers.php';
 require_once FCSD_THEME_DIR . '/inc/ecommerce/shop-core.php';
 require_once FCSD_THEME_DIR . '/inc/ecommerce/orders.php';
 require_once FCSD_THEME_DIR . '/inc/ecommerce/product-meta.php';
@@ -421,7 +418,7 @@ function fcsd_ajax_load_more_products() {
 
     $query = new WP_Query(
         [
-            'post_type'   => 'product',
+            'post_type'   => 'fcsd_product',
             'post_status' => 'publish',
             'paged'       => $paged,
         ]
@@ -432,7 +429,7 @@ function fcsd_ajax_load_more_products() {
     if ( $query->have_posts() ) {
         while ( $query->have_posts() ) {
             $query->the_post();
-            get_template_part( 'template-parts/shop/product', 'card' );
+            get_template_part( 'template-parts/product', 'card' );
         }
     }
 
@@ -464,6 +461,24 @@ add_action( 'pre_get_posts', function ( $query ) {
         $query->set( 'orderby', [ 'menu_order' => 'ASC', 'title' => 'ASC' ] );
     }
 } );
+
+// --------------------------------------------------
+    // Shop archives: show more products per page (and keep pagination).
+// --------------------------------------------------
+add_action( 'pre_get_posts', function ( $query ) {
+    if ( is_admin() || ! $query->is_main_query() ) {
+        return;
+    }
+
+    $is_shop_archive = $query->is_post_type_archive( 'fcsd_product' );
+    $is_shop_tax     = $query->is_tax( 'fcsd_product_cat' );
+
+    if ( $is_shop_archive || $is_shop_tax ) {
+        $query->set( 'posts_per_page', 24 );
+    }
+} );
 // Flush rewrites on theme switch (needed for language prefix routing)
 // Activación del tema: crear páginas necesarias + flush de rewrites
 add_action('after_switch_theme', 'fcsd_on_theme_activation');
+
+

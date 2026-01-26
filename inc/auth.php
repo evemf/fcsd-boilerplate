@@ -218,20 +218,28 @@ add_action( 'template_redirect', 'fcsd_handle_auth_forms' );
 // -----------------------------------------------------------------------------
 // Roles
 // -----------------------------------------------------------------------------
-add_action(
-    'init',
-    function () {
+add_action('init', function () {
+
+    // Crear / asegurar rol worker sin caps "false" que puedan pisar permisos
+    if ( ! get_role('worker') ) {
         add_role(
             'worker',
             'FCSD Worker',
             array(
-                'read'         => true,
-                'edit_posts'   => false,
-                'delete_posts' => false,
+                'read' => true,
             )
         );
+    } else {
+        // Si ya existía de antes con caps mal, lo reparamos
+        $role = get_role('worker');
+        if ( $role ) {
+            $role->add_cap('read');
+            $role->remove_cap('edit_posts');
+            $role->remove_cap('delete_posts');
+        }
     }
-);
+
+}, 1);
 
 /**
  * Ensure users from FCSD domain have the "worker" role.
@@ -1184,3 +1192,4 @@ function fcsd_social_links_shortcode() {
     return ob_get_clean();
 }
 add_shortcode( 'fcsd_social_links', 'fcsd_social_links_shortcode' );
+

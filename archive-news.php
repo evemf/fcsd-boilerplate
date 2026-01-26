@@ -50,7 +50,7 @@ get_header();
 
         // Si no hay términos, tratamos la noticia como "Sin categoría"
         if ( ( empty( $terms ) || is_wp_error( $terms ) ) && $sin_cat_url ) {
-          $primary_cat = (object) [ 'name' => __( 'Sin categoría', 'tu-textdomain' ) ];
+          $primary_cat = (object) [ 'name' => __( 'Sin categoría', 'fcsd' ) ];
           $bg_url = $sin_cat_url;
         }
 
@@ -100,7 +100,7 @@ get_header();
             </div>
 
             <a class="news-card__more" href="<?php the_permalink(); ?>">
-              <?php esc_html_e( 'Llegir-ne més', 'tu-textdomain' ); ?>
+              <?php esc_html_e( 'Llegir-ne més', 'fcsd' ); ?>
             </a>
           </div>
 
@@ -112,13 +112,13 @@ get_header();
     <?php
     the_posts_pagination( [
       'mid_size'  => 2,
-      'prev_text' => '← ' . __( 'Anterior', 'tu-textdomain' ),
-      'next_text' => __( 'Següent', 'tu-textdomain' ) . ' →',
+      'prev_text' => '← ' . __( 'Anterior', 'fcsd' ),
+      'next_text' => __( 'Següent', 'fcsd' ) . ' →',
     ] );
     ?>
 
   <?php else : ?>
-    <p><?php esc_html_e( 'No hi ha notícies.', 'tu-textdomain' ); ?></p>
+    <p><?php esc_html_e( 'No hi ha notícies.', 'fcsd' ); ?></p>
   <?php endif; ?>
 </main>
 <?php

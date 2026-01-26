@@ -19,7 +19,7 @@ $cart = $args['cart'];
         <?php esc_html_e( 'Tu carrito está vacío.', 'fcsd' ); ?>
     </div>
     
-    <a href="<?php echo esc_url( get_post_type_archive_link( 'product' ) ); ?>" class="btn btn-primary">
+    <a href="<?php echo esc_url( get_post_type_archive_link( 'fcsd_product' ) ); ?>" class="btn btn-primary">
         <?php esc_html_e( 'Ir a la tienda', 'fcsd' ); ?>
     </a>
 

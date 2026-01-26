@@ -1,32 +1,36 @@
 <?php
 add_action('init', function(){
 
-    register_post_type('service', [
-        'label' => __('Services', 'fcsd'),
-        'public' => true,
+    // CPT: Serveis
+    // IMPORTANT: el títol de l'arxiu (archive) el determina labels->name.
+    // Si el textdomain té traduccions a EN, a /en/services/ es veurà "Services".
+    register_post_type( 'service', [
+        'label'         => __( 'Serveis', 'fcsd' ),
+        'labels'        => [
+            'name'          => __( 'Serveis', 'fcsd' ),
+            'singular_name' => __( 'Servei', 'fcsd' ),
+            'add_new'       => __( 'Afegir servei', 'fcsd' ),
+            'add_new_item'  => __( 'Afegir nou servei', 'fcsd' ),
+            'edit_item'     => __( 'Editar servei', 'fcsd' ),
+        ],
+        'public'        => true,
         'menu_position' => 5,
-        'menu_icon' => 'dashicons-hammer',
-        'supports' => ['title','editor','thumbnail','excerpt','page-attributes'],
-        'has_archive' => true,
-        'rewrite' => ['slug' => 'serveis']
-    ]);
+        'menu_icon'     => 'dashicons-hammer',
+        'supports'      => [ 'title', 'editor', 'thumbnail', 'excerpt', 'page-attributes' ],
+        'has_archive'   => true,
+        'rewrite'       => [ 'slug' => 'serveis' ],
+    ] );
 
-    register_taxonomy('service_area', 'service', [
-        'label' => __('Service Areas', 'fcsd'),
-        'public' => true,
+    register_taxonomy( 'service_area', 'service', [
+        'label'        => __( 'Àmbits de servei', 'fcsd' ),
+        'labels'       => [
+            'name'          => __( 'Àmbits de servei', 'fcsd' ),
+            'singular_name' => __( 'Àmbit de servei', 'fcsd' ),
+        ],
+        'public'       => true,
         'hierarchical' => true,
-        'rewrite' => ['slug' => 'area']
-    ]);
-
-    register_post_type('product', [
-        'label' => __('Products', 'fcsd'),
-        'public' => true,
-        'menu_position' => 7,
-        'menu_icon' => 'dashicons-cart',
-        'supports' => ['title','editor','thumbnail','excerpt','custom-fields','page-attributes'],
-        'has_archive' => true,
-        'rewrite' => ['slug' => 'shop']
-    ]);
+        'rewrite'      => [ 'slug' => 'area' ],
+    ] );
 
     register_post_type('news', [
         'label' => __('News', 'fcsd'),

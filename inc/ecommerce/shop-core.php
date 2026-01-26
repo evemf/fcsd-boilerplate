@@ -17,7 +17,7 @@ require get_template_directory() . '/inc/ecommerce/class-shop-discounts.php';
 require get_template_directory() . '/inc/ecommerce/template-tags-shop.php';
 
 /**
- * Registrar Custom Post Type: product
+ * Registrar Custom Post Type: fcsd_product
  */
 function fcsd_register_product_cpt() {
     $labels = [
@@ -50,12 +50,12 @@ function fcsd_register_product_cpt() {
         'menu_icon'     => 'dashicons-cart',
     ];
 
-    register_post_type( 'product', $args );
+    register_post_type( 'fcsd_product', $args );
 }
 add_action( 'init', 'fcsd_register_product_cpt' );
 
 /**
- * Taxonomía: product_cat
+ * Taxonomía: fcsd_product_cat
  */
 function fcsd_register_product_taxonomy() {
     $labels = [
@@ -69,7 +69,7 @@ function fcsd_register_product_taxonomy() {
         'new_item_name' => __( 'Nuevo nombre de categoría', 'fcsd' ),
     ];
 
-    register_taxonomy( 'product_cat', 'product', [
+    register_taxonomy( 'fcsd_product_cat', 'fcsd_product', [
         'labels'       => $labels,
         'public'       => true,
         'hierarchical' => true,
@@ -152,7 +152,7 @@ function fcsd_handle_add_to_cart() {
     }
 
     // Verificar que el producto existe
-    if ( get_post_type( $product_id ) !== 'product' ) {
+    if ( get_post_type( $product_id ) !== 'fcsd_product' ) {
         wp_die( __( 'Producto no válido.', 'fcsd' ) );
     }
 
@@ -289,7 +289,7 @@ function fcsd_ajax_add_to_cart() {
     $size       = isset( $_POST['fcsd_size'] ) ? sanitize_text_field( wp_unslash( $_POST['fcsd_size'] ) ) : '';
     
     // Verificar que el producto existe
-    if ( get_post_type( $product_id ) !== 'product' ) {
+    if ( get_post_type( $product_id ) !== 'fcsd_product' ) {
         wp_send_json_error( array( 'message' => __( 'Producte no vàlid', 'fcsd' ) ) );
     }
     
@@ -430,7 +430,7 @@ add_action( 'wp_ajax_nopriv_fcsd_get_cart_content', 'fcsd_ajax_get_cart_content'
 
 /**
  * Filtros del archivo de productos (tienda)
- * - Categoria (product_cat)
+ * - Categoria (fcsd_product_cat)
  * - Color (meta _fcsd_product_colors)
  * - Precio mínimo/máximo (meta _fcsd_price_regular)
  */
@@ -441,7 +441,7 @@ function fcsd_apply_shop_filters( $query ) {
         return;
     }
 
-    if ( ! $query->is_post_type_archive( 'product' ) && $query->get( 'post_type' ) !== 'product' ) {
+    if ( ! $query->is_post_type_archive( 'fcsd_product' ) && $query->get( 'post_type' ) !== 'fcsd_product' ) {
         return;
     }
 
@@ -449,13 +449,13 @@ function fcsd_apply_shop_filters( $query ) {
     $tax_query  = (array) $query->get( 'tax_query' );
 
     // -------------------------------
-    // Categoría de producto (product_cat)
+    // Categoría de producto (fcsd_product_cat)
     // -------------------------------
     if ( ! empty( $_GET['shop_cat'] ) ) {
         $cat_id = (int) $_GET['shop_cat'];
         if ( $cat_id > 0 ) {
             $tax_query[] = [
-                'taxonomy' => 'product_cat',
+                'taxonomy' => 'fcsd_product_cat',
                 'field'    => 'term_id',
                 'terms'    => $cat_id,
             ];

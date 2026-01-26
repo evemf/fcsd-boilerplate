@@ -3014,3 +3014,11 @@ msgstr "Your user is not synced with SinergiaCRM. If you think this is a mistake
 
 msgid "No hi ha dades addicionals de Sinergia."
 msgstr "No additional data from Sinergia."
+
+#: theme-runtime
+msgid "Següent"
+msgstr "Next"
+
+#: theme-runtime
+msgid "No hi ha productes disponibles."
+msgstr "No products available."

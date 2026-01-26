@@ -197,7 +197,7 @@ function fcsd_on_theme_activation(): void {
             [ 'type' => 'page', 'key' => 'about',    'label_ca' => 'Qui som',     'label_es' => 'Quiénes somos', 'label_en' => 'About' ],
             [ 'type' => 'custom', 'url' => get_post_type_archive_link('service') ?: home_url('/'), 'label_ca' => 'Serveis', 'label_es' => 'Servicios', 'label_en' => 'Services' ],
             [ 'type' => 'custom', 'url' => get_post_type_archive_link('news') ?: home_url('/'),    'label_ca' => 'Actualitat', 'label_es' => 'Actualidad', 'label_en' => 'News' ],
-            [ 'type' => 'custom', 'url' => get_post_type_archive_link('product') ?: home_url('/'), 'label_ca' => 'Botiga',   'label_es' => 'Tienda', 'label_en' => 'Shop' ],
+            [ 'type' => 'custom', 'url' => get_post_type_archive_link('fcsd_product') ?: home_url('/'), 'label_ca' => 'Botiga',   'label_es' => 'Tienda', 'label_en' => 'Shop' ],
             [ 'type' => 'page', 'key' => 'contact',  'label_ca' => 'Contacte',   'label_es' => 'Contacto', 'label_en' => 'Contact' ],
         ]
     );

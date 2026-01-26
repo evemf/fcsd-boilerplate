@@ -73,7 +73,7 @@ while ( have_posts() ) :
                     <h2 id="presentacio" class="h5 text-muted">
                         <?php echo esc_html__( 'Presentació', 'fcsd' ); ?>
                     </h2>
-                    <div class="bg-light p-3 rounded border" itemprop="description">
+                    <div class="p-3 rounded border" itemprop="description">
                         <?php the_content(); ?>
                     </div>
                 </section>
@@ -197,34 +197,76 @@ while ( have_posts() ) :
                 $has_rows = false;
                 ?>
 
-                <div class="service-ficha-grid" role="table" aria-label="<?php echo esc_attr__( 'Fitxa tècnica del servei', 'fcsd' ); ?>">
-                    <?php foreach ( $fields as $key => $label ) :
-                        $value = get_post_meta( get_the_ID(), $key, true );
+                <?php
+                // --------------------------------------------------
+                // Fitxa tècnica: barregem camps existents + imatges extra
+                // --------------------------------------------------
+                $items = [];
+                foreach ( $fields as $key => $label ) {
+                    $value = get_post_meta( get_the_ID(), $key, true );
 
-                        // Si ja hem mostrat el vídeo com a embed i el camp legacy "videos" només
-                        // conté un enllaç de YouTube, evitem duplicar informació a la fitxa.
-                        if ( 'videos' === $key && ! empty( $youtube_embed ) && ! empty( $youtube_url ) ) {
-                            $v = trim( (string) $value );
-                            if ( $v && preg_match( '/^(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/.+)$/i', $v ) ) {
-                                // Normalitzem de manera simple (sense resoldre redirects) per comparar.
-                                if ( trim( $youtube_url ) === $v ) {
-                                    continue;
-                                }
+                    // Si ja hem mostrat el vídeo com a embed i el camp legacy "videos" només
+                    // conté un enllaç de YouTube, evitem duplicar informació a la fitxa.
+                    if ( 'videos' === $key && ! empty( $youtube_embed ) && ! empty( $youtube_url ) ) {
+                        $v = trim( (string) $value );
+                        if ( $v && preg_match( '/^(https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/.+)$/i', $v ) ) {
+                            if ( trim( $youtube_url ) === $v ) {
+                                continue;
                             }
                         }
+                    }
 
-                        if ( empty( $value ) ) {
-                            continue;
-                        }
+                    if ( empty( $value ) ) {
+                        continue;
+                    }
 
+                    $items[] = [
+                        'type'  => 'text',
+                        'label' => $label,
+                        'html'  => wp_kses_post( wpautop( $value ) ),
+                    ];
+                }
+
+                $extra_ids_raw = (string) get_post_meta( get_the_ID(), 'fcsd_service_technical_extra_images', true );
+                $extra_ids     = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', $extra_ids_raw ) ) );
+
+                $extra_items = [];
+                foreach ( $extra_ids as $img_id ) {
+                    $img = wp_get_attachment_image( $img_id, 'large', false, [ 'class' => 'service-ficha-item__image' ] );
+                    if ( ! $img ) {
+                        continue;
+                    }
+                    $title = get_the_title( $img_id );
+                    $extra_items[] = [
+                        'type'  => 'image',
+                        'label' => $title ? $title : __( 'Imatge', 'fcsd' ),
+                        'html'  => $img,
+                    ];
+                }
+
+                // Inserim les imatges extra en posicions "aleatòries" però estables per post.
+                if ( ! empty( $extra_items ) && ! empty( $items ) ) {
+                    mt_srand( (int) get_the_ID() );
+                    foreach ( $extra_items as $ex ) {
+                        $pos = mt_rand( 0, count( $items ) );
+                        array_splice( $items, $pos, 0, [ $ex ] );
+                    }
+                    mt_srand();
+                } elseif ( ! empty( $extra_items ) ) {
+                    $items = array_merge( $items, $extra_items );
+                }
+                ?>
+
+                <div class="service-ficha-grid" role="table" aria-label="<?php echo esc_attr__( 'Fitxa tècnica del servei', 'fcsd' ); ?>">
+                    <?php foreach ( $items as $row ) :
                         $has_rows = true;
                         ?>
                         <section class="service-ficha-item" role="row">
                             <h3 class="service-ficha-item__label" role="cell">
-                                <?php echo esc_html( $label ); ?>
+                                <?php echo esc_html( (string) $row['label'] ); ?>
                             </h3>
                             <div class="service-ficha-item__value" role="cell">
-                                <?php echo wp_kses_post( wpautop( $value ) ); ?>
+                                <?php echo $row['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                             </div>
                         </section>
                     <?php endforeach; ?>

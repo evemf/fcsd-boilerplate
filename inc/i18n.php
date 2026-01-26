@@ -52,6 +52,22 @@ function fcsd_current_locale(): string {
 }
 
 /**
+ * Fuerza el locale del request a partir del prefijo de URL.
+ *
+ * Esto debe ejecutarse MUY pronto (antes de after_setup_theme) para que
+ * load_theme_textdomain() cargue el MO correcto en la misma request.
+ */
+function fcsd_filter_request_locale( string $locale ): string {
+    if ( is_admin() ) {
+        return $locale;
+    }
+    return fcsd_current_locale();
+}
+
+add_filter( 'locale', 'fcsd_filter_request_locale', 0 );
+add_filter( 'determine_locale', 'fcsd_filter_request_locale', 0 );
+
+/**
  * Aplica el locale del frontend (core + tema) en cada request.
  *
  * Importante: load_theme_textdomain() se ejecuta en after_setup_theme y, si el locale
@@ -78,10 +94,33 @@ function fcsd_apply_frontend_locale(): void {
         unload_textdomain('fcsd');
     }
 
-    // FCSD_THEME_DIR existe desde functions.php.
-    if ( defined('FCSD_THEME_DIR') ) {
-        load_theme_textdomain('fcsd', FCSD_THEME_DIR . '/languages');
+    if ( ! defined('FCSD_THEME_DIR') ) {
+        return;
+    }
+
+    // 1) Carga estándar del tema (WordPress localizará fcsd-LOCALE.mo en /languages)
+    load_theme_textdomain('fcsd', FCSD_THEME_DIR . '/languages');
+
+    // 2) Salvaguarda: carga directa del MO exacto.
+    // En algunas instalaciones (caché de MO, orden de hooks, child/parent) la carga estándar
+    // puede quedar “enganchada” al locale por defecto. Forzamos el fichero esperado.
+    $mo = trailingslashit(FCSD_THEME_DIR) . 'languages/fcsd-' . $locale . '.mo';
+    if ( file_exists($mo) && function_exists('load_textdomain') ) {
+        load_textdomain('fcsd', $mo);
     }
 }
 
+
+// Aún más temprano: antes de que otros componentes (CPTs, plantillas, etc.) lean strings.
+// - plugins_loaded: casi lo primero tras cargar plugins/tema
+// - setup_theme: antes de after_setup_theme
+add_action('plugins_loaded', 'fcsd_apply_frontend_locale', 0);
+add_action('setup_theme', 'fcsd_apply_frontend_locale', 0);
+
+// Recarga del locale/textdomain lo antes posible en el frontend.
+// after_setup_theme asegura que el locale efectivo ya está determinado y que,
+// si el tema se usa como hijo, la ruta a /languages es la correcta.
+add_action('after_setup_theme', 'fcsd_apply_frontend_locale', 1);
+
+// Salvaguarda adicional (algunas instalaciones cargan traducciones tardías).
 add_action('init', 'fcsd_apply_frontend_locale', 1);

@@ -66,6 +66,15 @@ function fcsd_render_service_metabox( $post ) {
         'fcsd_service_hours',
         'fcsd_service_address',
         'fcsd_service_support_images', // IDs d'adjunts separats per comes.
+
+        // --- Aliances / partners (nou) ---
+        // Es mostren al front al costat dels logos de suport.
+        'fcsd_service_conveni_items',       // JSON (llista d'items: label + url opcional)
+        'fcsd_service_collaboracio_items',  // JSON
+
+        // --- Fitxa tècnica: imatges extra (nou) ---
+        // IDs d'adjunts separats per comes.
+        'fcsd_service_technical_extra_images',
     ];
 
     // Valors actuals
@@ -181,6 +190,51 @@ function fcsd_render_service_metabox( $post ) {
         }
     }
     echo '</div>';
+
+    // --------------------------------------------------
+    // Conveni amb / Col·laboració amb (repetibles)
+    // --------------------------------------------------
+    $conveni_json = isset( $values['fcsd_service_conveni_items'] ) ? (string) $values['fcsd_service_conveni_items'] : '';
+    $collab_json  = isset( $values['fcsd_service_collaboracio_items'] ) ? (string) $values['fcsd_service_collaboracio_items'] : '';
+
+    echo '<div class="servei-col" style="flex-basis:100%;">';
+    echo '<h4 style="margin:18px 0 10px;">' . esc_html__( 'Conveni amb', 'fcsd' ) . '</h4>';
+    echo '<input type="hidden" id="fcsd_service_conveni_items" name="fcsd_service_conveni_items" value="' . esc_attr( $conveni_json ) . '" />';
+    echo '<div id="fcsd_conveni_repeater" style="display:flex;flex-direction:column;gap:10px;"></div>';
+    echo '<button type="button" class="button" id="fcsd_conveni_add">' . esc_html__( 'Afegir ítem', 'fcsd' ) . '</button>';
+    echo '<p class="description" style="margin-top:6px;">' . esc_html__( 'Afegeix un o més textos (opcionalment amb enllaç).', 'fcsd' ) . '</p>';
+    echo '</div>';
+
+    echo '<div class="servei-col" style="flex-basis:100%;">';
+    echo '<h4 style="margin:18px 0 10px;">' . esc_html__( 'Col·laboració amb', 'fcsd' ) . '</h4>';
+    echo '<input type="hidden" id="fcsd_service_collaboracio_items" name="fcsd_service_collaboracio_items" value="' . esc_attr( $collab_json ) . '" />';
+    echo '<div id="fcsd_collab_repeater" style="display:flex;flex-direction:column;gap:10px;"></div>';
+    echo '<button type="button" class="button" id="fcsd_collab_add">' . esc_html__( 'Afegir ítem', 'fcsd' ) . '</button>';
+    echo '<p class="description" style="margin-top:6px;">' . esc_html__( 'Afegeix un o més textos (opcionalment amb enllaç).', 'fcsd' ) . '</p>';
+    echo '</div>';
+
+    // --------------------------------------------------
+    // Fitxa tècnica: imatges extra (multi)
+    // --------------------------------------------------
+    $extra_ids = isset( $values['fcsd_service_technical_extra_images'] ) ? (string) $values['fcsd_service_technical_extra_images'] : '';
+    echo '<div class="servei-col" style="flex-basis:100%;">';
+    echo '<h4 style="margin:18px 0 10px;">' . esc_html__( 'Imatges extra per la fitxa tècnica', 'fcsd' ) . '</h4>';
+    echo '<label for="fcsd_service_technical_extra_images" style="font-weight:normal;">' . esc_html__( 'Selecciona una o més imatges', 'fcsd' ) . '</label>';
+    echo '<input type="text" id="fcsd_service_technical_extra_images" name="fcsd_service_technical_extra_images" value="' . esc_attr( $extra_ids ) . '" />';
+    echo '<p class="description">' . esc_html__( 'Es guardaran com a IDs separats per comes i es mostraran com a “cajitas” dins la fitxa tècnica.', 'fcsd' ) . '</p>';
+    echo '<input type="button" class="button" value="' . esc_attr__( 'Selecciona imatges', 'fcsd' ) . '" id="fcsd_tech_images_button" />';
+    echo '<div id="fcsd_tech_images_preview" style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;">';
+    if ( $extra_ids ) {
+        $ids = array_filter( array_map( 'absint', explode( ',', $extra_ids ) ) );
+        foreach ( $ids as $id ) {
+            $thumb = wp_get_attachment_image( $id, 'thumbnail', false, [ 'style' => 'max-width:80px;height:auto;border:1px solid #ddd;padding:4px;background:#fff;' ] );
+            if ( $thumb ) {
+                echo $thumb; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            }
+        }
+    }
+    echo '</div>';
+    echo '</div>';
     echo '</div>';
 
     echo '</div>'; // end full width block
@@ -249,6 +303,107 @@ function fcsd_render_service_metabox( $post ) {
                 $('#fcsd_support_images_preview').html(html);
             });
             supportFrame.open();
+        });
+
+        // -----------------------------
+        // Repeater helpers (Conveni/Col·laboració)
+        // -----------------------------
+        function safeParse(json){
+            try {
+                var v = JSON.parse(json || '[]');
+                return Array.isArray(v) ? v : [];
+            } catch(e){
+                return [];
+            }
+        }
+
+        function renderRepeater(containerSel, hiddenSel, items){
+            var $c = $(containerSel);
+            $c.empty();
+            if (!items.length){
+                items = [{label:'', url:''}];
+            }
+            items.forEach(function(it, idx){
+                var row = $('<div />').css({display:'grid', gridTemplateColumns:'2fr 2fr auto', gap:'10px', alignItems:'center'});
+                var $label = $('<input type="text" />').attr('placeholder','<?php echo esc_js( __( 'Text', 'fcsd' ) ); ?>').val(it.label || '');
+                var $url = $('<input type="url" />').attr('placeholder','<?php echo esc_js( __( 'URL (opcional)', 'fcsd' ) ); ?>').val(it.url || '');
+                var $del = $('<button type="button" class="button" />').text('<?php echo esc_js( __( 'Eliminar', 'fcsd' ) ); ?>');
+                $del.on('click', function(){
+                    items.splice(idx, 1);
+                    if (!items.length) items = [{label:'', url:''}];
+                    sync();
+                });
+                $label.on('input', function(){ items[idx].label = $(this).val(); sync(false); });
+                $url.on('input', function(){ items[idx].url = $(this).val(); sync(false); });
+                row.append($label, $url, $del);
+                $c.append(row);
+            });
+
+            function sync(rerender){
+                // neteja items buits al moment de sync fort
+                if (rerender !== false){
+                    items = items.filter(function(it){
+                        return (it && (String(it.label||'').trim() || String(it.url||'').trim()));
+                    });
+                    if (!items.length) items = [{label:'', url:''}];
+                }
+                $(hiddenSel).val(JSON.stringify(items));
+                if (rerender !== false){
+                    renderRepeater(containerSel, hiddenSel, items);
+                }
+            }
+
+            // Sync inicial
+            $(hiddenSel).val(JSON.stringify(items));
+        }
+
+        var conveniItems = safeParse($('#fcsd_service_conveni_items').val());
+        var collabItems  = safeParse($('#fcsd_service_collaboracio_items').val());
+        renderRepeater('#fcsd_conveni_repeater', '#fcsd_service_conveni_items', conveniItems);
+        renderRepeater('#fcsd_collab_repeater', '#fcsd_service_collaboracio_items', collabItems);
+
+        $('#fcsd_conveni_add').on('click', function(){
+            var items = safeParse($('#fcsd_service_conveni_items').val());
+            items.push({label:'', url:''});
+            renderRepeater('#fcsd_conveni_repeater', '#fcsd_service_conveni_items', items);
+        });
+
+        $('#fcsd_collab_add').on('click', function(){
+            var items = safeParse($('#fcsd_service_collaboracio_items').val());
+            items.push({label:'', url:''});
+            renderRepeater('#fcsd_collab_repeater', '#fcsd_service_collaboracio_items', items);
+        });
+
+        // -----------------------------
+        // Media frame: imatges extra de fitxa tècnica (multi)
+        // -----------------------------
+        var techFrame;
+        $('#fcsd_tech_images_button').on('click', function(e){
+            e.preventDefault();
+            if (techFrame) {
+                techFrame.open();
+                return;
+            }
+            techFrame = wp.media({
+                title: '<?php echo esc_js( __( 'Selecciona imatges per la fitxa tècnica', 'fcsd' ) ); ?>',
+                button: { text: '<?php echo esc_js( __( 'Usa aquestes imatges', 'fcsd' ) ); ?>' },
+                multiple: true
+            });
+            techFrame.on('select', function(){
+                var selection = techFrame.state().get('selection');
+                var ids = [];
+                var html = '';
+                selection.each(function(attachment){
+                    attachment = attachment.toJSON();
+                    if (attachment.id) ids.push(attachment.id);
+                    if (attachment.sizes && attachment.sizes.thumbnail) {
+                        html += '<img src="'+attachment.sizes.thumbnail.url+'" style="max-width:80px;height:auto;border:1px solid #ddd;padding:4px;background:#fff;" />';
+                    }
+                });
+                $('#fcsd_service_technical_extra_images').val(ids.join(','));
+                $('#fcsd_tech_images_preview').html(html);
+            });
+            techFrame.open();
         });
     });
     </script>
@@ -336,6 +491,13 @@ function fcsd_save_service_meta( $post_id ) {
         'fcsd_service_hours',
         'fcsd_service_address',
         'fcsd_service_support_images',
+
+        // Partners
+        'fcsd_service_conveni_items',
+        'fcsd_service_collaboracio_items',
+
+        // Fitxa tècnica: imatges extra
+        'fcsd_service_technical_extra_images',
     ];
 
     // Camps que venen de textarea a l'admin (per preservar salts de línia).
@@ -391,6 +553,31 @@ function fcsd_save_service_meta( $post_id ) {
                 // Normalitzem a llista d'IDs separats per comes.
                 $ids = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', (string) $raw ) ) );
                 $san = implode( ',', $ids );
+            } elseif ( 'fcsd_service_technical_extra_images' === $f ) {
+                $ids = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', (string) $raw ) ) );
+                $san = implode( ',', $ids );
+            } elseif ( 'fcsd_service_conveni_items' === $f || 'fcsd_service_collaboracio_items' === $f ) {
+                // JSON de llista d'items: [{label:"...", url:"..."}, ...]
+                $decoded = json_decode( (string) $raw, true );
+                if ( ! is_array( $decoded ) ) {
+                    $decoded = [];
+                }
+                $clean = [];
+                foreach ( $decoded as $it ) {
+                    if ( ! is_array( $it ) ) {
+                        continue;
+                    }
+                    $label = isset( $it['label'] ) ? sanitize_text_field( (string) $it['label'] ) : '';
+                    $url   = isset( $it['url'] ) ? esc_url_raw( (string) $it['url'] ) : '';
+                    if ( '' === trim( $label ) && '' === trim( $url ) ) {
+                        continue;
+                    }
+                    $clean[] = [
+                        'label' => $label,
+                        'url'   => $url,
+                    ];
+                }
+                $san = wp_json_encode( $clean );
             } else {
                 $san = in_array( $f, $textarea_fields, true ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
             }

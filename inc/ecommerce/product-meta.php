@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 add_action( 'admin_enqueue_scripts', function( $hook ) {
     global $post;
 
-    if ( ( $hook === 'post-new.php' || $hook === 'post.php' ) && isset( $post ) && $post->post_type === 'product' ) {
+    if ( ( $hook === 'post-new.php' || $hook === 'post.php' ) && isset( $post ) && $post->post_type === 'fcsd_product' ) {
         wp_enqueue_style( 'wp-color-picker' );
         wp_enqueue_script( 'wp-color-picker' );
     }
@@ -25,7 +25,7 @@ add_action( 'add_meta_boxes', function () {
         'fcsd_product_data',
         __( 'Dades del producte', 'fcsd' ),
         'fcsd_render_product_data_metabox',
-        'product',
+        'fcsd_product',
         'normal',
         'high'
     );
@@ -136,7 +136,7 @@ function fcsd_render_product_data_metabox( $post ) {
 /**
  * Guardar los datos del metabox principal
  */
-add_action( 'save_post_product', function ( $post_id ) {
+add_action( 'save_post_fcsd_product', function ( $post_id ) {
     if ( empty( $_POST['fcsd_product_data_nonce'] ) ||
          ! wp_verify_nonce( $_POST['fcsd_product_data_nonce'], 'fcsd_save_product_data' ) ) {
         return;
@@ -192,7 +192,7 @@ add_action( 'add_meta_boxes', function() {
         'fcsd_product_colors',
         __( 'Colores disponibles', 'fcsd' ),
         'fcsd_product_colors_metabox',
-        'product',
+        'fcsd_product',
         'side',
         'default'
     );
@@ -274,7 +274,7 @@ function fcsd_product_colors_metabox( $post ) {
 /**
  * Guardar colores del colorpicker (array de hex)
  */
-add_action( 'save_post_product', function( $post_id ) {
+add_action( 'save_post_fcsd_product', function( $post_id ) {
 
     if ( ! isset( $_POST['fcsd_product_colors_nonce'] ) ||
          ! wp_verify_nonce( $_POST['fcsd_product_colors_nonce'], 'fcsd_save_product_colors' ) ) {
@@ -309,7 +309,7 @@ add_action( 'add_meta_boxes', function() {
         'fcsd_product_sizes',
         __( 'Tallas disponibles', 'fcsd' ),
         'fcsd_product_sizes_metabox',
-        'product',
+        'fcsd_product',
         'side',
         'default'
     );
@@ -341,7 +341,7 @@ function fcsd_product_sizes_metabox( $post ) {
 /**
  * Guardar tallas (array de strings)
  */
-add_action( 'save_post_product', function( $post_id ) {
+add_action( 'save_post_fcsd_product', function( $post_id ) {
 
     if ( ! isset( $_POST['fcsd_product_sizes_nonce'] ) ||
          ! wp_verify_nonce( $_POST['fcsd_product_sizes_nonce'], 'fcsd_save_product_sizes' ) ) {

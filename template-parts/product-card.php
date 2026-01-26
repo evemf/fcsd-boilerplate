@@ -56,6 +56,16 @@ $default_size  = ! empty( $size_options )  ? $size_options[0]           : '';
             <div class="product-card-body mb-3">
                 <h2 class="h5 mb-1"><?php the_title(); ?></h2>
 
+                <?php
+                // Clean preview text for cards. Prefer VC "vc_column_text" blocks.
+                $preview = function_exists( 'fcsd_get_product_card_preview' )
+                    ? fcsd_get_product_card_preview( $product_id, 18 )
+                    : '';
+
+                if ( $preview ) : ?>
+                    <p class="small text-muted mb-0"><?php echo esc_html( $preview ); ?></p>
+                <?php endif; ?>
+
                 <?php if ( ! empty( $prices['member'] ) ) : ?>
                     <p class="small text-muted mb-0">
                         <?php esc_html_e( 'Preu especial per usuaris registrats', 'fcsd' ); ?>

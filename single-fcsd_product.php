@@ -247,7 +247,7 @@ get_header(); ?>
 
 
                 <div class="product-description mb-3">
-                    <?php the_content(); ?>
+                    <?php echo fcsd_get_product_description_html( $product_id ); ?>
                 </div>
 
                 <!-- FORMULARIO AÑADIR A LA CESTA -->

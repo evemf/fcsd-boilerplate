@@ -6,7 +6,7 @@ function fcsd_main_nav_items(){
         ['label' => __('Qui som','fcsd'),       'url' => get_permalink(get_option('page_on_front')) ?: home_url('/')],
         ['label' => __('Serveis','fcsd'),       'url' => get_post_type_archive_link('service'),      'mega' => 'service'],
         ['label' => __('Events','fcsd'),     'url' => get_post_type_archive_link('event')],
-        ['label' => __('Botiga','fcsd'),        'url' => get_post_type_archive_link('product')],
+        ['label' => __('Botiga','fcsd'),        'url' => get_post_type_archive_link('fcsd_product')],
         ['label' => __('Transparència','fcsd'), 'url' => get_post_type_archive_link('transparency')],
         ['label' => __('Actualitat','fcsd'),    'url' => get_post_type_archive_link('news')],
         [
@@ -202,7 +202,43 @@ function fcsd_render_service_info_footer( $post_id = 0, $compact = false ) {
     $support_ids_raw = (string) get_post_meta( $post_id, 'fcsd_service_support_images', true );
     $support_ids     = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', $support_ids_raw ) ) );
 
-    $has_any = ( $phone || $email || $hours || $address || $audience || ! empty( $support_ids ) );
+    // Conveni amb / Col·laboració amb (JSON: [{label, url}])
+    $conveni_json = (string) get_post_meta( $post_id, 'fcsd_service_conveni_items', true );
+    $collab_json  = (string) get_post_meta( $post_id, 'fcsd_service_collaboracio_items', true );
+
+    $conveni_items = [];
+    if ( $conveni_json ) {
+        $decoded = json_decode( $conveni_json, true );
+        if ( is_array( $decoded ) ) {
+            foreach ( $decoded as $it ) {
+                if ( empty( $it['label'] ) ) {
+                    continue;
+                }
+                $conveni_items[] = [
+                    'label' => (string) $it['label'],
+                    'url'   => isset( $it['url'] ) ? (string) $it['url'] : '',
+                ];
+            }
+        }
+    }
+
+    $collab_items = [];
+    if ( $collab_json ) {
+        $decoded = json_decode( $collab_json, true );
+        if ( is_array( $decoded ) ) {
+            foreach ( $decoded as $it ) {
+                if ( empty( $it['label'] ) ) {
+                    continue;
+                }
+                $collab_items[] = [
+                    'label' => (string) $it['label'],
+                    'url'   => isset( $it['url'] ) ? (string) $it['url'] : '',
+                ];
+            }
+        }
+    }
+
+    $has_any = ( $phone || $email || $hours || $address || $audience || ! empty( $support_ids ) || ! empty( $conveni_items ) || ! empty( $collab_items ) );
     if ( ! $has_any ) {
         return;
     }
@@ -258,17 +294,67 @@ function fcsd_render_service_info_footer( $post_id = 0, $compact = false ) {
                 </div>
             </div>
 
-            <?php if ( ! empty( $support_ids ) ) : ?>
-                <div class="service-info-footer__support">
-                    <span class="service-info-footer__support-label"><?php echo esc_html__( 'Amb suport de:', 'fcsd' ); ?></span>
-                    <div class="service-info-footer__support-logos" role="list">
-                        <?php foreach ( $support_ids as $id ) :
-                            $img = wp_get_attachment_image( $id, 'medium', false, [ 'class' => 'service-info-footer__logo', 'role' => 'listitem' ] );
-                            if ( $img ) {
-                                echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                            }
-                        endforeach; ?>
-                    </div>
+            <?php if ( ! empty( $support_ids ) || ! empty( $conveni_items ) || ! empty( $collab_items ) ) : ?>
+                <div class="service-info-footer__partners" role="group" aria-label="<?php echo esc_attr__( 'Aliances i suport', 'fcsd' ); ?>">
+
+                    <?php if ( ! empty( $support_ids ) ) : ?>
+                        <div class="service-info-footer__partner-col service-info-footer__partner-col--support">
+                            <span class="service-info-footer__support-label"><?php echo esc_html__( 'Amb el suport de:', 'fcsd' ); ?></span>
+                            <div class="service-info-footer__support-logos" role="list">
+                                <?php foreach ( $support_ids as $id ) :
+                                    $img = wp_get_attachment_image( $id, 'medium', false, [ 'class' => 'service-info-footer__logo', 'role' => 'listitem' ] );
+                                    if ( $img ) {
+                                        echo $img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    }
+                                endforeach; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $conveni_items ) ) : ?>
+                        <div class="service-info-footer__partner-col">
+                            <span class="service-info-footer__support-label"><?php echo esc_html__( 'Conveni amb:', 'fcsd' ); ?></span>
+                            <ul class="service-info-footer__partner-list">
+                                <?php foreach ( $conveni_items as $it ) :
+                                    $label = trim( (string) $it['label'] );
+                                    if ( '' === $label ) {
+                                        continue;
+                                    }
+                                    $url = trim( (string) $it['url'] );
+                                    echo '<li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    if ( $url ) {
+                                        echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $label ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    } else {
+                                        echo esc_html( $label );
+                                    }
+                                    echo '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $collab_items ) ) : ?>
+                        <div class="service-info-footer__partner-col">
+                            <span class="service-info-footer__support-label"><?php echo esc_html__( 'Col·laboració amb:', 'fcsd' ); ?></span>
+                            <ul class="service-info-footer__partner-list">
+                                <?php foreach ( $collab_items as $it ) :
+                                    $label = trim( (string) $it['label'] );
+                                    if ( '' === $label ) {
+                                        continue;
+                                    }
+                                    $url = trim( (string) $it['url'] );
+                                    echo '<li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    if ( $url ) {
+                                        echo '<a href="' . esc_url( $url ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $label ) . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                    } else {
+                                        echo esc_html( $label );
+                                    }
+                                    echo '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
             <?php endif; ?>
         </div>

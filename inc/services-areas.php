@@ -20,8 +20,8 @@ function fcsd_get_service_areas_defaults() {
     // - Les imatges “de servei” (cards/altres) poden viure a /assets/images/services/service-<slug>.png
     return [
         'generic' => [
-            'name'            => __( 'Institucional / Genèric', 'fcsd' ),
-            'description'     => __( 'Serveis d’àmbit genèric o transversal.', 'fcsd' ),
+            'name'            => __( 'Institucional', 'fcsd' ),
+            'description'     => __( 'Serveis d’àmbit institucional o transversal.', 'fcsd' ),
             'hero_class'      => 'service-hero--generic',
             'color'           => '#1D80C4',
             'hero_image_rel'  => '/assets/images/ambits/ambit-generic.png',

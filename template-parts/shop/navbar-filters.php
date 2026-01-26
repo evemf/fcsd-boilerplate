@@ -34,7 +34,7 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
         <div class="collapse navbar-collapse" id="shopFilters">
             <form class="w-100 d-flex flex-column flex-lg-row flex-wrap gap-3 align-items-end mt-3 mt-lg-0"
                   method="get"
-                  action="<?php echo esc_url( get_post_type_archive_link( 'product' ) ); ?>">
+                  action="<?php echo esc_url( get_post_type_archive_link( 'fcsd_product' ) ); ?>">
 
                 <!-- Buscador -->
                 <div class="flex-grow-1" style="min-width:180px;">
@@ -47,7 +47,7 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                            name="s"
                            value="<?php echo esc_attr( $search ); ?>"
                            placeholder="<?php esc_attr_e( 'Cerca productes…', 'fcsd' ); ?>">
-                    <input type="hidden" name="post_type" value="product">
+                    <input type="hidden" name="post_type" value="fcsd_product">
                 </div>
 
                 <!-- Categoría -->
@@ -62,7 +62,7 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                         <?php
                         $terms = get_terms(
                             [
-                                'taxonomy'   => 'product_cat',
+                                'taxonomy'   => 'fcsd_product_cat',
                                 'hide_empty' => true,
                             ]
                         );
@@ -167,7 +167,7 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                     </button>
 
                     <a class="btn btn-outline-secondary btn-sm"
-                       href="<?php echo esc_url( get_post_type_archive_link( 'product' ) ); ?>">
+                       href="<?php echo esc_url( get_post_type_archive_link( 'fcsd_product' ) ); ?>">
                         <?php esc_html_e( 'Netejar', 'fcsd' ); ?>
                     </a>
                 </div>

@@ -95,9 +95,7 @@ add_action( 'wp_ajax_fcsd_toggle_worker', function () {
             'worker',
             'FCSD Worker',
             array(
-                'read'         => true,
-                'edit_posts'   => false,
-                'delete_posts' => false,
+                'read' => true,
             )
         );
     }
@@ -124,9 +122,7 @@ add_action( 'init', function () {
             'worker',
             'FCSD Worker',
             array(
-                'read'         => true,
-                'edit_posts'   => false,
-                'delete_posts' => false,
+                'read' => true,
             )
         );
     }

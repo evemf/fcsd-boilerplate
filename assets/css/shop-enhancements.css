@@ -429,6 +429,7 @@ body.theme-dark .add-to-cart-form .quantity input[type="number"] {
    ============================== */
 
 .single-product {
+.single-fcsd_product {
   position: relative;
   z-index: 1;
   padding-top: var(--space-2xl);
@@ -436,6 +437,7 @@ body.theme-dark .add-to-cart-form .quantity input[type="number"] {
 }
 
 .single-product .product-single-card {
+.single-fcsd_product .product-single-card {
   background-color: var(--panel);
   border-radius: 20px;
   box-shadow: var(--shadow-lg);
@@ -445,10 +447,12 @@ body.theme-dark .add-to-cart-form .quantity input[type="number"] {
 }
 
 body.theme-dark .single-product .product-single-card {
+body.theme-dark .single-fcsd_product .product-single-card {
   background-color: var(--panel-strong);
 }
 
 .single-product .product-single-media {
+.single-fcsd_product .product-single-media {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -456,6 +460,7 @@ body.theme-dark .single-product .product-single-card {
 
 /* Contenedor de imagen principal */
 .single-product .product-image {
+.single-fcsd_product .product-image {
   border-radius: 18px;
   overflow: hidden;
   background: #f4eee4;
@@ -466,10 +471,12 @@ body.theme-dark .single-product .product-single-card {
 }
 
 body.theme-dark .single-product .product-image {
+body.theme-dark .single-fcsd_product .product-image {
   background: rgba(255, 255, 255, 0.03);
 }
 
 .single-product .product-image img {
+.single-fcsd_product .product-image img {
   width: 100%;
   height: auto;
   max-height: 460px;
@@ -479,12 +486,14 @@ body.theme-dark .single-product .product-image {
 
 /* Galería de miniaturas */
 .single-product .product-gallery {
+.single-fcsd_product .product-gallery {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
 .single-product .product-gallery-item {
+.single-fcsd_product .product-gallery-item {
   width: 72px;
   height: 72px;
   border-radius: 12px;
@@ -499,21 +508,25 @@ body.theme-dark .single-product .product-image {
 }
 
 .single-product .product-gallery-item:hover {
+.single-fcsd_product .product-gallery-item:hover {
   border-color: var(--accent);
   transform: scale(1.05);
 }
 
 .single-product .product-gallery-item.active {
+.single-fcsd_product .product-gallery-item.active {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-light);
 }
 
 body.theme-dark .single-product .product-gallery-item {
+body.theme-dark .single-fcsd_product .product-gallery-item {
   border-color: var(--panel-border-strong);
   background-color: var(--panel-strong);
 }
 
 .single-product .product-gallery-item img {
+.single-fcsd_product .product-gallery-item img {
   max-width: 100%;
   max-height: 100%;
   object-fit: cover;
@@ -521,6 +534,7 @@ body.theme-dark .single-product .product-gallery-item {
 
 /* Resumen del producto */
 .single-product .product-single-summary {
+.single-fcsd_product .product-single-summary {
   min-height: 100%;
 }
 
@@ -534,6 +548,7 @@ body.theme-dark .single-product .product-gallery-item {
 /* Precio destacado */
 .single-product .product-price,
 .single-product .h4.mb-1 {
+.single-fcsd_product .h4.mb-1 {
   font-size: 1.7rem;
   font-weight: var(--font-weight-bold);
   color: var(--accent);
@@ -542,11 +557,13 @@ body.theme-dark .single-product .product-gallery-item {
 
 body.theme-dark .single-product .product-price,
 body.theme-dark .single-product .h4.mb-1 {
+body.theme-dark .single-fcsd_product .h4.mb-1 {
   color: var(--accent);
 }
 
 /* Descripción */
 .single-product .product-description {
+.single-fcsd_product .product-description {
   font-size: var(--font-size-base);
   color: var(--text-muted);
   line-height: 1.65;
@@ -554,6 +571,7 @@ body.theme-dark .single-product .h4.mb-1 {
 }
 
 .single-product .product-description p:last-child {
+.single-fcsd_product .product-description p:last-child {
   margin-bottom: 0;
 }
 
@@ -691,11 +709,13 @@ body.theme-dark .cart-totals .total-row {
 
 @media (max-width: 991.98px) {
   .single-product {
+  .single-fcsd_product {
     padding-top: 2.5rem;
     padding-bottom: var(--space-2xl);
   }
 
   .single-product .product-single-card {
+  .single-fcsd_product .product-single-card {
     padding: 1.75rem 1.5rem;
   }
 }
@@ -706,6 +726,7 @@ body.theme-dark .cart-totals .total-row {
   }
 
   .single-product .product-gallery-item {
+  .single-fcsd_product .product-gallery-item {
     width: 64px;
     height: 64px;
   }

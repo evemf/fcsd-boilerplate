@@ -19,7 +19,7 @@ if ( ! $products ) {
     <div class="row">
         <?php
         $query = new WP_Query( [
-            'post_type'      => 'product',
+            'post_type'      => 'fcsd_product',
             'post__in'       => array_map( 'intval', $products ),
             'orderby'        => 'post__in',
             'posts_per_page' => count( $products ),
