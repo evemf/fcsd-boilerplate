@@ -1,0 +1,535 @@
+/*
+Theme Name: FCSD Boilerplate - Mobile Navigation
+Description: Navegación móvil y desktop con mega menús
+Version: 2.0.0
+*/
+
+/* ==============================
+   TOKENS ESPECÍFICOS DE NAVEGACIÓN
+   Estos heredan de las variables globales pero permiten ajustes
+   ============================== */
+
+:root {
+  --nav-bg: var(--panel);
+  --nav-text: var(--text);
+  --nav-text-weak: var(--text-muted);
+  --nav-sep: var(--panel-border);
+  --nav-border: var(--panel-border);
+  --nav-accent: var(--accent);
+  --nav-shadow: var(--shadow-lg);
+  --mobile-nav-height: 48px;
+}
+
+body.theme-dark {
+  --nav-bg: var(--panel-strong);
+  --nav-text: var(--text);
+  --nav-text-weak: var(--text-muted);
+  --nav-sep: var(--panel-border-strong);
+  --nav-border: var(--panel-border-strong);
+  --nav-shadow: var(--shadow-lg);
+}
+
+/* Modo contraste (si se usa en combinación con dark) */
+.contrast-mode {
+  --nav-bg: var(--panel);
+  --nav-text: var(--text);
+  --nav-border: var(--panel-border);
+}
+
+/* ==============================
+   STICKY HEADER
+   ============================== */
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  transition: background-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.sticky-header.is-scrolled {
+  box-shadow: var(--shadow-md);
+}
+
+.sticky-header > * {
+  background: inherit;
+  color: inherit;
+}
+
+/* ==============================
+   BÚSQUEDA EN HEADER
+   ============================== */
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.search-wrapper .search-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--nav-border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--nav-text);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.search-wrapper .search-toggle:hover {
+  background: var(--accent-light);
+  border-color: var(--nav-accent);
+  color: var(--nav-accent);
+}
+
+.search-wrapper form[role="search"] input[type="search"] {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--nav-border);
+  border-radius: var(--radius-sm);
+  background: var(--nav-bg);
+  color: var(--nav-text);
+  transition: border-color var(--transition-fast);
+}
+
+.search-wrapper form[role="search"] input[type="search"]:focus {
+  outline: none;
+  border-color: var(--nav-accent);
+  box-shadow: 0 0 0 0.2rem var(--accent-light);
+}
+
+/* ==============================
+   NAVEGACIÓN DESKTOP
+   ============================== */
+
+@media (min-width: 768px) {
+  .navbar.mainnav {
+    background: var(--nav-bg) !important;
+    color: var(--nav-text) !important;
+    transition: background-color var(--transition-base);
+  }
+
+  .navbar.mainnav .nav-link {
+    color: var(--nav-text) !important;
+    padding: 0.75rem 1rem;
+    font-weight: var(--font-weight-medium);
+    position: relative;
+    transition: color var(--transition-fast);
+  }
+
+  /* Menús desplegables y mega menús */
+  .navbar.mainnav .dropdown-menu,
+  .navbar.mainnav .mega {
+    background: var(--nav-bg) !important;
+    color: var(--nav-text) !important;
+    border: 1px solid var(--nav-sep);
+    box-shadow: var(--nav-shadow);
+    border-radius: var(--radius-md);
+  }
+
+  /* Contenido del mega menú */
+  .navbar.mainnav .mega .mega-title {
+    color: var(--nav-text) !important;
+    opacity: 1;
+    font-weight: var(--font-weight-bold);
+  }
+
+  .navbar.mainnav .mega .mega-list li a,
+  .navbar.mainnav .dropdown-item {
+    color: var(--nav-text) !important;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+  }
+
+  .navbar.mainnav .mega .mega-list li a:hover,
+  .navbar.mainnav .dropdown-item:hover {
+    background: var(--accent-light);
+    color: var(--nav-accent) !important;
+  }
+
+  .navbar.mainnav .dropdown-divider,
+  .navbar.mainnav .mega .section-divider {
+    background: var(--nav-sep);
+    opacity: 1;
+    height: 1px;
+    margin: var(--space-sm) 0;
+  }
+
+  /* Bloques CTA dentro del mega - contraste invertido */
+  :not(.theme-dark) .navbar.mainnav .mega .mega-cta,
+  :not(.theme-dark) .navbar.mainnav .mega .mega-cta.card,
+  :not(.theme-dark) .navbar.mainnav .mega .mega-cta.bg-light {
+    background: var(--bg-contrast) !important;
+    color: var(--text-inverse) !important;
+    border: 1px solid var(--accent-medium) !important;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  .theme-dark .navbar.mainnav .mega .mega-cta,
+  .theme-dark .navbar.mainnav .mega .mega-cta.card,
+  .theme-dark .navbar.mainnav .mega .mega-cta.bg-light {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+    border: 1px solid var(--accent-subtle) !important;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  .navbar.mainnav .mega .mega-cta .btn {
+    background: var(--nav-accent) !important;
+    color: var(--text-inverse) !important;
+    border: 0 !important;
+    font-weight: var(--font-weight-semibold);
+    transition: all var(--transition-fast);
+  }
+
+  .navbar.mainnav .mega .mega-cta .btn:hover,
+  .navbar.mainnav .mega .mega-cta .btn:focus {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+  }
+
+  /* Ancho del contenido del mega menú */
+  .navbar.mainnav .mega {
+    padding-inline: 24px !important;
+  }
+
+  .navbar.mainnav .mega > .container,
+  .navbar.mainnav .mega > .container-fluid,
+  .navbar.mainnav .mega > .row,
+  .navbar.mainnav .mega > .container-fluid > .row,
+  .navbar.mainnav .mega > .container > .row {
+    max-width: var(--page-content-max, 1140px);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  @media (min-width: 1400px) {
+    :root {
+      --page-content-max: 1320px;
+    }
+  }
+}
+
+/* ==============================
+   ESTADOS: HOVER, ACTIVE, FOCUS
+   ============================== */
+
+.navbar.mainnav .nav-link:hover {
+  background: none !important;
+  box-shadow: inset 0 -3px 0 0 color-mix(in srgb, var(--nav-accent) 70%, transparent) !important;
+}
+
+.navbar.mainnav .nav-item.active > .nav-link,
+.navbar.mainnav .nav-link.active,
+.navbar.mainnav .nav-link[aria-current="page"] {
+  background: none !important;
+  box-shadow: inset 0 -3px 0 0 var(--nav-accent) !important;
+  color: var(--nav-accent) !important;
+}
+
+.navbar.mainnav .nav-link:focus {
+  outline: none !important;
+}
+
+.navbar.mainnav .dropdown-item:focus {
+  outline: none !important;
+}
+
+.navbar.mainnav .nav-link:focus-visible,
+.navbar.mainnav .dropdown-item:focus-visible {
+  outline: 2px solid var(--nav-accent) !important;
+  outline-offset: 2px !important;
+  border-radius: var(--radius-sm);
+}
+
+/* ==============================
+   NAVEGACIÓN MÓVIL
+   ============================== */
+
+@media (max-width: 767.98px) {
+  /* Oculta el botón de búsqueda con marco en móvil */
+  .search-wrapper .search-toggle {
+    display: none !important;
+  }
+
+  /* Control del formulario de búsqueda */
+  .search-wrapper form[role="search"] {
+    display: none;
+    flex: 1 1 auto;
+    align-items: stretch;
+    gap: var(--space-sm);
+  }
+
+  .search-wrapper.is-open form[role="search"] {
+    display: flex !important;
+  }
+
+  .middlebar form[role="search"] {
+    display: none !important;
+  }
+
+  .search-wrapper .search-toggle:focus {
+    outline: 2px solid var(--nav-accent);
+    outline-offset: 2px;
+  }
+
+  /* Evita scroll doble cuando el menú está abierto */
+  html.menu-open,
+  body.menu-open {
+    overflow: hidden !important;
+    height: 100% !important;
+  }
+
+  /* Barra de navegación móvil compacta */
+  .navbar.mainnav {
+    background: var(--nav-bg) !important;
+    color: var(--nav-text) !important;
+    min-height: var(--mobile-nav-height);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .navbar.mainnav .navbar-brand {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  /* Toggler compacto pero táctil */
+  .navbar.mainnav .navbar-toggler {
+    display: flex !important;
+    width: 40px;
+    height: 40px;
+    padding: 0.25rem;
+    border-radius: 10px;
+    align-items: center;
+    justify-content: center;
+    margin: 4px 8px;
+    border: 1px solid var(--nav-border);
+    transition: all var(--transition-fast);
+  }
+
+  .navbar.mainnav .navbar-toggler:hover {
+    background: var(--accent-light);
+    border-color: var(--nav-accent);
+  }
+
+  .navbar.mainnav .navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem var(--accent-light);
+  }
+
+  /* Panel desplegable del menú móvil */
+  .navbar.mainnav .navbar-collapse {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--mobile-nav-height) !important;
+    z-index: 1040;
+    background: var(--nav-bg) !important;
+    color: var(--nav-text) !important;
+    border-top: 0 !important;
+    max-height: calc(100dvh - var(--mobile-nav-height));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: none;
+  }
+
+  .navbar.mainnav .navbar-collapse.show {
+    display: block !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Scrollbar personalizado para el menú móvil */
+  .navbar.mainnav .navbar-collapse {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  }
+
+  .navbar.mainnav .navbar-collapse::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+
+  .navbar.mainnav .navbar-collapse::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 2px;
+  }
+
+  .navbar.mainnav .navbar-collapse::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  body.theme-dark .navbar.mainnav .navbar-collapse {
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+  }
+
+  body.theme-dark .navbar.mainnav .navbar-collapse::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.35);
+  }
+
+  .contrast-mode .navbar.mainnav .navbar-collapse {
+    scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
+  }
+
+  .contrast-mode .navbar.mainnav .navbar-collapse::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  /* Lista de navegación móvil */
+  .navbar.mainnav .navbar-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .navbar.mainnav .nav-item {
+    margin: 0 !important;
+  }
+
+  .navbar.mainnav .nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.7rem 1rem !important;
+    min-height: 44px;
+    font-size: var(--font-size-md);
+    line-height: 1.25;
+    text-align: left !important;
+    color: var(--nav-text) !important;
+    border-bottom: 1px solid var(--nav-sep) !important;
+    transition: background-color var(--transition-fast);
+  }
+
+  .navbar.mainnav .nav-link:active {
+    background-color: var(--accent-light);
+  }
+
+  .navbar.mainnav .nav-link.dropdown-toggle::after {
+    display: none !important;
+  }
+
+  /* Mega menús y dropdowns como bloques planos en móvil */
+  .navbar.mainnav .dropdown .dropdown-menu,
+  .navbar.mainnav .mega {
+    display: block !important;
+    position: static !important;
+    float: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .navbar.mainnav .mega .mega-title {
+    padding: 0.65rem 1rem 0.35rem !important;
+    margin: 0 !important;
+    text-align: left !important;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-extrabold);
+    letter-spacing: 0.02em;
+    color: var(--nav-text) !important;
+    border-bottom: 1px solid var(--nav-sep) !important;
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  body.theme-dark .navbar.mainnav .mega .mega-title {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .navbar.mainnav .mega .mega-list {
+    list-style: none;
+    padding: 0 0 0.5rem 0 !important;
+    margin: 0 !important;
+  }
+
+  .navbar.mainnav .mega .mega-list li {
+    margin: 0 !important;
+  }
+
+  .navbar.mainnav .mega .mega-list li a,
+  .navbar.mainnav .dropdown-menu .dropdown-item {
+    display: block;
+    padding: 0.5rem 1rem 0.5rem 1.25rem !important;
+    min-height: 44px;
+    font-size: var(--font-size-base);
+    line-height: 1.25;
+    text-align: left !important;
+    color: var(--nav-text) !important;
+    border-bottom: 1px dashed var(--nav-sep) !important;
+    white-space: normal;
+    transition: background-color var(--transition-fast);
+  }
+
+  .navbar.mainnav .mega .mega-list li a:active,
+  .navbar.mainnav .dropdown-menu .dropdown-item:active {
+    background-color: var(--accent-light);
+  }
+
+  /* Limpieza de espaciado en móvil */
+  .navbar.mainnav .navbar-collapse .row {
+    --bs-gutter-y: 0 !important;
+    margin-top: 0 !important;
+  }
+
+  .navbar.mainnav .navbar-collapse .row > * {
+    margin-top: 0 !important;
+  }
+
+  .navbar.mainnav .navbar-collapse .py-4 {
+    padding-top: 0.75rem !important;
+  }
+
+  /* Oculta elementos decorativos/CTA en móvil para menú limpio */
+  .navbar.mainnav .mega .mega-cta,
+  .navbar.mainnav .mega .mega-cta *,
+  .navbar.mainnav .mega p,
+  .navbar.mainnav .mega .lead,
+  .navbar.mainnav .mega .btn,
+  .navbar.mainnav .mega .description,
+  .navbar.mainnav .mega .desc {
+    display: none !important;
+  }
+
+  /* Ajuste de línea bajo la barra de navegación */
+  .navbar.mainnav + .nav-underline,
+  .navbar.mainnav .nav-underline {
+    top: var(--mobile-nav-height);
+  }
+}
+
+/* ==============================
+   ACCESIBILIDAD
+   ============================== */
+
+/* Mejora el contraste en modo alto contraste */
+@media (prefers-contrast: high) {
+  .navbar.mainnav .nav-link {
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .navbar.mainnav .nav-link:focus-visible {
+    outline-width: 3px !important;
+  }
+}
+
+/* Respeta preferencias de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .navbar.mainnav .nav-link,
+  .navbar.mainnav .dropdown-item,
+  .navbar.mainnav .navbar-toggler,
+  .search-wrapper * {
+    transition: none !important;
+  }
+}

@@ -1,0 +1,16 @@
+modify=20251219122533;perm=flcdmpe;type=pdir;unique=810UAC0035;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; ..
+modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0037;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; branches
+modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC00C0;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; refs
+modify=20251219144830;perm=adfrw;size=73;type=file;unique=810UAC0136;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; description
+modify=20251219144830;perm=adfrw;size=19;type=file;unique=810UAC01B9;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; COMMIT_EDITMSG
+modify=20251219144830;perm=adfrw;size=41;type=file;unique=810UAC0138;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; ORIG_HEAD
+modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0039;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; info
+modify=20251219144830;perm=adfrw;size=93;type=file;unique=810UAC01BA;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; FETCH_HEAD
+modify=20251219144830;perm=adfrw;size=21;type=file;unique=810UAC0137;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; HEAD
+modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC003A;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; logs
+modify=20260105090610;perm=flcdmpe;type=dir;unique=810UAC003F;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; objects
+modify=20251219144830;perm=adfrw;size=14552;type=file;unique=810UAC01B8;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; index
+modify=20251212164034;perm=adfrw;size=41;type=file;unique=810UAC01B5;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; AUTO_MERGE
+modify=20251202162312;perm=flcdmpe;type=cdir;unique=810UAC0036;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; .
+modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0038;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; hooks
+modify=20251219144830;perm=adfrw;size=262;type=file;unique=810UAC013A;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; config

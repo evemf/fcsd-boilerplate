@@ -1,0 +1,96 @@
+/* Estilos generales del panel de administración */
+.wrap {
+    margin: 20px 20px 0 0;
+}
+
+/* Estils per tabs/pestanyes */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.tab-content {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Estils per al formulari de login */
+.sinergiacrm-form {
+    max-width: 500px;
+    margin: 20px 0;
+}
+
+.form-field {
+    margin-bottom: 15px;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-field input[type="text"],
+.form-field input[type="password"] {
+    width: 100%;
+    padding: 8px;
+}
+
+/* Estils esdeveniments */
+.wp-list-table {
+    width: 100%;
+    margin-top: 15px;
+}
+
+.shortcode-result {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shortcode-result code {
+    flex-grow: 1;
+    margin-right: 10px;
+    font-family: monospace;
+    background: #f0f0f0;
+    padding: 3px 5px;
+    border-radius: 3px;
+}
+
+/* notificacions? */
+.notice {
+    margin: 15px 0;
+    padding: 10px;
+    border-left: 4px solid #00a0d2;
+    background: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.notice-success {
+    border-left-color: #46b450;
+}
+
+.notice-warning {
+    border-left-color: #ffb900;
+}
+
+.notice-error {
+    border-left-color: #dc3232;
+}
+
+.error {
+    color: #dc3232;
+}
