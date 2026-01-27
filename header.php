@@ -164,8 +164,8 @@ $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
 $logged_in = is_user_logged_in();
 if ( function_exists( 'fcsd_get_page_url_by_slug' ) ) {
     $profile_url = fcsd_get_system_page_url( 'profile' );
-    $login_url   = fcsd_get_page_url_by_slug( 'accedir' );
-    $cart_url    = fcsd_get_page_url_by_slug( 'cart' );
+    $login_url   = fcsd_get_system_page_url( 'login' );
+    $cart_url    = fcsd_get_system_page_url( 'cart' );
 } else {
     $profile_url = home_url( '/' );
     $login_url   = wp_login_url();

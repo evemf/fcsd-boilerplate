@@ -68,6 +68,26 @@ add_filter( 'locale', 'fcsd_filter_request_locale', 0 );
 add_filter( 'determine_locale', 'fcsd_filter_request_locale', 0 );
 
 /**
+ * Salvaguarda: si una traducción existe pero está vacía (msgstr ""),
+ * WordPress devolverá una cadena vacía y el frontend parece “incompleto”.
+ *
+ * En este tema (sin plugins) preferimos que, si falta traducción,
+ * se muestre el texto original (Catalán por defecto) antes que un vacío.
+ */
+function fcsd_gettext_no_empty_translation( $translation, $text, $domain ) {
+    if ( $domain !== 'fcsd' ) {
+        return $translation;
+    }
+    // Si la traducción está vacía pero el texto original no lo está, fallback.
+    if ( $translation === '' && $text !== '' ) {
+        return $text;
+    }
+    return $translation;
+}
+add_filter( 'gettext', 'fcsd_gettext_no_empty_translation', 10, 3 );
+add_filter( 'gettext_with_context', 'fcsd_gettext_no_empty_translation', 10, 3 );
+
+/**
  * Aplica el locale del frontend (core + tema) en cada request.
  *
  * Importante: load_theme_textdomain() se ejecuta en after_setup_theme y, si el locale

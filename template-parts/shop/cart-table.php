@@ -16,11 +16,11 @@ $cart = $args['cart'];
     
     <div class="alert alert-info">
         <i class="bi bi-info-circle me-2"></i>
-        <?php esc_html_e( 'Tu carrito está vacío.', 'fcsd' ); ?>
+        <?php esc_html_e( 'La teva cistella és buida.', 'fcsd' ); ?>
     </div>
     
     <a href="<?php echo esc_url( get_post_type_archive_link( 'fcsd_product' ) ); ?>" class="btn btn-primary">
-        <?php esc_html_e( 'Ir a la tienda', 'fcsd' ); ?>
+        <?php esc_html_e( 'Anar a la botiga', 'fcsd' ); ?>
     </a>
 
 <?php else : ?>
@@ -29,9 +29,9 @@ $cart = $args['cart'];
         <table class="table cart-table">
             <thead>
                 <tr>
-                    <th><?php esc_html_e( 'Producto', 'fcsd' ); ?></th>
-                    <th><?php esc_html_e( 'Precio', 'fcsd' ); ?></th>
-                    <th><?php esc_html_e( 'Cantidad', 'fcsd' ); ?></th>
+					<th><?php esc_html_e( 'Producte', 'fcsd' ); ?></th>
+					<th><?php esc_html_e( 'Preu', 'fcsd' ); ?></th>
+					<th><?php esc_html_e( 'Quantitat', 'fcsd' ); ?></th>
                     <th><?php esc_html_e( 'Subtotal', 'fcsd' ); ?></th>
                     <th></th>
                 </tr>

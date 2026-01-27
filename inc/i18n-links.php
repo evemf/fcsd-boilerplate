@@ -133,6 +133,23 @@ function fcsd_switch_lang_url(string $target_lang): string {
         array_shift($segments);
     }
 
+    // --- Páginas de sistema (login/registro/perfil, etc.) -----------------
+    // Si la URL actual está apuntando a un slug “legacy” (p.ej. /perfil-usuari/)
+    // queremos que el selector de idioma siempre devuelva el slug canónico
+    // definido en inc/slugs.php.
+    if ( ! empty($segments[0]) ) {
+        $maybe_key = fcsd_slug_key_from_translated($segments[0]);
+        $system_keys = [ 'login', 'register', 'profile', 'shop', 'cart', 'checkout', 'my_account' ];
+        if ( $maybe_key && in_array($maybe_key, $system_keys, true) && count($segments) === 1 ) {
+            $home = rtrim((string) get_option('home'), '/');
+            $slug = fcsd_slug($maybe_key, $target_lang);
+            if ( $target_lang === FCSD_DEFAULT_LANG ) {
+                return $home . '/' . trim($slug, '/') . '/';
+            }
+            return $home . '/' . $target_lang . '/' . trim($slug, '/') . '/';
+        }
+    }
+
     // traducir primer segmento si aplica
     if ( ! empty($segments[0]) ) {
         $key = fcsd_slug_key_from_translated($segments[0]);

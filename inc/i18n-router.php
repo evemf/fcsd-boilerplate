@@ -146,6 +146,10 @@ add_filter('request', function($qv){
         'profile'  => 'page-profile.php',
         'login'    => 'page-login.php',
         'register' => 'page-register.php',
+        // Ecommerce
+        'cart'     => 'page-cart.php',
+        'checkout' => 'page-checkout.php',
+        'shop'     => 'archive-fcsd_product.php',
     ];
 
     // Detectar slug del request sin prefijo idioma
@@ -174,7 +178,20 @@ add_filter('request', function($qv){
             ]));
 
             if (in_array($pn, $slugs, true)) {
-                $pid = fcsd_get_system_page_id($key, $tpl);
+                // Para templates no-page (archive), solo reescribimos el pagename.
+                if (strpos($tpl, 'page-') === 0) {
+                    $pid = fcsd_get_system_page_id($key, $tpl);
+                    if ($pid) {
+                        $qv['page_id'] = $pid;
+                        unset($qv['pagename'], $qv['name']);
+                    }
+                } else {
+                    // shop archive
+                    if ($key === 'shop') {
+                        $qv['post_type'] = 'fcsd_product';
+                        unset($qv['pagename'], $qv['name']);
+                    }
+                }
                 if ($pid) {
                     $qv['page_id'] = $pid;
                     unset($qv['pagename'], $qv['name']);
