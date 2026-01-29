@@ -542,14 +542,28 @@ function fcsd_sync_exit21_news() {
         // ====================================================================
         // CREAR O ACTUALIZAR POST
         // ====================================================================
+        $guid_key = fcsd_exit21_guid_key( (string) $guid, (string) $feed_lang );
+
         $existing = get_posts([
             'post_type'      => 'news',
             'post_status'    => 'any',
             'meta_key'       => 'exit21_guid',
-            'meta_value'     => $guid,
+            'meta_value'     => $guid_key,
             'fields'         => 'ids',
             'posts_per_page' => 1,
         ]);
+
+        // Compatibilidad: instalaciones antiguas guardaban el GUID sin idioma.
+        if ( ! $existing && $guid_key !== (string) $guid ) {
+            $existing = get_posts([
+                'post_type'      => 'news',
+                'post_status'    => 'any',
+                'meta_key'       => 'exit21_guid',
+                'meta_value'     => (string) $guid,
+                'fields'         => 'ids',
+                'posts_per_page' => 1,
+            ]);
+        }
 
         $post_data = [
             'post_title'   => $item->get_title() ?: 'Sin título',
@@ -576,7 +590,8 @@ function fcsd_sync_exit21_news() {
         // ====================================================================
         // METAS BASE
         // ====================================================================
-        update_post_meta( $post_id, 'exit21_guid', $guid );
+        // Guardar/migrar GUID con sufijo de idioma.
+        update_post_meta( $post_id, 'exit21_guid', $guid_key ?: (string) $guid );
         update_post_meta( $post_id, 'news_source', 'exit21' );
         update_post_meta( $post_id, 'news_external_url', $permalink );
         // Idioma (ES/CA) — preferimos el idioma del feed que estamos procesando.
@@ -727,7 +742,33 @@ add_filter('post_thumbnail_html', function( $html, $post_id, $thumb_id, $size, $
  * ============================================================================
  */
 
-const FCSD_EXIT21_FEED_URL = 'https://www.exit21.org/feed/';
+/**
+ * Feeds EXIT21.
+ *
+ * Nota: la sincronización "clásica" (fcsd_sync_exit21_news) ya recorre ambos idiomas.
+ * La sincronización en segundo plano (usada en servidor) tenía un bug y solo apuntaba
+ * al feed por defecto (catalán). Esto provocaba que nunca se importaran las entradas
+ * en español.
+ */
+const FCSD_EXIT21_FEEDS = [
+    [ 'url' => 'https://www.exit21.org/feed/',    'lang' => 'ca' ],
+    [ 'url' => 'https://www.exit21.org/es/feed/', 'lang' => 'es' ],
+];
+
+/**
+ * Construye una clave estable para evitar colisiones entre idiomas.
+ *
+ * En EXIT21 es posible que el GUID del RSS no sea único entre /feed/ y /es/feed/.
+ * Guardamos la meta exit21_guid como "{guid}|{lang}" cuando hay idioma.
+ *
+ * Mantiene compatibilidad con instalaciones anteriores: si existe un post con el
+ * GUID sin sufijo, se reutiliza y se migra al formato nuevo.
+ */
+function fcsd_exit21_guid_key( string $guid, string $lang = '' ): string {
+    $guid = trim( $guid );
+    $lang = trim( $lang );
+    return ( $guid && $lang ) ? ( $guid . '|' . $lang ) : $guid;
+}
 const FCSD_EXIT21_HISTORY_OPTION = 'fcsd_exit21_sync_history';
 const FCSD_EXIT21_ACTIVE_OPTION  = 'fcsd_exit21_sync_active_run';
 const FCSD_EXIT21_STATE_OPTION   = 'fcsd_exit21_sync_state';
@@ -783,31 +824,59 @@ function fcsd_exit21_start_run(): array {
         include_once ABSPATH . WPINC . '/feed.php';
     }
 
-    // Fuerza refresco del feed
-    delete_transient( 'feed_' . md5( FCSD_EXIT21_FEED_URL ) );
-    delete_transient( 'feed_mod_' . md5( FCSD_EXIT21_FEED_URL ) );
+    $queue = [];
+    $total_items = 0;
 
-    $rss = fetch_feed( FCSD_EXIT21_FEED_URL );
-    if ( is_wp_error( $rss ) ) {
-        return [ 'ok' => false, 'error' => $rss->get_error_message() ];
+    foreach ( FCSD_EXIT21_FEEDS as $feed_def ) {
+        $feed_url  = (string) ( $feed_def['url'] ?? '' );
+        $feed_lang = (string) ( $feed_def['lang'] ?? '' );
+        if ( ! $feed_url ) continue;
+
+        // Fuerza refresco del feed (por URL)
+        delete_transient( 'feed_' . md5( $feed_url ) );
+        delete_transient( 'feed_mod_' . md5( $feed_url ) );
+
+        $rss = fetch_feed( $feed_url );
+        if ( is_wp_error( $rss ) ) {
+            // No abortamos el run: si un idioma falla, el otro puede importar.
+            fcsd_log( 'Error al obtener feed RSS (' . $feed_url . '): ' . $rss->get_error_message(), 'error' );
+            continue;
+        }
+
+        $max = (int) $rss->get_item_quantity( 500 );
+        $items = $max ? $rss->get_items( 0, $max ) : [];
+        if ( ! $items ) {
+            continue;
+        }
+
+        $total_items += count( $items );
+
+        foreach ( $items as $item ) {
+            $guid = $item->get_id() ?: $item->get_permalink();
+            $permalink = $item->get_permalink();
+            if ( ! $guid ) continue;
+            $queue[] = [
+                'guid'      => (string) $guid,
+                'permalink' => $permalink ? (string) $permalink : '',
+                'feed_url'  => $feed_url,
+                'lang'      => $feed_lang,
+            ];
+        }
     }
 
-    $max = (int) $rss->get_item_quantity( 500 );
-    $items = $max ? $rss->get_items( 0, $max ) : [];
-    if ( ! $items ) {
+    if ( ! $queue ) {
         return [ 'ok' => false, 'error' => __( 'No hay items en el feed.', 'fcsd' ) ];
     }
 
-    $queue = [];
-    foreach ( $items as $item ) {
-        $guid = $item->get_id() ?: $item->get_permalink();
-        $permalink = $item->get_permalink();
-        if ( ! $guid ) continue;
-        $queue[] = [
-            'guid'      => (string) $guid,
-            'permalink' => $permalink ? (string) $permalink : '',
-        ];
-    }
+    // Evitar duplicados (por si el feed devuelve lo mismo en varios endpoints).
+    $queue = array_values( array_reduce( $queue, function( $acc, $row ) {
+        $guid = (string) ( $row['guid'] ?? '' );
+        $lang = (string) ( $row['lang'] ?? '' );
+        // Si el GUID es compartido entre idiomas, mantenemos ambos.
+        $k = $guid . '|' . $lang;
+        if ( $guid && ! isset( $acc[ $k ] ) ) $acc[ $k ] = $row;
+        return $acc;
+    }, [] ) );
 
     $run_id = 'run_' . wp_generate_uuid4();
     $now = current_time( 'mysql' );
@@ -866,10 +935,17 @@ function fcsd_exit21_process_one_item( array $payload ): bool {
     $guid = $payload['guid'] ?? '';
     if ( ! $guid ) return true;
 
+    $feed_url  = (string) ( $payload['feed_url'] ?? '' );
+    $feed_lang = (string) ( $payload['lang'] ?? '' );
+    if ( ! $feed_url ) {
+        // Compatibilidad: si llega un payload antiguo, caemos al feed por defecto.
+        $feed_url = (string) ( FCSD_EXIT21_FEEDS[0]['url'] ?? 'https://www.exit21.org/feed/' );
+    }
+
     // Volvemos a pedir el feed pero NO lo forzamos siempre; SimplePie cache ayuda.
-    $rss = fetch_feed( FCSD_EXIT21_FEED_URL );
+    $rss = fetch_feed( $feed_url );
     if ( is_wp_error( $rss ) ) {
-        fcsd_log( 'Error al obtener feed RSS (tick): ' . $rss->get_error_message(), 'error' );
+        fcsd_log( 'Error al obtener feed RSS (tick) (' . $feed_url . '): ' . $rss->get_error_message(), 'error' );
         return false;
     }
 
@@ -908,14 +984,28 @@ function fcsd_exit21_process_one_item( array $payload ): bool {
     if ( empty( $full_content ) ) $full_content = $target->get_content();
 
     // Crear/actualizar post
+    $guid_key = fcsd_exit21_guid_key( (string) $guid, (string) $feed_lang );
+
     $existing = get_posts([
         'post_type'      => 'news',
         'post_status'    => 'any',
         'meta_key'       => 'exit21_guid',
-        'meta_value'     => $guid,
+        'meta_value'     => $guid_key,
         'fields'         => 'ids',
         'posts_per_page' => 1,
     ]);
+
+    // Compatibilidad: instalaciones antiguas guardaban el GUID sin idioma.
+    if ( ! $existing && $guid_key !== (string) $guid ) {
+        $existing = get_posts([
+            'post_type'      => 'news',
+            'post_status'    => 'any',
+            'meta_key'       => 'exit21_guid',
+            'meta_value'     => (string) $guid,
+            'fields'         => 'ids',
+            'posts_per_page' => 1,
+        ]);
+    }
 
     $post_data = [
         'post_title'   => $target->get_title() ?: 'Sin título',
@@ -936,12 +1026,13 @@ function fcsd_exit21_process_one_item( array $payload ): bool {
         }
     }
 
-    update_post_meta( $post_id, 'exit21_guid', $guid );
+        update_post_meta( $post_id, 'exit21_guid', $guid_key );
     update_post_meta( $post_id, 'news_source', 'exit21' );
     update_post_meta( $post_id, 'news_external_url', $permalink );
-        // Idioma (ES/CA) detectado a partir de la URL del feed (EXIT21)
-        $lang = ( strpos( $permalink, '/es/' ) !== false || preg_match('~//[^/]+/es(/|$)~', $permalink ) ) ? 'es' : 'ca';
-        update_post_meta( $post_id, 'news_language', $lang );
+
+    // Idioma (ES/CA): preferimos el idioma del feed procesado en este tick.
+    $lang = $feed_lang ?: ( ( $permalink && ( strpos( $permalink, '/es/' ) !== false || preg_match( '~//[^/]+/es(/|$)~', $permalink ) ) ) ? 'es' : 'ca' );
+    update_post_meta( $post_id, 'news_language', $lang );
 
     // Autores
     $author_raw = '';
