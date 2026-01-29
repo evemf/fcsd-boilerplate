@@ -6,8 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Carga de clases y helpers de la tienda
- * (estos archivos deben existir en inc/ecommerce/)
+ * Càrrega de classes i helpers de la botiga
+ * (aquests fitxers han d'existir a inc/ecommerce/)
  */
 require get_template_directory() . '/inc/ecommerce/class-shop-db.php';
 require get_template_directory() . '/inc/ecommerce/class-shop-cart.php';
@@ -23,27 +23,27 @@ function fcsd_register_product_cpt() {
     $labels = [
         'name'               => __( 'Productes', 'fcsd' ),
         'singular_name'      => __( 'Producte', 'fcsd' ),
-        'add_new'            => __( 'Añadir nuevo', 'fcsd' ),
-        'add_new_item'       => __( 'Añadir nuevo producto', 'fcsd' ),
-        'edit_item'          => __( 'Editar producto', 'fcsd' ),
-        'new_item'           => __( 'Nuevo producto', 'fcsd' ),
-        'view_item'          => __( 'Ver producto', 'fcsd' ),
-        'search_items'       => __( 'Buscar productos', 'fcsd' ),
-        'not_found'          => __( 'No se han encontrado productos', 'fcsd' ),
-        'not_found_in_trash' => __( 'No hay productos en la papelera', 'fcsd' ),
+        'add_new'            => __( 'Afegeix nou', 'fcsd' ),
+        'add_new_item'       => __( 'Afegeix un producte nou', 'fcsd' ),
+        'edit_item'          => __( 'Edita el producte', 'fcsd' ),
+        'new_item'           => __( 'Producte nou', 'fcsd' ),
+        'view_item'          => __( 'Mostra el producte', 'fcsd' ),
+        'search_items'       => __( 'Cerca productes', 'fcsd' ),
+        'not_found'          => __( 'No s\'han trobat productes', 'fcsd' ),
+        'not_found_in_trash' => __( 'No hi ha productes a la paperera', 'fcsd' ),
     ];
 
     $args = [
-        'label'         => __( 'Productos', 'fcsd' ),
+        'label'         => __( 'Productes', 'fcsd' ),
         'labels'        => $labels,
         'public'        => true,
         'has_archive'   => true,
         // IMPORTANT:
-        // - Los rewrites del CPT deben usar el slug canónico (idioma por defecto).
-        // - El enrutador i18n del tema se encarga de:
+        // - Els rewrites del CPT han d'usar l'slug canònic (idioma per defecte).
+        // - L'encaminador i18n del tema s'encarrega de:
         //     /es/tienda  -> /botiga
         //     /en/shop    -> /botiga
-        // Así evitamos duplicar plantillas (archive-product-es.php, etc.)
+        // Així evitem duplicar plantilles (archive-product-es.php, etc.)
         'rewrite'       => [ 'slug' => function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga' ],
         'supports'      => [ 'title', 'editor', 'thumbnail' ],
         'show_in_rest'  => true,
@@ -55,32 +55,32 @@ function fcsd_register_product_cpt() {
 add_action( 'init', 'fcsd_register_product_cpt' );
 
 /**
- * Taxonomía: fcsd_product_cat
+ * Taxonomia: fcsd_product_cat
  */
 function fcsd_register_product_taxonomy() {
     $labels = [
-        'name'          => __( 'Categorías de producto', 'fcsd' ),
-        'singular_name' => __( 'Categoría de producto', 'fcsd' ),
-        'search_items'  => __( 'Buscar categorías', 'fcsd' ),
-        'all_items'     => __( 'Todas las categorías', 'fcsd' ),
-        'edit_item'     => __( 'Editar categoría', 'fcsd' ),
-        'update_item'   => __( 'Actualizar categoría', 'fcsd' ),
-        'add_new_item'  => __( 'Añadir nueva categoría', 'fcsd' ),
-        'new_item_name' => __( 'Nuevo nombre de categoría', 'fcsd' ),
+        'name'          => __( 'Categories de producte', 'fcsd' ),
+        'singular_name' => __( 'Categoria de producte', 'fcsd' ),
+        'search_items'  => __( 'Cerca categories', 'fcsd' ),
+        'all_items'     => __( 'Totes les categories', 'fcsd' ),
+        'edit_item'     => __( 'Edita la categoria', 'fcsd' ),
+        'update_item'   => __( 'Actualitza la categoria', 'fcsd' ),
+        'add_new_item'  => __( 'Afegeix una categoria nova', 'fcsd' ),
+        'new_item_name' => __( 'Nom nou de la categoria', 'fcsd' ),
     ];
 
     register_taxonomy( 'fcsd_product_cat', 'fcsd_product', [
         'labels'       => $labels,
         'public'       => true,
         'hierarchical' => true,
-        'rewrite'      => [ 'slug' => 'categoria-producto' ],
+        'rewrite'      => [ 'slug' => 'categoria-producte' ],
         'show_in_rest' => true,
     ] );
 }
 add_action( 'init', 'fcsd_register_product_taxonomy' );
 
 /**
- * Crear tablas de pedidos al activar el tema
+ * Crear taules de comandes en activar el tema
  */
 function fcsd_shop_on_theme_switch() {
     fcsd_Shop_DB::create_tables();
@@ -88,7 +88,7 @@ function fcsd_shop_on_theme_switch() {
 add_action( 'after_switch_theme', 'fcsd_shop_on_theme_switch' );
 
 /**
- * Encolar assets de la tienda
+ * Encolar assets de la botiga
  */
 function fcsd_shop_assets() {
     wp_enqueue_script(
@@ -121,7 +121,7 @@ function fcsd_shop_assets() {
 add_action( 'wp_enqueue_scripts', 'fcsd_shop_assets' );
 
 /**
- * Iniciar sesión PHP para carrito de invitados
+ * Iniciar sessió PHP per a carret de convidats
  */
 add_action( 'init', function () {
     if ( ! session_id() ) {
@@ -130,13 +130,13 @@ add_action( 'init', function () {
 } );
 
 /**
- * Handler para "Añadir al carrito" (formularios POST)
+ * Handler per "Afegir a la cistella" (formularis POST)
  *
- * Colores y tallas:
- * - Configurados vía metas:
- *   - _fcsd_product_colors => array de colores (hex)
- *   - _fcsd_product_sizes  => array de tallas
- * - Si no llegan en POST, se usa el primer valor disponible como por defecto.
+ * Colors i talles:
+ * - Configurats via metas:
+ *   - _fcsd_product_colors => array de colors (hex)
+ *   - _fcsd_product_sizes  => array de talles
+ * - Si no arriben en POST, s'usa el primer valor disponible com a per defecte.
  */
 function fcsd_handle_add_to_cart() {
     if ( empty( $_POST['fcsd_add_to_cart_nonce'] ) ||
@@ -151,12 +151,12 @@ function fcsd_handle_add_to_cart() {
         return;
     }
 
-    // Verificar que el producto existe
+    // Verificar que el producte existeix
     if ( get_post_type( $product_id ) !== 'fcsd_product' ) {
-        wp_die( __( 'Producto no válido.', 'fcsd' ) );
+        wp_die( __( 'Producte no vàlid.', 'fcsd' ) );
     }
 
-    // Metas de colores y tallas (como en single-product.php)
+    // Metas de colors i talles (com a single-product.php)
     $colors_meta = get_post_meta( $product_id, '_fcsd_product_colors', true );
     $sizes_meta  = get_post_meta( $product_id, '_fcsd_product_sizes', true );
 
@@ -165,11 +165,11 @@ function fcsd_handle_add_to_cart() {
 
     $attributes = [];
 
-    // 1) Valores enviados explícitamente desde el formulario
+    // 1) Valors enviats explícitament des del formulari
     $color = isset( $_POST['fcsd_color'] ) ? sanitize_text_field( wp_unslash( $_POST['fcsd_color'] ) ) : '';
     $size  = isset( $_POST['fcsd_size'] )  ? sanitize_text_field( wp_unslash( $_POST['fcsd_size'] ) )  : '';
 
-    // 2) Si no llega color y hay opciones, usamos la primera (preseleccionada por defecto)
+    // 2) Si no arriba color i hi ha opcions, usem la primera (preseleccionada per defecte)
     if ( $color === '' && ! empty( $color_options ) ) {
         $first_color = reset( $color_options );
         if ( ! empty( $first_color ) ) {
@@ -177,7 +177,7 @@ function fcsd_handle_add_to_cart() {
         }
     }
 
-    // 3) Si no llega talla y hay opciones, usamos la primera
+    // 3) Si no arriba talla i hi ha opcions, usem la primera
     if ( $size === '' && ! empty( $size_options ) ) {
         $first_size = reset( $size_options );
         if ( ! empty( $first_size ) ) {
@@ -185,11 +185,11 @@ function fcsd_handle_add_to_cart() {
         }
     }
 
-    // 4) Filtros por si quieres sobreescribir desde un plugin/hook
+    // 4) Filtres per si vols sobreescriure des d'un plugin/hook
     $color = apply_filters( 'fcsd_default_color_for_product', $color, $product_id );
     $size  = apply_filters( 'fcsd_default_size_for_product',  $size,  $product_id );
 
-    // 5) Guardar en atributos si existen
+    // 5) Guardar en atributs si existeixen
     if ( $color !== '' ) {
         $attributes['color'] = $color;
     }
@@ -198,19 +198,19 @@ function fcsd_handle_add_to_cart() {
         $attributes['size'] = $size;
     }
 
-    // Añadir al carrito
+    // Afegir a la cistella
     fcsd_Shop_Cart::add_to_cart( $product_id, $quantity, $attributes );
 
-    // Determinar redirección:
-    // - single-product manda redirect_to = carrito
-    // - archivo/listado NO manda redirect_to, así que volvemos al referer (la tienda)
+    // Determinar redirecció:
+    // - single-product envia redirect_to = carret
+    // - arxiu/llistat NO envia redirect_to, així que tornem al referer (la botiga)
     if ( ! empty( $_POST['redirect_to'] ) ) {
         $redirect = esc_url_raw( wp_unslash( $_POST['redirect_to'] ) );
     } else {
         $redirect = wp_get_referer() ? wp_get_referer() : get_permalink( get_page_by_path( 'carrito' ) );
     }
 
-    // Añadir parámetro de éxito para poder mostrar mensaje si queremos
+    // Afegir paràmetre d'èxit per poder mostrar missatge si volem
     $redirect = add_query_arg( 'added_to_cart', $product_id, $redirect );
 
     wp_safe_redirect( $redirect );
@@ -219,7 +219,7 @@ function fcsd_handle_add_to_cart() {
 add_action( 'template_redirect', 'fcsd_handle_add_to_cart' );
 
 /**
- * Handler para actualizar cantidad en el carrito
+ * Handler per actualitzar quantitat al carret
  */
 function fcsd_handle_update_cart() {
     if ( empty( $_POST['fcsd_update_cart_nonce'] ) ||
@@ -230,9 +230,9 @@ function fcsd_handle_update_cart() {
     if ( isset( $_POST['cart_key'] ) && isset( $_POST['quantity'] ) ) {
         $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
         $quantity = absint( $_POST['quantity'] );
-        
+
         fcsd_Shop_Cart::update_cart_item( $cart_key, $quantity );
-        
+
         wp_safe_redirect( wp_get_referer() );
         exit;
     }
@@ -240,7 +240,7 @@ function fcsd_handle_update_cart() {
 add_action( 'template_redirect', 'fcsd_handle_update_cart' );
 
 /**
- * Handler para eliminar del carrito
+ * Handler per eliminar del carret
  */
 function fcsd_handle_remove_from_cart() {
     if ( empty( $_POST['fcsd_remove_cart_nonce'] ) ||
@@ -250,9 +250,9 @@ function fcsd_handle_remove_from_cart() {
 
     if ( isset( $_POST['remove_from_cart'] ) && isset( $_POST['cart_key'] ) ) {
         $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
-        
+
         fcsd_Shop_Cart::remove_from_cart( $cart_key );
-        
+
         wp_safe_redirect( wp_get_referer() );
         exit;
     }
@@ -260,12 +260,12 @@ function fcsd_handle_remove_from_cart() {
 add_action( 'template_redirect', 'fcsd_handle_remove_from_cart' );
 
 /**
- * Checkout (clase Orders)
+ * Checkout (classe Orders)
  */
 add_action( 'template_redirect', [ 'fcsd_Shop_Orders', 'handle_checkout' ] );
 
 /**
- * Repetir pedido (clase Account)
+ * Repetir comanda (classe Account)
  */
 add_action( 'template_redirect', function () {
     if ( isset( $_GET['repeat_order'] ) ) {
@@ -274,43 +274,43 @@ add_action( 'template_redirect', function () {
 } );
 
 /**
- * AJAX: Añadir producto al carrito (desde archive/listado)
+ * AJAX: Afegir producte a la cistella (des d'arxiu/llistat)
  */
 function fcsd_ajax_add_to_cart() {
     check_ajax_referer( 'fcsd_shop_nonce', 'nonce' );
-    
+
     if ( ! isset( $_POST['product_id'] ) ) {
         wp_send_json_error( array( 'message' => __( 'Dades invàlides', 'fcsd' ) ) );
     }
-    
+
     $product_id = absint( $_POST['product_id'] );
     $quantity   = isset( $_POST['quantity'] ) ? absint( $_POST['quantity'] ) : 1;
     $color      = isset( $_POST['fcsd_color'] ) ? sanitize_text_field( wp_unslash( $_POST['fcsd_color'] ) ) : '';
     $size       = isset( $_POST['fcsd_size'] ) ? sanitize_text_field( wp_unslash( $_POST['fcsd_size'] ) ) : '';
-    
-    // Verificar que el producto existe
+
+    // Verificar que el producte existeix
     if ( get_post_type( $product_id ) !== 'fcsd_product' ) {
         wp_send_json_error( array( 'message' => __( 'Producte no vàlid', 'fcsd' ) ) );
     }
-    
-    // Obtener opciones de colores y tallas
+
+    // Obtenir opcions de colors i talles
     $colors_meta = get_post_meta( $product_id, '_fcsd_product_colors', true );
     $sizes_meta  = get_post_meta( $product_id, '_fcsd_product_sizes', true );
-    
+
     $color_options = is_array( $colors_meta ) ? $colors_meta : [];
     $size_options  = is_array( $sizes_meta )  ? $sizes_meta  : [];
-    
-    // Si no se envió color pero hay opciones, usar el primero
+
+    // Si no s'ha enviat color però hi ha opcions, usar el primer
     if ( empty( $color ) && ! empty( $color_options ) ) {
         $color = reset( $color_options );
     }
-    
-    // Si no se envió talla pero hay opciones, usar la primera
+
+    // Si no s'ha enviat talla però hi ha opcions, usar la primera
     if ( empty( $size ) && ! empty( $size_options ) ) {
         $size = reset( $size_options );
     }
-    
-    // Construir atributos
+
+    // Construir atributs
     $attributes = [];
     if ( ! empty( $color ) ) {
         $attributes['color'] = $color;
@@ -318,10 +318,10 @@ function fcsd_ajax_add_to_cart() {
     if ( ! empty( $size ) ) {
         $attributes['size'] = $size;
     }
-    
-    // Añadir al carrito
+
+    // Afegir a la cistella
     fcsd_Shop_Cart::add_to_cart( $product_id, $quantity, $attributes );
-    
+
     wp_send_json_success( array(
         'message'    => __( 'Producte afegit a la cistella', 'fcsd' ),
         'cart_count' => fcsd_Shop_Cart::get_cart_count()
@@ -331,70 +331,70 @@ add_action( 'wp_ajax_fcsd_add_to_cart', 'fcsd_ajax_add_to_cart' );
 add_action( 'wp_ajax_nopriv_fcsd_add_to_cart', 'fcsd_ajax_add_to_cart' );
 
 /**
- * AJAX: Actualizar cantidad de producto en el carrito
+ * AJAX: Actualitzar quantitat de producte al carret
  */
 function fcsd_ajax_update_cart_item() {
     check_ajax_referer( 'fcsd_shop_nonce', 'nonce' );
-    
+
     if ( ! isset( $_POST['cart_key'] ) || ! isset( $_POST['quantity'] ) ) {
-        wp_send_json_error( array( 'message' => __( 'Datos inválidos', 'fcsd' ) ) );
+        wp_send_json_error( array( 'message' => __( 'Dades invàlides', 'fcsd' ) ) );
     }
-    
+
     $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
     $quantity = absint( $_POST['quantity'] );
-    
+
     $updated = fcsd_Shop_Cart::update_cart_item( $cart_key, $quantity );
-    
+
     if ( $updated ) {
         wp_send_json_success( array(
-            'message'    => __( 'Carrito actualizado', 'fcsd' ),
+            'message'    => __( 'Carret actualitzat', 'fcsd' ),
             'cart_count' => fcsd_Shop_Cart::get_cart_count()
         ) );
     } else {
-        wp_send_json_error( array( 'message' => __( 'Error al actualizar el carrito', 'fcsd' ) ) );
+        wp_send_json_error( array( 'message' => __( 'Error en actualitzar el carret', 'fcsd' ) ) );
     }
 }
 add_action( 'wp_ajax_fcsd_update_cart_item', 'fcsd_ajax_update_cart_item' );
 add_action( 'wp_ajax_nopriv_fcsd_update_cart_item', 'fcsd_ajax_update_cart_item' );
 
 /**
- * AJAX: Eliminar producto del carrito
+ * AJAX: Eliminar producte del carret
  */
 function fcsd_ajax_remove_from_cart() {
     check_ajax_referer( 'fcsd_shop_nonce', 'nonce' );
-    
+
     if ( ! isset( $_POST['cart_key'] ) ) {
-        wp_send_json_error( array( 'message' => __( 'Datos inválidos', 'fcsd' ) ) );
+        wp_send_json_error( array( 'message' => __( 'Dades invàlides', 'fcsd' ) ) );
     }
-    
+
     $cart_key = sanitize_text_field( wp_unslash( $_POST['cart_key'] ) );
-    
+
     $removed = fcsd_Shop_Cart::remove_from_cart( $cart_key );
-    
+
     if ( $removed ) {
         wp_send_json_success( array(
-            'message'    => __( 'Producto eliminado del carrito', 'fcsd' ),
+            'message'    => __( 'Producte eliminat del carret', 'fcsd' ),
             'cart_count' => fcsd_Shop_Cart::get_cart_count()
         ) );
     } else {
-        wp_send_json_error( array( 'message' => __( 'Error al eliminar del carrito', 'fcsd' ) ) );
+        wp_send_json_error( array( 'message' => __( 'Error en eliminar del carret', 'fcsd' ) ) );
     }
 }
 add_action( 'wp_ajax_fcsd_remove_from_cart', 'fcsd_ajax_remove_from_cart' );
 add_action( 'wp_ajax_nopriv_fcsd_remove_from_cart', 'fcsd_ajax_remove_from_cart' );
 
 /**
- * AJAX: Obtener contenido del carrito actualizado
+ * AJAX: Obtenir contingut del carret actualitzat
  */
 function fcsd_ajax_get_cart_content() {
     check_ajax_referer( 'fcsd_shop_nonce', 'nonce' );
-    
+
     ob_start();
-    
+
     $cart = fcsd_get_cart_summary();
     ?>
-    
-    <h1><?php esc_html_e( 'Carrito', 'fcsd' ); ?></h1>
+
+    <h1><?php esc_html_e( 'Cistella', 'fcsd' ); ?></h1>
 
     <?php get_template_part( 'template-parts/shop/cart', 'table', [ 'cart' => $cart ] ); ?>
 
@@ -406,37 +406,37 @@ function fcsd_ajax_get_cart_content() {
 
         <?php if ( is_user_logged_in() ) : ?>
             <p class="cart-discount-info">
-                <?php esc_html_e( 'Se han aplicado descuentos de usuario registrado (si corresponden).', 'fcsd' ); ?>
+                <?php esc_html_e( 'S\'han aplicat descomptes d\'usuari registrat (si escau).', 'fcsd' ); ?>
             </p>
         <?php else : ?>
             <p class="cart-discount-info">
-                <?php esc_html_e( 'Regístrate o inicia sesión para obtener descuentos exclusivos.', 'fcsd' ); ?>
+                <?php esc_html_e( 'Registra\'t o inicia sessió per obtenir descomptes exclusius.', 'fcsd' ); ?>
             </p>
         <?php endif; ?>
 
         <?php $checkout_id = function_exists('fcsd_get_page_id_by_key') ? fcsd_get_page_id_by_key('checkout') : 0; ?>
         <a href="<?php echo esc_url( $checkout_id ? get_permalink( $checkout_id ) : home_url('/') ); ?>" class="btn btn-primary">
-            <?php esc_html_e( 'Ir a pagar', 'fcsd' ); ?>
+            <?php esc_html_e( 'Anar a pagar', 'fcsd' ); ?>
         </a>
     <?php endif; ?>
-    
+
     <?php
     $html = ob_get_clean();
-    
+
     wp_send_json_success( array( 'html' => $html ) );
 }
 add_action( 'wp_ajax_fcsd_get_cart_content', 'fcsd_ajax_get_cart_content' );
 add_action( 'wp_ajax_nopriv_fcsd_get_cart_content', 'fcsd_ajax_get_cart_content' );
 
 /**
- * Filtros del archivo de productos (tienda)
+ * Filtres de l'arxiu de productes (botiga)
  * - Categoria (fcsd_product_cat)
  * - Color (meta _fcsd_product_colors)
- * - Precio mínimo/máximo (meta _fcsd_price_regular)
+ * - Preu mínim/màxim (meta _fcsd_price_regular)
  */
 function fcsd_apply_shop_filters( $query ) {
 
-    // Sólo front-end, main query, archivo de productos
+    // Només front-end, main query, arxiu de productes
     if ( is_admin() || ! $query->is_main_query() ) {
         return;
     }
@@ -449,7 +449,7 @@ function fcsd_apply_shop_filters( $query ) {
     $tax_query  = (array) $query->get( 'tax_query' );
 
     // -------------------------------
-    // Categoría de producto (fcsd_product_cat)
+    // Categoria de producte (fcsd_product_cat)
     // -------------------------------
     if ( ! empty( $_GET['shop_cat'] ) ) {
         $cat_id = (int) $_GET['shop_cat'];
@@ -463,24 +463,24 @@ function fcsd_apply_shop_filters( $query ) {
     }
 
     // -------------------------------
-    // Color (array de hex en _fcsd_product_colors)
-    // Se guardan como array serializado, usamos LIKE
+    // Color (array de hex a _fcsd_product_colors)
+    // Es guarden com a array serialitzat, usem LIKE
     // -------------------------------
     if ( ! empty( $_GET['color'] ) ) {
         $color_raw = sanitize_text_field( wp_unslash( $_GET['color'] ) );
         $color     = $color_raw;
 
-        // Si existe el helper, intentamos mapear slug => hex
+        // Si existeix el helper, intentem mapar slug => hex
         if ( function_exists( 'fcsd_get_shop_colors' ) ) {
             $all_colors = fcsd_get_shop_colors();
 
             if ( isset( $all_colors[ $color_raw ]['hex'] ) ) {
-                // p.ej. "red" -> "#ff0000"
+                // p. ex. "red" -> "#ff0000"
                 $color = $all_colors[ $color_raw ]['hex'];
             }
         }
 
-        // Normalizamos: aseguramos # delante si aún no lo tiene
+        // Normalitzem: assegurem # al davant si encara no el té
         if ( $color !== '' && $color[0] !== '#' ) {
             $color = '#' . $color;
         }
@@ -493,7 +493,7 @@ function fcsd_apply_shop_filters( $query ) {
     }
 
     // -------------------------------
-    // Rango de precio (usamos _fcsd_price_regular)
+    // Rang de preu (usem _fcsd_price_regular)
     // -------------------------------
     $price_min = isset( $_GET['price_min'] ) && $_GET['price_min'] !== ''
         ? (float) $_GET['price_min']
@@ -536,7 +536,7 @@ function fcsd_apply_shop_filters( $query ) {
         $query->set( 'tax_query', $tax_query );
     }
 
-    // Opcional: ordenar por precio
+    // Opcional: ordenar per preu
     // $query->set( 'meta_key', '_fcsd_price_regular' );
     // $query->set( 'orderby', 'meta_value_num' );
     // $query->set( 'order', 'ASC' );
@@ -544,7 +544,7 @@ function fcsd_apply_shop_filters( $query ) {
 add_action( 'pre_get_posts', 'fcsd_apply_shop_filters' );
 
 /**
- * Colores disponibles para filtros de tienda
+ * Colors disponibles per als filtres de botiga
  * slug => [ 'label' => '', 'hex' => '' ]
  */
 function fcsd_get_shop_colors() {

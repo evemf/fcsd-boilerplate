@@ -48,7 +48,7 @@ $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
 <!-- Idiomas -->
 <nav class="topbar__langs" aria-label="<?php esc_attr_e('Idiomes', 'fcsd'); ?>">
   <ul class="list-inline mb-0">
-    <?php $fcsd_lang_current = defined('FCSD_LANG') ? FCSD_LANG : substr((string) get_locale(), 0, 2); ?>
+    <?php $fcsd_lang_current = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : substr((string) get_locale(), 0, 2) ); ?>
     <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'ca' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'ca' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('ca') ); ?>" rel="alternate" hreflang="ca">CA</a></li>
     <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'es' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'es' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('es') ); ?>" rel="alternate" hreflang="es">ES</a></li>
     <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'en' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'en' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('en') ); ?>" rel="alternate" hreflang="en">EN</a></li>

@@ -19,7 +19,7 @@ function fcsd_get_service_areas_defaults() {
     // - Les imatges de CAPÇALERA (hero) viuen a /assets/images/ambits/ambit-<slug>.png
     // - Les imatges “de servei” (cards/altres) poden viure a /assets/images/services/service-<slug>.png
     return [
-        'generic' => [
+        'institucional' => [
             'name'            => __( 'Institucional', 'fcsd' ),
             'description'     => __( 'Serveis d’àmbit institucional o transversal.', 'fcsd' ),
             'hero_class'      => 'service-hero--generic',

@@ -10,6 +10,8 @@ $carousel_news = new WP_Query([
   'no_found_rows'  => true,
   'meta_key'       => '_fcsd_show_in_home_carousel',
   'meta_value'     => '1',
+  // Filtra por idioma (Exit21: solo CA/ES; internas: visibles, traducibles por meta i18n).
+  'meta_query'     => function_exists('fcsd_news_frontend_lang_meta_query') ? fcsd_news_frontend_lang_meta_query() : [],
   'orderby'        => 'date',
   'order'          => 'DESC',
 ]);
@@ -57,8 +59,14 @@ $carousel_news = new WP_Query([
       </h1>
 
       <div class="fcsd-hero-banner__actions">
-        <a class="btn btn-primary" href="<?php echo esc_url( home_url( '/qui-som/' ) ); ?>">
-          <?php _e( 'Qui som', 'fcsd' ); ?>
+        <?php
+          $about_slug = function_exists('fcsd_default_slug') ? fcsd_default_slug('about') : 'qui-som';
+          $about_url  = function_exists('fcsd_get_page_url_by_slug') ? fcsd_get_page_url_by_slug( $about_slug ) : home_url( '/' );
+          $cta_url    = fcsd_get_option( 'home_cta_url', $about_url );
+          $cta_label  = fcsd_get_option( 'home_cta_label', __( 'Qui som', 'fcsd' ) );
+        ?>
+        <a class="btn btn-primary" href="<?php echo esc_url( $cta_url ?: $about_url ); ?>">
+          <?php echo esc_html( $cta_label ); ?>
         </a>
       </div>
     </div>

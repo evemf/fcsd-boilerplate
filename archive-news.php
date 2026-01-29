@@ -118,7 +118,11 @@ get_header();
     ?>
 
   <?php else : ?>
-    <p><?php esc_html_e( 'No hi ha notícies.', 'fcsd' ); ?></p>
+    <p><?php echo esc_html( fcsd_t([
+        'ca' => 'No hi ha notícies.',
+        'es' => 'No hay noticias.',
+        'en' => 'There are no news items.',
+    ]) ); ?></p>
   <?php endif; ?>
 </main>
 <?php

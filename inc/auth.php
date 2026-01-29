@@ -20,6 +20,12 @@ $fcsd_auth_errors      = array();
 $fcsd_auth_success_reg = false;
 $fcsd_setpass_errors   = array();
 
+// Password reset (lost password) state (for rendering messages)
+global $fcsd_reset_errors, $fcsd_reset_success, $fcsd_reset_done;
+$fcsd_reset_errors  = array();
+$fcsd_reset_success = false;
+$fcsd_reset_done    = false;
+
 
 // -----------------------------------------------------------------------------
 // EARLY FORM HANDLERS (pattern WP correct)
@@ -31,9 +37,13 @@ function fcsd_handle_auth_forms() {
     }
 
     global $fcsd_auth_errors, $fcsd_auth_success_reg, $fcsd_setpass_errors;
+    global $fcsd_reset_errors, $fcsd_reset_success, $fcsd_reset_done;
     $fcsd_auth_errors      = array();
     $fcsd_auth_success_reg = false;
     $fcsd_setpass_errors   = array();
+    $fcsd_reset_errors     = array();
+    $fcsd_reset_success    = false;
+    $fcsd_reset_done       = false;
 
     // -----------------------------------------------------------------
     // REGISTRATION
@@ -146,11 +156,120 @@ function fcsd_handle_auth_forms() {
         // If they use an @fcsd.org email, we grant it on login.
         fcsd_maybe_add_worker_role( $user );
 
-        wp_safe_redirect( fcsd_get_page_url_by_slug( 'perfil-usuari' ) );
+        $default_redirect = fcsd_get_page_url_by_slug( 'perfil-usuari' );
+        $redirect_to      = '';
+
+        if ( isset( $_POST['redirect_to'] ) ) {
+            $redirect_to = esc_url_raw( wp_unslash( $_POST['redirect_to'] ) );
+        } elseif ( isset( $_GET['redirect_to'] ) ) {
+            // Fallback if someone posts without the hidden field.
+            $redirect_to = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) );
+        }
+
+        $final_redirect = $redirect_to ? wp_validate_redirect( $redirect_to, $default_redirect ) : $default_redirect;
+        wp_safe_redirect( $final_redirect );
         exit;
     }
 
     // -----------------------------------------------------------------
+
+    // -----------------------------------------------------------------
+    // PASSWORD RESET (REQUEST EMAIL)
+    // -----------------------------------------------------------------
+    if (
+        ! empty( $_POST['fcsd_reset_request_nonce'] ) &&
+        wp_verify_nonce( $_POST['fcsd_reset_request_nonce'], 'fcsd_reset_request' )
+    ) {
+
+        $email = isset( $_POST['fcsd_reset_email'] ) ? sanitize_email( wp_unslash( $_POST['fcsd_reset_email'] ) ) : '';
+
+        if ( empty( $email ) || ! is_email( $email ) ) {
+            $fcsd_reset_errors[] = __( 'Introdueix un email vàlid.', 'fcsd' );
+            return;
+        }
+
+        $user = get_user_by( 'email', $email );
+
+        // Evitem enumeració d'usuaris: sempre mostrem èxit encara que no existeixi.
+        if ( ! $user ) {
+            $fcsd_reset_success = true;
+            return;
+        }
+
+        $key = get_password_reset_key( $user );
+        if ( is_wp_error( $key ) ) {
+            $fcsd_reset_errors[] = __( "No s'ha pogut generar l'enllaç de recuperació.", 'fcsd' );
+            return;
+        }
+
+        $url = add_query_arg(
+            array(
+                'action' => 'reset',
+                'login'  => rawurlencode( $user->user_login ),
+                'key'    => rawurlencode( $key ),
+            ),
+            fcsd_get_system_page_url( 'login' )
+        );
+
+        $subject = __( 'Recuperació de contrasenya', 'fcsd' );
+        $message = sprintf(
+            __( "Has sol·licitat restablir la teva contrasenya.\n\nFes clic aquí per crear-ne una de nova:\n\n%s\n\nSi no has fet aquesta sol·licitud, ignora aquest missatge.", 'fcsd' ),
+            $url
+        );
+
+        wp_mail( $user->user_email, $subject, $message );
+        $fcsd_reset_success = true;
+        return;
+    }
+
+
+    // -----------------------------------------------------------------
+    // PASSWORD RESET (SET NEW PASSWORD)
+    // -----------------------------------------------------------------
+    if (
+        ! empty( $_POST['fcsd_reset_password_nonce'] ) &&
+        wp_verify_nonce( $_POST['fcsd_reset_password_nonce'], 'fcsd_reset_password' )
+    ) {
+
+        $login = isset( $_GET['login'] ) ? sanitize_text_field( wp_unslash( $_GET['login'] ) ) : '';
+        $key   = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : '';
+
+        if ( empty( $login ) || empty( $key ) ) {
+            $fcsd_reset_errors[] = __( 'Enllaç invàlid.', 'fcsd' );
+            return;
+        }
+
+        $user = check_password_reset_key( $key, $login );
+        if ( is_wp_error( $user ) || ! ( $user instanceof \WP_User ) ) {
+            $fcsd_reset_errors[] = __( "L'enllaç de recuperació no és vàlid o ha caducat.", 'fcsd' );
+            return;
+        }
+
+        $pass1 = isset( $_POST['fcsd_pass1'] ) ? $_POST['fcsd_pass1'] : '';
+        $pass2 = isset( $_POST['fcsd_pass2'] ) ? $_POST['fcsd_pass2'] : '';
+
+        if ( empty( $pass1 ) || empty( $pass2 ) ) {
+            $fcsd_reset_errors[] = __( "Has d'omplir tots els camps.", 'fcsd' );
+            return;
+        }
+
+        if ( $pass1 !== $pass2 ) {
+            $fcsd_reset_errors[] = __( 'Les contrasenyes no coincideixen.', 'fcsd' );
+            return;
+        }
+
+        if ( ! fcsd_is_valid_password( $pass1 ) ) {
+            $fcsd_reset_errors[] = __( 'La contrasenya ha de tenir mínim 6 caràcters, una lletra i un número.', 'fcsd' );
+            return;
+        }
+
+        reset_password( $user, $pass1 );
+
+        $fcsd_reset_done = true;
+        wp_safe_redirect( add_query_arg( array( 'reset' => 'done' ), fcsd_get_system_page_url( 'login' ) ) );
+        exit;
+    }
+
     // SET PASSWORD / CONFIRM EMAIL (from email link)
     // -----------------------------------------------------------------
     if (
@@ -304,7 +423,9 @@ function fcsd_get_system_page_url( string $key ): string {
     if ( ! function_exists('fcsd_slug') ) {
         return home_url('/');
     }
-    $lang = defined('FCSD_LANG') ? FCSD_LANG : (defined('FCSD_DEFAULT_LANG') ? FCSD_DEFAULT_LANG : 'ca');
+    $lang = function_exists('fcsd_lang')
+        ? fcsd_lang()
+        : ( defined('FCSD_LANG') ? FCSD_LANG : ( defined('FCSD_DEFAULT_LANG') ? FCSD_DEFAULT_LANG : 'ca' ) );
     $slug = fcsd_slug($key, $lang);
     $prefix = (defined('FCSD_DEFAULT_LANG') && $lang === FCSD_DEFAULT_LANG) ? '' : ($lang . '/');
     return home_url('/' . $prefix . trim($slug,'/') . '/');
@@ -524,6 +645,12 @@ function fcsd_login_form_shortcode() {
     global $fcsd_auth_errors;
     $errors = is_array( $fcsd_auth_errors ) ? $fcsd_auth_errors : array();
 
+    $redirect_to = '';
+    if ( isset( $_GET['redirect_to'] ) ) {
+        // We'll validate on redirect; here we just carry it through the POST.
+        $redirect_to = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) );
+    }
+
     ob_start();
 
     if ( ! empty( $errors ) ) {
@@ -537,6 +664,9 @@ function fcsd_login_form_shortcode() {
     <h2 class="mb-3"><?php _e( 'Iniciar sessió', 'fcsd' ); ?></h2>
     <form method="post" novalidate>
         <?php wp_nonce_field( 'fcsd_login', 'fcsd_login_nonce' ); ?>
+        <?php if ( ! empty( $redirect_to ) ) : ?>
+            <input type="hidden" name="redirect_to" value="<?php echo esc_attr( $redirect_to ); ?>">
+        <?php endif; ?>
         <div class="mb-3">
             <label for="fcsd_login_email" class="form-label"><?php _e( 'Email', 'fcsd' ); ?></label>
             <input id="fcsd_login_email" type="email" name="fcsd_login_email" class="form-control" required>
@@ -550,7 +680,7 @@ function fcsd_login_form_shortcode() {
         </button>
 
         <div class="mt-3 text-center">
-            <a class="small" href="<?php echo esc_url( wp_lostpassword_url( get_permalink() ) ); ?>">
+            <a class="small" href="<?php echo esc_url( add_query_arg( array( 'action' => 'reset' ), fcsd_get_system_page_url( 'login' ) ) ); ?>">
                 <?php esc_html_e( 'Reseteja el teu compte', 'fcsd' ); ?>
             </a>
         </div>
@@ -559,6 +689,100 @@ function fcsd_login_form_shortcode() {
     return ob_get_clean();
 }
 add_shortcode( 'fcsd_login_form', 'fcsd_login_form_shortcode' );
+
+
+/**
+ * Shortcode [fcsd_password_reset]: renders password reset flow (request + set new password)
+ * on the theme login system page.
+ */
+function fcsd_password_reset_shortcode() {
+
+    if ( is_user_logged_in() ) {
+        return '';
+    }
+
+    global $fcsd_reset_errors, $fcsd_reset_success;
+    $errors  = is_array( $fcsd_reset_errors ) ? $fcsd_reset_errors : array();
+    $success = ! empty( $fcsd_reset_success );
+
+    $login = isset( $_GET['login'] ) ? sanitize_text_field( wp_unslash( $_GET['login'] ) ) : '';
+    $key   = isset( $_GET['key'] ) ? sanitize_text_field( wp_unslash( $_GET['key'] ) ) : '';
+    $done  = ( isset( $_GET['reset'] ) && 'done' === (string) $_GET['reset'] );
+
+    // If we have a token, validate it now so the view can show the right form/message.
+    $token_user = null;
+    if ( $login && $key ) {
+        $token_user = check_password_reset_key( $key, $login );
+        if ( is_wp_error( $token_user ) ) {
+            $errors[] = __( "L'enllaç de recuperació no és vàlid o ha caducat.", 'fcsd' );
+            $token_user = null;
+        }
+    }
+
+    ob_start();
+
+    if ( $done ) {
+        echo '<div class="alert alert-success">' . esc_html__( 'Contrasenya actualitzada correctament. Ja pots iniciar sessió.', 'fcsd' ) . '</div>';
+    }
+
+    if ( $success ) {
+        echo '<div class="alert alert-success">' . esc_html__( "Si l'email existeix, t'hem enviat un enllaç per restablir la contrasenya.", 'fcsd' ) . '</div>';
+    }
+
+    if ( ! empty( $errors ) ) {
+        echo '<div class="alert alert-danger"><ul>';
+        foreach ( $errors as $e ) {
+            echo '<li>' . esc_html( $e ) . '</li>';
+        }
+        echo '</ul></div>';
+    }
+
+    // 1) If we have a valid token -> show set new password form.
+    if ( $token_user instanceof WP_User ) {
+        ?>
+        <h2 class="mb-3"><?php _e( 'Restablir contrasenya', 'fcsd' ); ?></h2>
+        <form method="post" novalidate>
+            <?php wp_nonce_field( 'fcsd_reset_password', 'fcsd_reset_password_nonce' ); ?>
+            <div class="mb-3">
+                <label for="fcsd_pass1" class="form-label"><?php _e( 'Nova contrasenya', 'fcsd' ); ?></label>
+                <input id="fcsd_pass1" type="password" name="fcsd_pass1" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="fcsd_pass2" class="form-label"><?php _e( 'Repeteix la nova contrasenya', 'fcsd' ); ?></label>
+                <input id="fcsd_pass2" type="password" name="fcsd_pass2" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">
+                <?php _e( 'Desar contrasenya', 'fcsd' ); ?>
+            </button>
+        </form>
+        <div class="mt-3 text-center">
+            <a class="small" href="<?php echo esc_url( fcsd_get_system_page_url( 'login' ) ); ?>"><?php esc_html_e( 'Tornar a iniciar sessió', 'fcsd' ); ?></a>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    // 2) Otherwise show request-reset form.
+    ?>
+    <h2 class="mb-3"><?php _e( 'Recuperar accés', 'fcsd' ); ?></h2>
+    <form method="post" novalidate>
+        <?php wp_nonce_field( 'fcsd_reset_request', 'fcsd_reset_request_nonce' ); ?>
+        <div class="mb-3">
+            <label for="fcsd_reset_email" class="form-label"><?php _e( 'Email', 'fcsd' ); ?></label>
+            <input id="fcsd_reset_email" type="email" name="fcsd_reset_email" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+            <?php _e( 'Enviar enllaç de recuperació', 'fcsd' ); ?>
+        </button>
+    </form>
+    <div class="mt-3 text-center">
+        <a class="small" href="<?php echo esc_url( fcsd_get_system_page_url( 'login' ) ); ?>"><?php esc_html_e( 'Tornar a iniciar sessió', 'fcsd' ); ?></a>
+    </div>
+    <?php
+
+    return ob_get_clean();
+}
+add_shortcode( 'fcsd_password_reset', 'fcsd_password_reset_shortcode' );
 
 
 /**

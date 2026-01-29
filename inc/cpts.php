@@ -21,7 +21,7 @@ add_action('init', function(){
         'rewrite'       => [ 'slug' => 'serveis' ],
     ] );
 
-    register_taxonomy( 'service_area', 'service', [
+    register_taxonomy( 'service_area', [ 'service', 'news' ], [
         'label'        => __( 'Àmbits de servei', 'fcsd' ),
         'labels'       => [
             'name'          => __( 'Àmbits de servei', 'fcsd' ),
@@ -29,6 +29,8 @@ add_action('init', function(){
         ],
         'public'       => true,
         'hierarchical' => true,
+        'show_admin_column' => false,
+        'show_in_rest'      => true,
         'rewrite'      => [ 'slug' => 'area' ],
     ] );
 
@@ -39,7 +41,7 @@ add_action('init', function(){
         'menu_icon' => 'dashicons-megaphone',
         'supports' => ['title','editor','thumbnail','excerpt','page-attributes'],
         'has_archive' => true,
-        'rewrite' => ['slug' => 'actualitat']
+        'rewrite' => ['slug' => 'noticies']
     ]);
 
     register_post_type('transparency', [
@@ -388,22 +390,86 @@ add_action('save_post_news', 'fcsd_news_home_carousel_save');
 
 // 1) Añadir columna
 add_filter('manage_edit-news_columns', function ($columns) {
-    // Inserta la columna antes de "date" si existe
+    // Queremos:
+    // - Columna "Home" antes de la fecha
+    // - Columna "Àmbit/Àrea" antes de "Categoria"
     $new = [];
+
     foreach ($columns as $key => $label) {
-        if ($key === 'date') {
+        // Insertar Àmbit/Àrea justo antes de la columna de categorías (WP usa taxonomy-category)
+        if (
+            !isset($new['fcsd_service_area']) &&
+            ( $key === 'categories' || $key === 'taxonomy-category' || str_starts_with((string) $key, 'taxonomy-category') )
+        ) {
+            $new['fcsd_service_area'] = __('Àmbit / Àrea', 'fcsd');
+        }
+
+        // Insertar Idioma antes de Home/fecha
+        if (!isset($new['fcsd_news_lang']) && $key === 'date') {
+            $new['fcsd_news_lang'] = __('Idioma', 'fcsd');
+        }
+
+        // Insertar Home antes de la fecha
+        if (!isset($new['fcsd_home_carousel']) && $key === 'date') {
             $new['fcsd_home_carousel'] = __('Home', 'fcsd');
         }
+
         $new[$key] = $label;
+    }
+
+    // Fallbacks si WP no ha incluido alguna columna esperada
+    if (!isset($new['fcsd_service_area'])) {
+        $new['fcsd_service_area'] = __('Àmbit / Àrea', 'fcsd');
+    }
+    if (!isset($new['fcsd_news_lang'])) {
+        $new['fcsd_news_lang'] = __('Idioma', 'fcsd');
     }
     if (!isset($new['fcsd_home_carousel'])) {
         $new['fcsd_home_carousel'] = __('Home', 'fcsd');
     }
+
     return $new;
 });
 
 // 2) Pintar checkbox
 add_action('manage_news_posts_custom_column', function ($column, $post_id) {
+    if ($column === 'fcsd_news_lang') {
+        $lang = get_post_meta($post_id, 'news_language', true);
+        if (!$lang) {
+            $url = (string) get_post_meta($post_id, 'news_external_url', true);
+            if ($url) {
+                $lang = (strpos($url, '/es/') !== false || preg_match('~//[^/]+/es(/|$)~', $url)) ? 'es' : 'ca';
+                update_post_meta($post_id, 'news_language', $lang);
+            }
+        }
+        if ($lang === 'es') { echo 'ES'; }
+        elseif ($lang === 'ca') { echo 'CA'; }
+        else { echo '—'; }
+        return;
+    }
+
+    if ($column === 'fcsd_service_area') {
+        $terms = get_the_terms($post_id, 'service_area');
+        if (is_wp_error($terms) || empty($terms)) {
+            echo '—';
+            return;
+        }
+        // Mostrar jerarquía simple "Padre › Hijo" si aplica, sino lista.
+        $labels = [];
+        foreach ($terms as $t) {
+            $name = $t->name;
+            if ($t->parent) {
+                $parent = get_term($t->parent, 'service_area');
+                if ($parent && !is_wp_error($parent)) {
+                    $name = $parent->name . ' › ' . $name;
+                }
+            }
+            $labels[] = $name;
+        }
+        echo esc_html(implode(', ', $labels));
+        return;
+    }
+
     if ($column !== 'fcsd_home_carousel') return;
 
     $checked = (get_post_meta($post_id, '_fcsd_show_in_home_carousel', true) === '1');
@@ -487,3 +553,89 @@ add_action('admin_footer-edit.php', function () {
     </script>
     <?php
 });
+
+// -------------------------------------------
+// News -> Submenú "Àmbits" (service_area)
+// -------------------------------------------
+// WP solo muestra la taxonomía bajo el primer post_type al que se registra.
+// Como necesitamos que el admin pueda gestionar los mismos "Àmbits" desde News,
+// añadimos un submenú explícito apuntando a la misma taxonomía.
+add_action('admin_menu', function () {
+    add_submenu_page(
+        'edit.php?post_type=news',
+        __('Àmbits', 'fcsd'),
+        __('Àmbits', 'fcsd'),
+        'manage_categories',
+        'edit-tags.php?taxonomy=service_area&post_type=news'
+    );
+}, 20);
+
+// -------------------------------------------------
+// Default: asignar "Institucional" a noticias EXIT21
+// -------------------------------------------------
+// Requisito: tras importar, toda noticia debe quedar al menos en el ámbito
+// "Institucional", pero el admin podrá cambiarlo o asignar múltiples.
+add_action('save_post_news', function ($post_id, $post, $update) {
+    // Evitar autosave/revisions
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (wp_is_post_revision($post_id)) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    // Solo para noticias provenientes de EXIT21
+    $src = get_post_meta($post_id, 'news_source', true);
+    if ($src !== 'exit21') return;
+
+    $terms = get_the_terms($post_id, 'service_area');
+    if (!empty($terms) && !is_wp_error($terms)) {
+        return; // ya tiene ámbito(s)
+    }
+
+    $default_name = __('Institucional', 'fcsd');
+    $existing = term_exists($default_name, 'service_area');
+    if (!$existing) {
+        $created = wp_insert_term($default_name, 'service_area');
+        if (is_wp_error($created)) {
+            return;
+        }
+        $term_id = (int) $created['term_id'];
+    } else {
+        $term_id = (int) (is_array($existing) ? $existing['term_id'] : $existing);
+    }
+
+    wp_set_object_terms($post_id, [$term_id], 'service_area', false);
+}, 20, 3);
+
+
+
+/**
+ * Backfill del meta news_language para noticias EXIT21 antiguas.
+ * Se ejecuta solo en el listado del admin para no penalizar otras pantallas.
+ */
+function fcsd_backfill_news_language() {
+    if ( ! is_admin() ) return;
+
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if ( ! $screen || $screen->id !== 'edit-news' ) return;
+
+    // Procesar en lotes pequeños para evitar timeouts.
+    $ids = get_posts([
+        'post_type'      => 'news',
+        'posts_per_page' => 50,
+        'fields'         => 'ids',
+        'meta_query'     => [
+            [ 'key' => 'news_source', 'value' => 'exit21', 'compare' => '=' ],
+            [ 'key' => 'news_language', 'compare' => 'NOT EXISTS' ],
+        ],
+    ]);
+
+    if ( empty($ids) ) return;
+
+    foreach ( $ids as $post_id ) {
+        $url = (string) get_post_meta( $post_id, 'news_external_url', true );
+        if ( ! $url ) continue;
+        $lang = ( strpos( $url, '/es/' ) !== false || preg_match('~//[^/]+/es(/|$)~', $url ) ) ? 'es' : 'ca';
+        update_post_meta( $post_id, 'news_language', $lang );
+    }
+}
+add_action( 'current_screen', 'fcsd_backfill_news_language' );
+

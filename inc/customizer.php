@@ -192,6 +192,80 @@ add_action(
             )
         );
 
+        // ====== Home intro (título del hero) – por idioma ======
+        // Se guarda como home_intro_{lang} y se lee con fcsd_get_option('home_intro').
+        $home_intro_defaults = array(
+            'ca' => 'Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada.',
+            'es' => 'Acompañamos a personas con SD a construir una vida más autónoma, plena y conectada.',
+            'en' => 'We support people with Down syndrome to build a more independent, fulfilling and connected life.',
+        );
+
+        foreach ( array( 'ca', 'es', 'en' ) as $lang ) {
+            $wp_customize->add_setting(
+                'home_intro_' . $lang,
+                array(
+                    'default'           => $home_intro_defaults[ $lang ] ?? '',
+                    'sanitize_callback' => 'wp_kses_post',
+                )
+            );
+
+            $wp_customize->add_control(
+                'home_intro_' . $lang,
+                array(
+                    'label'       => sprintf( __( 'Hero title (%s)', 'fcsd' ), strtoupper( $lang ) ),
+                    'description' => __( 'Text principal del bàner de la home. Es mostra segons l’idioma seleccionat al frontend.', 'fcsd' ),
+                    'type'        => 'textarea',
+                    'section'     => 'fcsd_home',
+                )
+            );
+        }
+
+        // ====== Home CTA (botó del hero) – etiqueta + URL por idioma ======
+        // Se guarda como home_cta_label_{lang} y home_cta_url_{lang}.
+        $home_cta_label_defaults = array(
+            'ca' => 'Qui som',
+            'es' => 'Quiénes somos',
+            'en' => 'About us',
+        );
+
+        foreach ( array( 'ca', 'es', 'en' ) as $lang ) {
+            $wp_customize->add_setting(
+                'home_cta_label_' . $lang,
+                array(
+                    'default'           => $home_cta_label_defaults[ $lang ] ?? '',
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+
+            $wp_customize->add_control(
+                'home_cta_label_' . $lang,
+                array(
+                    'label'       => sprintf( __( 'Hero button label (%s)', 'fcsd' ), strtoupper( $lang ) ),
+                    'description' => __( 'Text del botó principal del bàner de la home (per idioma).', 'fcsd' ),
+                    'type'        => 'text',
+                    'section'     => 'fcsd_home',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'home_cta_url_' . $lang,
+                array(
+                    'default'           => '',
+                    'sanitize_callback' => 'esc_url_raw',
+                )
+            );
+
+            $wp_customize->add_control(
+                'home_cta_url_' . $lang,
+                array(
+                    'label'       => sprintf( __( 'Hero button URL (%s)', 'fcsd' ), strtoupper( $lang ) ),
+                    'description' => __( 'URL del botó principal del bàner de la home (per idioma). Si es deixa buit, apunta a la pàgina “Qui som / About”.', 'fcsd' ),
+                    'type'        => 'url',
+                    'section'     => 'fcsd_home',
+                )
+            );
+        }
+
         $wp_customize->add_setting(
             'fcsd_home_dummy',
             array(

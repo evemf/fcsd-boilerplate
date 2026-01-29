@@ -7,6 +7,81 @@
  */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
+/**
+ * Meta_query de idioma para el frontend:
+ * - En CA (por defecto): muestra CA + sin definir (para no ocultar contenido legacy/interno).
+ * - En ES: muestra solo ES.
+ */
+function fcsd_news_frontend_lang_meta_query(): array {
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' );
+
+    /**
+     * Reglas:
+     * - Internas (no exit21): siempre visibles (el tema traduce contenido por idioma vía meta i18n).
+     * - Exit21: solo CA y ES.
+     */
+    $meta_query = [
+        'relation' => 'OR',
+        // Internas
+        [
+            'relation' => 'OR',
+            [
+                'key'     => 'news_source',
+                'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key'     => 'news_source',
+                'value'   => 'exit21',
+                'compare' => '!=',
+            ],
+            [
+                'key'     => 'news_source',
+                'value'   => '',
+                'compare' => '=',
+            ],
+        ],
+    ];
+
+    if ( $lang === 'ca' || $lang === 'es' ) {
+        $meta_query[] = [
+            'relation' => 'AND',
+            [
+                'key'     => 'news_source',
+                'value'   => 'exit21',
+                'compare' => '=',
+            ],
+            [
+                'key'     => 'news_language',
+                'value'   => $lang,
+                'compare' => '=',
+            ],
+        ];
+    }
+
+    return $meta_query;
+}
+
+/**
+ * Aplica el filtro de idioma a:
+ * - Archivo del CPT "news" (archive-news.php / is_post_type_archive).
+ * - Consultas principales de noticias en el frontend.
+ */
+add_action( 'pre_get_posts', function ( $query ) {
+    if ( is_admin() || ! ( $query instanceof WP_Query ) ) {
+        return;
+    }
+    if ( ! $query->is_main_query() ) {
+        return;
+    }
+
+    // Archivo de noticias: limitar por idioma/fuente.
+    if ( $query->is_post_type_archive( 'news' ) ) {
+        $meta_query = fcsd_news_frontend_lang_meta_query();
+        $query->set( 'meta_query', $meta_query );
+    }
+}, 20 );
+
+
 /** Tamaño consistente para miniaturas del listado */
 add_action('after_setup_theme', function () {
     if ( function_exists('add_image_size') ) {
@@ -91,6 +166,8 @@ add_filter('the_content', function( $content ) {
     $q = new WP_Query([
         'post_type'      => 'news',
         'post_status'    => 'publish',
+        'meta_query'     => fcsd_news_frontend_lang_meta_query(),
+
         'posts_per_page' => 10,
         'paged'          => $paged,
         'orderby'        => 'date',
@@ -136,7 +213,11 @@ add_filter('the_content', function( $content ) {
                 </article>
             <?php endwhile; ?>
         <?php else : ?>
-            <p><?php esc_html_e('No hi ha notícies disponibles.', 'fcsd'); ?></p>
+            <p><?php echo esc_html( fcsd_t([
+        'ca' => 'No hi ha notícies disponibles.',
+        'es' => 'No hay noticias disponibles.',
+        'en' => 'No news items available.',
+    ]) ); ?></p>
         <?php endif; ?>
     </div>
 

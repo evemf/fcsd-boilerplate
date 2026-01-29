@@ -14,10 +14,10 @@ if ( ! function_exists('str_starts_with') ) {
 
 function fcsd_add_lang_to_url(string $url): string {
     if ( is_admin() ) return $url;
-    if ( ! defined('FCSD_LANG') ) return $url;
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : FCSD_DEFAULT_LANG );
 
     // Idioma por defecto sin prefijo (/). Los otros con /es/ y /en/.
-    if ( FCSD_LANG === FCSD_DEFAULT_LANG ) {
+    if ( $lang === FCSD_DEFAULT_LANG ) {
         return $url;
     }
 
@@ -50,11 +50,11 @@ function fcsd_add_lang_to_url(string $url): string {
     if ( ! empty($segments[0]) ) {
         $key = fcsd_slug_key_from_translated($segments[0]); // sirve también para detectar canónico, porque contiene ca
         if ( $key ) {
-            $segments[0] = fcsd_slug($key, FCSD_LANG);
+            $segments[0] = fcsd_slug($key, $lang);
         }
     }
 
-    array_unshift($segments, FCSD_LANG);
+    array_unshift($segments, $lang);
     $new_path = '/' . implode('/', array_filter($segments)) . '/';
 
     // Reconstruir URL
@@ -172,8 +172,9 @@ function fcsd_switch_lang_url(string $target_lang): string {
 
 add_filter('page_link', function($url, $post_id){
     $url = fcsd_add_lang_to_url($url);
-    if ( FCSD_LANG !== FCSD_DEFAULT_LANG ) {
-        $slug = get_post_meta((int)$post_id, '_fcsd_i18n_slug_' . FCSD_LANG, true);
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    if ( $lang !== FCSD_DEFAULT_LANG ) {
+        $slug = get_post_meta((int)$post_id, '_fcsd_i18n_slug_' . $lang, true);
         if ( is_string($slug) && $slug !== '' ) {
             $url = preg_replace('#/[^/]+/?$#', '/' . sanitize_title($slug) . '/', $url);
         }
@@ -183,8 +184,9 @@ add_filter('page_link', function($url, $post_id){
 
 add_filter('post_link', function($url, $post, $leavename){
     $url = fcsd_add_lang_to_url($url);
-    if ( FCSD_LANG !== FCSD_DEFAULT_LANG && $post instanceof WP_Post ) {
-        $slug = get_post_meta((int)$post->ID, '_fcsd_i18n_slug_' . FCSD_LANG, true);
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    if ( $lang !== FCSD_DEFAULT_LANG && $post instanceof WP_Post ) {
+        $slug = get_post_meta((int)$post->ID, '_fcsd_i18n_slug_' . $lang, true);
         if ( is_string($slug) && $slug !== '' ) {
             $url = preg_replace('#/[^/]+/?$#', '/' . sanitize_title($slug) . '/', $url);
         }
@@ -194,8 +196,9 @@ add_filter('post_link', function($url, $post, $leavename){
 
 add_filter('post_type_link', function($url, $post, $leavename, $sample){
     $url = fcsd_add_lang_to_url($url);
-    if ( FCSD_LANG !== FCSD_DEFAULT_LANG && $post instanceof WP_Post ) {
-        $slug = get_post_meta((int)$post->ID, '_fcsd_i18n_slug_' . FCSD_LANG, true);
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    if ( $lang !== FCSD_DEFAULT_LANG && $post instanceof WP_Post ) {
+        $slug = get_post_meta((int)$post->ID, '_fcsd_i18n_slug_' . $lang, true);
         if ( is_string($slug) && $slug !== '' ) {
             $url = preg_replace('#/[^/]+/?$#', '/' . sanitize_title($slug) . '/', $url);
         }

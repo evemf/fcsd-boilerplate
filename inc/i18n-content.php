@@ -9,15 +9,17 @@ defined('ABSPATH') || exit;
  * Espera arrays del tipo: ['ca' => '...', 'es' => '...', 'en' => '...']
  */
 function fcsd_t(array $field, string $fallback = ''): string {
-    $v = $field[FCSD_LANG] ?? $field[FCSD_DEFAULT_LANG] ?? $fallback;
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    $v = $field[$lang] ?? $field[FCSD_DEFAULT_LANG] ?? $fallback;
     return is_string($v) ? $v : $fallback;
 }
 
 
 function fcsd_get_post_i18n(int $post_id, string $field): ?string {
-    if ( FCSD_LANG === FCSD_DEFAULT_LANG ) return null;
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    if ( $lang === FCSD_DEFAULT_LANG ) return null;
 
-    $key = '_fcsd_i18n_' . $field . '_' . FCSD_LANG;
+    $key = '_fcsd_i18n_' . $field . '_' . $lang;
     $v = get_post_meta($post_id, $key, true);
     if ( is_string($v) && $v !== '' ) return $v;
 

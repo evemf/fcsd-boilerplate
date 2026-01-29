@@ -66,6 +66,16 @@ add_filter('rewrite_rules_array', function (array $rules): array {
             $lang . '/' . fcsd_slug('news', $lang) . '/?$'
         ] = 'index.php?post_type=news&fcsd_lang=' . $lang;
 
+        // News (single) – base traducida
+        $prefixed[
+            $lang . '/' . fcsd_slug('news', $lang) . '/([^/]+)/?$'
+        ] = 'index.php?post_type=news&name=$matches[1]&fcsd_lang=' . $lang;
+
+        // News (archive pagination) – base traducida
+        $prefixed[
+            $lang . '/' . fcsd_slug('news', $lang) . '/page/([0-9]{1,})/?$'
+        ] = 'index.php?post_type=news&paged=$matches[1]&fcsd_lang=' . $lang;
+
         // Shop / Products
         $prefixed[
             $lang . '/' . fcsd_slug('shop', $lang) . '/?$'

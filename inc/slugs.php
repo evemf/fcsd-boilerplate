@@ -129,7 +129,7 @@ function fcsd_slug_map(): array {
 }
 
 function fcsd_slug(string $key, ?string $lang = null): string {
-    $lang = $lang ?: (defined('FCSD_LANG') ? FCSD_LANG : 'ca');
+    $lang = $lang ?: ( function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' ) );
     $map = fcsd_slug_map();
     return $map[$key][$lang] ?? $map[$key][FCSD_DEFAULT_LANG] ?? $key;
 }

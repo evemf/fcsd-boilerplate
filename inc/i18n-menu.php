@@ -9,7 +9,7 @@ defined('ABSPATH') || exit;
 add_filter('wp_nav_menu_objects', function($items){
     if ( is_admin() ) return $items;
     if ( ! is_array($items) || empty($items) ) return $items;
-    if ( ! defined('FCSD_LANG') ) return $items;
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : FCSD_DEFAULT_LANG );
 
     foreach ($items as $item) {
         if ( ! ($item instanceof WP_Post) ) continue;
@@ -31,8 +31,8 @@ add_filter('wp_nav_menu_objects', function($items){
         }
 
         // 1) Título del menú (se guarda en el propio nav_menu_item)
-        if ( FCSD_LANG !== FCSD_DEFAULT_LANG ) {
-            $t = get_post_meta((int)$item->ID, '_fcsd_i18n_title_' . FCSD_LANG, true);
+        if ( $lang !== FCSD_DEFAULT_LANG ) {
+            $t = get_post_meta((int)$item->ID, '_fcsd_i18n_title_' . $lang, true);
             if ( is_string($t) && $t !== '' ) {
                 $item->title = $t;
             }

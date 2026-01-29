@@ -89,9 +89,8 @@ add_action('parse_request', function($wp){
 
 add_filter('request', function($qv){
     if ( is_admin() ) return $qv;
-    if ( FCSD_LANG === FCSD_DEFAULT_LANG ) return $qv;
-
-    $lang = FCSD_LANG;
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+    if ( $lang === FCSD_DEFAULT_LANG ) return $qv;
 
     /**
      * Normalización crítica del routing.

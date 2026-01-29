@@ -1,16 +1,99 @@
-modify=20251219122533;perm=flcdmpe;type=pdir;unique=810UAC0035;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; ..
-modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0037;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; branches
-modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC00C0;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; refs
-modify=20251219144830;perm=adfrw;size=73;type=file;unique=810UAC0136;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; description
-modify=20251219144830;perm=adfrw;size=19;type=file;unique=810UAC01B9;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; COMMIT_EDITMSG
-modify=20251219144830;perm=adfrw;size=41;type=file;unique=810UAC0138;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; ORIG_HEAD
-modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0039;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; info
-modify=20251219144830;perm=adfrw;size=93;type=file;unique=810UAC01BA;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; FETCH_HEAD
-modify=20251219144830;perm=adfrw;size=21;type=file;unique=810UAC0137;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; HEAD
-modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC003A;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; logs
-modify=20260105090610;perm=flcdmpe;type=dir;unique=810UAC003F;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; objects
-modify=20251219144830;perm=adfrw;size=14552;type=file;unique=810UAC01B8;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; index
-modify=20251212164034;perm=adfrw;size=41;type=file;unique=810UAC01B5;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; AUTO_MERGE
-modify=20251202162312;perm=flcdmpe;type=cdir;unique=810UAC0036;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; .
-modify=20251202162312;perm=flcdmpe;type=dir;unique=810UAC0038;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0775;UNIX.owner=278009541;UNIX.ownername=novafcsd39; hooks
-modify=20251219144830;perm=adfrw;size=262;type=file;unique=810UAC013A;UNIX.group=278009541;UNIX.groupname=novafcsd39;UNIX.mode=0644;UNIX.owner=278009541;UNIX.ownername=novafcsd39; config
+<?php
+/**
+ * Single News template
+ * - Renderiza noticias internas y las importadas (EXIT21) de forma legible.
+ */
+get_header();
+?>
+<main class="container content py-5 single-news">
+  <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
+
+    <?php
+      $external_url = (string) get_post_meta(get_the_ID(), 'news_external_url', true);
+      $source       = (string) get_post_meta(get_the_ID(), 'news_source', true);
+      $lang         = (string) get_post_meta(get_the_ID(), 'news_language', true);
+      $author       = (string) get_post_meta(get_the_ID(), 'news_author', true);
+      $location     = (string) get_post_meta(get_the_ID(), 'news_location', true);
+      $video        = (string) get_post_meta(get_the_ID(), 'news_video_url', true);
+      $terms_cat    = get_the_terms(get_the_ID(), 'category');
+      $terms_area   = get_the_terms(get_the_ID(), 'service_area');
+    ?>
+
+    <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
+      <header class="mb-4">
+        <h1 class="mb-2"><?php the_title(); ?></h1>
+
+        <div class="text-muted" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+          <span><?php echo esc_html( get_the_date() ); ?></span>
+          <?php if ( $author ) : ?>
+            <span>· <?php echo esc_html( $author ); ?></span>
+          <?php endif; ?>
+          <?php if ( $location ) : ?>
+            <span>· <?php echo esc_html( $location ); ?></span>
+          <?php endif; ?>
+          <?php if ( $lang ) : ?>
+            <span style="border:1px solid #ddd;border-radius:999px;padding:2px 10px;font-size:12px;">
+              <?php echo esc_html( strtoupper($lang) ); ?>
+            </span>
+          <?php endif; ?>
+          <?php if ( $source ) : ?>
+            <span style="border:1px solid #ddd;border-radius:999px;padding:2px 10px;font-size:12px;">
+              <?php echo esc_html( strtoupper($source) ); ?>
+            </span>
+          <?php endif; ?>
+        </div>
+
+        <?php if ( ! empty($terms_cat) && ! is_wp_error($terms_cat) ) : ?>
+          <div class="mt-3" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <?php foreach ( $terms_cat as $t ) : ?>
+              <a href="<?php echo esc_url( get_term_link($t) ); ?>"
+                 style="display:inline-block;border:1px solid #eee;border-radius:999px;padding:4px 10px;text-decoration:none;">
+                <?php echo esc_html( $t->name ); ?>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <?php if ( ! empty($terms_area) && ! is_wp_error($terms_area) ) : ?>
+          <div class="mt-2" style="display:flex;flex-wrap:wrap;gap:8px;">
+            <?php foreach ( $terms_area as $t ) : ?>
+              <a href="<?php echo esc_url( get_term_link($t) ); ?>"
+                 style="display:inline-block;border:1px solid #eee;border-radius:999px;padding:4px 10px;text-decoration:none;">
+                <?php echo esc_html( $t->name ); ?>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
+
+        <?php if ( has_post_thumbnail() ) : ?>
+          <div class="mt-4">
+            <?php the_post_thumbnail('large', ['class' => 'img-fluid', 'style' => 'border-radius:14px;']); ?>
+          </div>
+        <?php endif; ?>
+
+        <?php if ( $external_url ) : ?>
+          <div class="mt-4">
+            <a class="btn btn-primary" href="<?php echo esc_url($external_url); ?>" target="_blank" rel="noopener noreferrer">
+              <?php echo esc_html__( 'Veure a la font original', 'fcsd' ); ?>
+            </a>
+          </div>
+        <?php endif; ?>
+      </header>
+
+      <div class="entry-content">
+        <?php the_content(); ?>
+      </div>
+
+      <?php if ( $video ) : ?>
+        <div class="mt-5">
+          <?php
+            // El importador guarda URL de YouTube/Vimeo; embed seguro.
+            echo wp_oembed_get( esc_url($video) ) ?: '';
+          ?>
+        </div>
+      <?php endif; ?>
+    </article>
+
+  <?php endwhile; endif; ?>
+</main>
+<?php get_footer(); ?>

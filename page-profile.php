@@ -16,7 +16,12 @@ if ( ! is_user_logged_in() ) : ?>
           <p class="text-muted mb-4">
             <?php esc_html_e( "Has d'iniciar sessió per accedir al teu perfil i gestionar les teves dades.", 'fcsd' ); ?>
           </p>
-          <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="btn btn-accent">
+          <?php
+          $login_url = function_exists( 'fcsd_get_system_page_url' )
+              ? add_query_arg( array( 'redirect_to' => get_permalink() ), fcsd_get_system_page_url( 'login' ) )
+              : wp_login_url( get_permalink() );
+          ?>
+          <a href="<?php echo esc_url( $login_url ); ?>" class="btn btn-accent">
             <?php esc_html_e( 'Iniciar sessió', 'fcsd' ); ?>
           </a>
         </div>

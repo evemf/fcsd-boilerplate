@@ -365,8 +365,48 @@ require_once FCSD_THEME_DIR . '/inc/ecommerce/template-tags-shop.php';
  * @return mixed
  */
 function fcsd_get_option( $key, $default = '' ) {
-    $val = get_theme_mod( $key );
-    return $val !== false ? $val : $default;
+    // Soporte i18n para opciones del Customizer.
+    // Si existe la variante por idioma (p.ej. home_intro_es), se usa.
+    $lang = function_exists('fcsd_lang')
+        ? fcsd_lang()
+        : ( defined('FCSD_LANG') ? FCSD_LANG : ( defined('FCSD_DEFAULT_LANG') ? FCSD_DEFAULT_LANG : 'ca' ) );
+
+    /**
+     * Importante:
+     * En el Customizer, WordPress puede “previsualizar” defaults de settings aunque
+     * aún no estén guardados como theme_mod. En frontend, get_theme_mod() NO conoce
+     * esos defaults salvo que se los pasemos.
+     *
+     * Resultado del bug: en /es/ o /en/ el hero se veía en catalán porque
+     * home_intro_es/en no existían aún como theme_mod y caía al fallback.
+     */
+    $i18n_defaults = array(
+        'home_intro' => array(
+            'ca' => 'Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada.',
+            'es' => 'Acompañamos a personas con SD a construir una vida más autónoma, plena y conectada.',
+            'en' => 'We support people with Down syndrome to build a more independent, fulfilling and connected life.',
+        ),
+        'home_cta_label' => array(
+            'ca' => 'Qui som',
+            'es' => 'Quiénes somos',
+            'en' => 'About us',
+        ),
+    );
+
+    $lang_default = $default;
+    if ( isset( $i18n_defaults[ $key ] ) && is_array( $i18n_defaults[ $key ] ) ) {
+        $lang_default = $i18n_defaults[ $key ][ $lang ]
+            ?? $i18n_defaults[ $key ][ ( defined('FCSD_DEFAULT_LANG') ? FCSD_DEFAULT_LANG : 'ca' ) ]
+            ?? $default;
+    }
+
+    $val_lang = get_theme_mod( $key . '_' . $lang, $lang_default );
+    if ( $val_lang !== null && $val_lang !== '' ) {
+        return $val_lang;
+    }
+
+    $val = get_theme_mod( $key, null );
+    return $val !== null ? $val : $default;
 }
 
 // --------------------------------------------------
@@ -482,3 +522,96 @@ add_action( 'pre_get_posts', function ( $query ) {
 add_action('after_switch_theme', 'fcsd_on_theme_activation');
 
 
+/**
+ * Filtra el archivo de News por idioma del tema (FCSD_LANG).
+ * No afecta al admin ni a otros listados que ya tengan lógica propia.
+ */
+function fcsd_filter_news_archive_lang( $query ) {
+    if ( is_admin() || ! $query->is_main_query() ) return;
+    if ( ! $query->is_post_type_archive( 'news' ) ) return;
+
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' );
+
+    /**
+     * Reglas:
+     * - Noticias internas (no exit21): visibles en TODOS los idiomas (el contenido se traduce vía i18n meta del tema).
+     * - Noticias Exit21: solo existen en CA y ES.
+     *   * CA: mostrar exit21 ca
+     *   * ES: mostrar exit21 es
+     *   * EN: NO mostrar exit21
+     */
+    $meta_query = [
+        'relation' => 'OR',
+        // 1) Internas (sin news_source o distinta de exit21)
+        [
+            'relation' => 'OR',
+            [
+                'key'     => 'news_source',
+                'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key'     => 'news_source',
+                'value'   => 'exit21',
+                'compare' => '!=',
+            ],
+            [
+                'key'     => 'news_source',
+                'value'   => '',
+                'compare' => '=',
+            ],
+        ],
+    ];
+
+    // 2) Exit21 por idioma (solo CA/ES)
+    if ( $lang === 'ca' || $lang === 'es' ) {
+        $meta_query[] = [
+            'relation' => 'AND',
+            [
+                'key'     => 'news_source',
+                'value'   => 'exit21',
+                'compare' => '=',
+            ],
+            [
+                'key'     => 'news_language',
+                'value'   => $lang,
+                'compare' => '=',
+            ],
+        ];
+    }
+
+    $query->set( 'meta_query', $meta_query );
+    $query->set( 'orderby', 'date' );
+    $query->set( 'order', 'DESC' );
+}
+add_action( 'pre_get_posts', 'fcsd_filter_news_archive_lang' );
+
+
+
+/**
+ * Redirects legacy news URLs to the canonical translated slugs.
+ * - /actualitat -> /noticies
+ * - /es/actualidad -> /es/noticias
+ * - /en/actualidad or /en/actualitat -> /en/news (if someone linked it)
+ */
+add_action('template_redirect', function () {
+    if ( is_admin() ) return;
+
+    $path = isset($_SERVER['REQUEST_URI']) ? (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
+    $path = '/' . trim($path, '/');
+
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' );
+
+    // Only redirect exact legacy archives (avoid breaking singles).
+    if ( preg_match('#^/actualitat/?$#', $path) ) {
+        wp_redirect( home_url('/' . fcsd_slug('news', 'ca') . '/') , 301 );
+        exit;
+    }
+    if ( preg_match('#^/es/actualidad/?$#', $path) ) {
+        wp_redirect( home_url('/es/' . fcsd_slug('news', 'es') . '/') , 301 );
+        exit;
+    }
+    if ( preg_match('#^/en/(actualidad|actualitat)/?$#', $path) ) {
+        wp_redirect( home_url('/en/' . fcsd_slug('news', 'en') . '/') , 301 );
+        exit;
+    }
+});

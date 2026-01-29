@@ -11,8 +11,17 @@ get_header();
 
 // 1) El usuario debe estar logueado.
 if ( ! is_user_logged_in() ) {
-    // Lo mandamos al login y, tras iniciar sesión, vuelve a esta página.
-    wp_redirect( wp_login_url( get_permalink() ) );
+    // Lo mandamos al login del tema (no al wp-login.php) y, tras iniciar sesión, vuelve a esta página.
+    $login_url = function_exists( 'fcsd_get_system_page_url' )
+        ? fcsd_get_system_page_url( 'login' )
+        : wp_login_url();
+
+    $login_url = add_query_arg(
+        array( 'redirect_to' => get_permalink() ),
+        $login_url
+    );
+
+    wp_safe_redirect( $login_url );
     exit;
 }
 

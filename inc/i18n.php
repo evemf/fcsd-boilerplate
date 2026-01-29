@@ -22,33 +22,54 @@ if ( ! defined('FCSD_DEFAULT_LANG') ) {
  * Devuelve el idioma actual (ca|es|en) detectado desde la URL.
  * Nota: la normalización del request (routing) se hace en inc/i18n-router.php.
  */
-function fcsd_detect_lang(): string {
-    static $lang = null;
-    if ( $lang !== null ) return $lang;
+/**
+ * Idioma actual (ca|es|en).
+ *
+ * Importante: NO dependemos únicamente de una constante calculada “muy pronto”,
+ * porque WordPress puede tocar el routing/query vars más tarde (request filters,
+ * canonical redirects, etc.). En algunos entornos esto hacía que /en/ se
+ * resolviera correctamente como URL, pero el tema siguiera usando CA.
+ */
+function fcsd_lang(): string {
+    // 1) Si el router ya ha fijado el idioma en query_vars, es la fuente de verdad.
+    if ( function_exists('get_query_var') ) {
+        $qv = get_query_var('fcsd_lang');
+        if ( is_string($qv) && $qv !== '' && isset(FCSD_LANGUAGES[$qv]) ) {
+            return $qv;
+        }
+    }
 
+    // 2) Algunos puntos del core aún no tienen query vars disponibles.
+    if ( isset($GLOBALS['wp']) && is_object($GLOBALS['wp']) && ! empty($GLOBALS['wp']->query_vars['fcsd_lang']) ) {
+        $qv = (string) $GLOBALS['wp']->query_vars['fcsd_lang'];
+        if ( $qv !== '' && isset(FCSD_LANGUAGES[$qv]) ) {
+            return $qv;
+        }
+    }
+
+    // 3) Fallback robusto: prefijo de URL.
     $path = '/';
     if ( isset($_SERVER['REQUEST_URI']) ) {
         $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     }
     $path = trim($path, '/');
     $parts = $path === '' ? [] : explode('/', $path);
-
     $candidate = $parts[0] ?? '';
     if ( $candidate && isset(FCSD_LANGUAGES[$candidate]) ) {
-        $lang = $candidate;
-    } else {
-        $lang = FCSD_DEFAULT_LANG;
+        return $candidate;
     }
-    return $lang;
+    return FCSD_DEFAULT_LANG;
 }
 
+// Mantener compatibilidad con código existente.
 if ( ! defined('FCSD_LANG') ) {
-    define('FCSD_LANG', fcsd_detect_lang());
+    define('FCSD_LANG', fcsd_lang());
 }
 
 /** Locale WP para el idioma actual */
 function fcsd_current_locale(): string {
-    return FCSD_LANGUAGES[FCSD_LANG] ?? FCSD_LANGUAGES[FCSD_DEFAULT_LANG];
+    $lang = fcsd_lang();
+    return FCSD_LANGUAGES[$lang] ?? FCSD_LANGUAGES[FCSD_DEFAULT_LANG];
 }
 
 /**
@@ -78,10 +99,68 @@ function fcsd_gettext_no_empty_translation( $translation, $text, $domain ) {
     if ( $domain !== 'fcsd' ) {
         return $translation;
     }
-    // Si la traducción está vacía pero el texto original no lo está, fallback.
+
+    // 1) Si la traducción está vacía pero el texto original no lo está, fallback.
     if ( $translation === '' && $text !== '' ) {
         return $text;
     }
+
+    // 2) Salvaguarda i18n (sin depender del locale/.mo):
+    // En algunas instalaciones el locale puede quedar “enganchado” aunque la URL
+    // sea /es/ o /en/. Esto hace que los textos fijos del tema no se traduzcan.
+    // Para NO romper otras funcionalidades, solo intervenimos cuando WP devuelve
+    // exactamente el texto original (sin traducir).
+    if ( $translation === $text && is_string( $text ) && $text !== '' ) {
+        $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' );
+
+        if ( $lang !== 'ca' ) {
+            $map = array(
+                'es' => array(
+                    'Àmbits de treball' => 'Ámbitos de trabajo',
+                    'Institucional' => 'Institucional',
+                    'Vida independent' => 'Vida independiente',
+                    'Treball' => 'Trabajo',
+                    'Formació' => 'Formación',
+                    'Oci' => 'Ocio',
+                    'Salut' => 'Salud',
+                    'Merchandising' => 'Merchandising',
+                    'Èxit 21' => 'Èxit 21',
+                    'Assemblea DH' => 'Asamblea DH',
+                    'Voluntariat' => 'Voluntariado',
+                    'Saber més' => 'Saber más',
+                    'Qui som' => 'Quiénes somos',
+                    'Com arribar-hi' => 'Cómo llegar',
+                    'Contrast' => 'Contraste',
+                    'Donar' => 'Donar',
+                    'Treballem per la plena inclusió i igualtat de drets.' => 'Trabajamos por la plena inclusión e igualdad de derechos.',
+                ),
+                'en' => array(
+                    'Àmbits de treball' => 'Areas of work',
+                    'Institucional' => 'Institutional',
+                    'Vida independent' => 'Independent living',
+                    'Treball' => 'Work',
+                    'Formació' => 'Training',
+                    'Oci' => 'Leisure',
+                    'Salut' => 'Health',
+                    'Merchandising' => 'Merchandising',
+                    'Èxit 21' => 'Èxit 21',
+                    'Assemblea DH' => 'DH Assembly',
+                    'Voluntariat' => 'Volunteering',
+                    'Saber més' => 'Learn more',
+                    'Qui som' => 'About us',
+                    'Com arribar-hi' => 'Get directions',
+                    'Contrast' => 'Contrast',
+                    'Donar' => 'Donate',
+                    'Treballem per la plena inclusió i igualtat de drets.' => 'We work for full inclusion and equal rights.',
+                ),
+            );
+
+            if ( isset( $map[ $lang ][ $text ] ) ) {
+                return $map[ $lang ][ $text ];
+            }
+        }
+    }
+
     return $translation;
 }
 add_filter( 'gettext', 'fcsd_gettext_no_empty_translation', 10, 3 );
@@ -102,11 +181,14 @@ function fcsd_apply_frontend_locale(): void {
     $locale = fcsd_current_locale();
 
     // Cambia el locale de WordPress (core/plugins) si existe.
+    // Importante: en este tema el idioma se decide por prefijo de URL y
+    // el router fija `fcsd_lang` en `parse_request`. Si intentamos comparar
+    // contra determine_locale() demasiado pronto, podemos quedarnos con el
+    // locale por defecto (ca_ES) aunque la URL sea /es/ o /en/.
+    // Por eso, aquí hacemos el switch de forma idempotente: si ya es el
+    // mismo locale, WP no cambia nada.
     if ( function_exists('switch_to_locale') ) {
-        // Evita apilar locales repetidos.
-        if ( determine_locale() !== $locale ) {
-            switch_to_locale($locale);
-        }
+        switch_to_locale($locale);
     }
 
     // Recarga traducciones del tema para el locale actual.
@@ -144,3 +226,12 @@ add_action('after_setup_theme', 'fcsd_apply_frontend_locale', 1);
 
 // Salvaguarda adicional (algunas instalaciones cargan traducciones tardías).
 add_action('init', 'fcsd_apply_frontend_locale', 1);
+
+// Punto “seguro”: aquí ya han corrido las rewrites y el router (parse_request)
+// y `fcsd_lang` está fijado. Esto evita el caso en el que el frontend usa
+// siempre el locale por defecto aunque la URL sea /es/ o /en/.
+add_action('parse_request', function () {
+    fcsd_apply_frontend_locale();
+}, 1);
+
+add_action('wp', 'fcsd_apply_frontend_locale', 0);
