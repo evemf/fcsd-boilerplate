@@ -497,7 +497,7 @@ add_action(
 
         /* ====== Legal modals content ====== */
 
-        // Política de privacitat
+        // Política de privacitat (legacy / compatibilidad)
         $wp_customize->add_setting(
             'fcsd_legal_privacy_title',
             array(
@@ -517,7 +517,7 @@ add_action(
         $wp_customize->add_setting(
             'fcsd_legal_privacy_content',
             array(
-                'default'           => '',
+                'default'           => '<p>Aquesta Política de privacitat descriu com es recullen, s\'usen i es protegeixen les dades personals quan visites aquest lloc web.</p><p><strong>Responsable</strong>: l\'entitat titular del lloc.</p><p><strong>Finalitat</strong>: gestionar les consultes, la prestació de serveis i la relació amb les persones usuàries.</p><p><strong>Base jurídica</strong>: el teu consentiment i/o l\'execució d\'un contracte, segons correspongui.</p><p><strong>Conservació</strong>: durant el temps necessari per complir la finalitat i les obligacions legals.</p><p><strong>Drets</strong>: pots exercir els drets d\'accés, rectificació, supressió, oposició, limitació i portabilitat, així com retirar el consentiment.</p><p>Per a més informació o per exercir els teus drets, contacta amb nosaltres mitjançant els canals indicats al lloc web.</p>',
                 'sanitize_callback' => 'wp_kses_post',
             )
         );
@@ -530,7 +530,7 @@ add_action(
             )
         );
 
-        // Cookies
+        // Cookies (legacy / compatibilidad)
         $wp_customize->add_setting(
             'fcsd_legal_cookies_title',
             array(
@@ -550,7 +550,7 @@ add_action(
         $wp_customize->add_setting(
             'fcsd_legal_cookies_content',
             array(
-                'default'           => '',
+                'default'           => '<p>Aquest lloc web utilitza cookies pròpies i de tercers per garantir el seu funcionament, analitzar la navegació i, si escau, personalitzar el contingut.</p><p>Pots configurar, acceptar o rebutjar les cookies des del teu navegador o des del panell de configuració corresponent (si està disponible).</p><p>Algunes cookies són tècniques i necessàries; d\'altres són analítiques o de personalització. La desactivació de certes cookies pot afectar l\'experiència de navegació.</p>',
                 'sanitize_callback' => 'wp_kses_post',
             )
         );
@@ -563,7 +563,7 @@ add_action(
             )
         );
 
-        // Avís legal
+        // Avís legal (legacy / compatibilidad)
         $wp_customize->add_setting(
             'fcsd_legal_notice_title',
             array(
@@ -583,7 +583,7 @@ add_action(
         $wp_customize->add_setting(
             'fcsd_legal_notice_content',
             array(
-                'default'           => '',
+                'default'           => '<p>Aquest lloc web és titularitat de l\'entitat responsable. L\'accés i ús del lloc implica l\'acceptació d\'aquestes condicions.</p><p><strong>Propietat intel·lectual</strong>: els continguts, dissenys i elements del lloc estan protegits i no es poden reproduir sense autorització.</p><p><strong>Responsabilitat</strong>: l\'entitat no es fa responsable de l\'ús indegut del lloc ni de possibles danys derivats d\'errors o interrupcions del servei.</p><p><strong>Enllaços</strong>: els enllaços a tercers es faciliten a títol informatiu i poden canviar sense previ avís.</p>',
                 'sanitize_callback' => 'wp_kses_post',
             )
         );
@@ -596,7 +596,7 @@ add_action(
             )
         );
 
-        // Copyright
+        // Copyright (legacy / compatibilidad)
         $wp_customize->add_setting(
             'fcsd_legal_copyright_title',
             array(
@@ -616,7 +616,7 @@ add_action(
         $wp_customize->add_setting(
             'fcsd_legal_copyright_content',
             array(
-                'default'           => '',
+                'default'           => '<p>© ' . date( 'Y' ) . ' Fundació Catalana Síndrome de Down. Tots els drets reservats.</p><p>No es permet la reproducció total o parcial dels continguts d\'aquest lloc web sense autorització expressa.</p>',
                 'sanitize_callback' => 'wp_kses_post',
             )
         );
@@ -628,6 +628,165 @@ add_action(
                 'type'    => 'textarea',
             )
         );
+
+        /* ====== Legal modals content (multidioma) ======
+         * Se guardan como theme_mods con sufijo: _ca, _es, _en.
+         * El frontend selecciona automáticamente el idioma actual.
+         */
+
+        $fcsd_legal_langs = [
+            'ca' => __( 'Català', 'fcsd' ),
+            'es' => __( 'Español', 'fcsd' ),
+            'en' => __( 'English', 'fcsd' ),
+        ];
+
+        // Defaults (catalán) para que el sitio tenga contenido de base.
+        $fcsd_legal_defaults_ca = [
+            'privacy_title'   => 'Política de privacitat',
+            'privacy_content' => get_theme_mod( 'fcsd_legal_privacy_content', '' ),
+            'cookies_title'   => 'Política de cookies',
+            'cookies_content' => get_theme_mod( 'fcsd_legal_cookies_content', '' ),
+            'notice_title'    => 'Avís legal',
+            'notice_content'  => get_theme_mod( 'fcsd_legal_notice_content', '' ),
+            'copyright_title' => 'Copyright',
+            'copyright_content' => get_theme_mod( 'fcsd_legal_copyright_content', '' ),
+        ];
+
+        foreach ( $fcsd_legal_langs as $lang_code => $lang_label ) {
+            $is_ca = ( 'ca' === $lang_code );
+
+            // Privacidad
+            $wp_customize->add_setting(
+                'fcsd_legal_privacy_title_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['privacy_title'] : ( 'es' === $lang_code ? 'Política de privacidad' : 'Privacy policy' ),
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_privacy_title_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Privacitat – Títol (%s)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'text',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'fcsd_legal_privacy_content_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['privacy_content'] : '',
+                    'sanitize_callback' => 'wp_kses_post',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_privacy_content_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Privacitat – Contingut (%s) (HTML permès)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'textarea',
+                )
+            );
+
+            // Cookies
+            $wp_customize->add_setting(
+                'fcsd_legal_cookies_title_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['cookies_title'] : ( 'es' === $lang_code ? 'Política de cookies' : 'Cookies policy' ),
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_cookies_title_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Cookies – Títol (%s)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'text',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'fcsd_legal_cookies_content_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['cookies_content'] : '',
+                    'sanitize_callback' => 'wp_kses_post',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_cookies_content_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Cookies – Contingut (%s) (HTML permès)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'textarea',
+                )
+            );
+
+            // Aviso / Legal notice
+            $wp_customize->add_setting(
+                'fcsd_legal_notice_title_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['notice_title'] : ( 'es' === $lang_code ? 'Aviso legal' : 'Legal notice' ),
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_notice_title_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Avís legal – Títol (%s)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'text',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'fcsd_legal_notice_content_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['notice_content'] : '',
+                    'sanitize_callback' => 'wp_kses_post',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_notice_content_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Avís legal – Contingut (%s) (HTML permès)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'textarea',
+                )
+            );
+
+            // Copyright
+            $wp_customize->add_setting(
+                'fcsd_legal_copyright_title_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['copyright_title'] : 'Copyright',
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_copyright_title_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Copyright – Títol (%s)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'text',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'fcsd_legal_copyright_content_' . $lang_code,
+                array(
+                    'default'           => $is_ca ? $fcsd_legal_defaults_ca['copyright_content'] : '',
+                    'sanitize_callback' => 'wp_kses_post',
+                )
+            );
+            $wp_customize->add_control(
+                'fcsd_legal_copyright_content_' . $lang_code,
+                array(
+                    'label'   => sprintf( __( 'Copyright – Contingut (%s) (HTML permès)', 'fcsd' ), $lang_label ),
+                    'section' => 'fcsd_footer',
+                    'type'    => 'textarea',
+                )
+            );
+        }
 
         // ====== SMTP (Email) ======
         $wp_customize->add_section(

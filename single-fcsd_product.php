@@ -20,10 +20,17 @@ get_header(); ?>
         $sizes_meta   = get_post_meta( $product_id, '_fcsd_product_sizes', true );
         $sku          = get_post_meta( $product_id, '_fcsd_sku', true );
         $stock        = get_post_meta( $product_id, '_fcsd_stock', true );
+        $has_variants = (int) get_post_meta( $product_id, '_fcsd_has_variants', true );
 
         // Normalizamos a arrays
         $color_options = is_array( $colors_meta ) ? $colors_meta : [];
         $size_options  = is_array( $sizes_meta ) ? $sizes_meta : [];
+
+        // Si NO té variants, no mostrem selectors (encara que hi hagi opcions configurades)
+        if ( ! $has_variants ) {
+            $color_options = [];
+            $size_options  = [];
+        }
 
         $product_url   = get_permalink( $product_id );
         $product_title = get_the_title();

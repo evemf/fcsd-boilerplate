@@ -35,6 +35,14 @@ add_filter('wp_nav_menu_objects', function($items){
             $t = get_post_meta((int)$item->ID, '_fcsd_i18n_title_' . $lang, true);
             if ( is_string($t) && $t !== '' ) {
                 $item->title = $t;
+            } else {
+                // Fallback: si no hay metadato de traducción (menús creados a mano o legacy),
+                // intentamos traducir el título vía gettext usando el textdomain del tema.
+                // Esto permite que los ítems se traduzcan si existen en .mo/.pot.
+                $maybe = translate( (string) $item->title, 'fcsd' );
+                if ( is_string( $maybe ) && $maybe !== '' ) {
+                    $item->title = $maybe;
+                }
             }
         }
 

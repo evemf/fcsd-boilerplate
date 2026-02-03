@@ -22,7 +22,9 @@ while ( have_posts() ) :
     $service_soft    = $area_data['color_soft'] ?? 'rgba(231,161,90,0.10)';
 
     // Frase curta cridanera (per la capçalera del servei)
-    $service_tagline = get_post_meta( get_the_ID(), 'frase_crida', true );
+    $service_tagline = function_exists( 'fcsd_get_meta_i18n' )
+        ? fcsd_get_meta_i18n( get_the_ID(), 'frase_crida', true )
+        : get_post_meta( get_the_ID(), 'frase_crida', true );
 
     if ( $area_data && ! empty( $area_data['hero_class'] ) ) {
         $hero_class .= ' ' . $area_data['hero_class'];
@@ -83,10 +85,14 @@ while ( have_posts() ) :
             // Vídeo (YouTube) — el backend només ha d'enganxar l'URL.
             // Prioritat: camp nou "youtube_video_url".
             // Compatibilitat: si no existeix, intentem detectar una URL de YouTube dins del camp legacy "videos".
-            $youtube_url = trim( (string) get_post_meta( get_the_ID(), 'youtube_video_url', true ) );
+            $youtube_url = trim( (string) ( function_exists( 'fcsd_get_meta_i18n' )
+                ? fcsd_get_meta_i18n( get_the_ID(), 'youtube_video_url', true )
+                : get_post_meta( get_the_ID(), 'youtube_video_url', true ) ) );
 
             if ( empty( $youtube_url ) ) {
-                $legacy_videos = (string) get_post_meta( get_the_ID(), 'videos', true );
+                $legacy_videos = (string) ( function_exists( 'fcsd_get_meta_i18n' )
+                    ? fcsd_get_meta_i18n( get_the_ID(), 'videos', true )
+                    : get_post_meta( get_the_ID(), 'videos', true ) );
                 if ( $legacy_videos ) {
                     // Agafa la primera URL que sembli de YouTube.
                     if ( preg_match( '/https?:\/\/(?:www\.)?(?:youtube\.com|youtu\.be)\/[\w\-\?&=\/%#\.]+/i', $legacy_videos, $m ) ) {
@@ -203,7 +209,9 @@ while ( have_posts() ) :
                 // --------------------------------------------------
                 $items = [];
                 foreach ( $fields as $key => $label ) {
-                    $value = get_post_meta( get_the_ID(), $key, true );
+                    $value = function_exists( 'fcsd_get_meta_i18n' )
+                        ? fcsd_get_meta_i18n( get_the_ID(), $key, true )
+                        : get_post_meta( get_the_ID(), $key, true );
 
                     // Si ja hem mostrat el vídeo com a embed i el camp legacy "videos" només
                     // conté un enllaç de YouTube, evitem duplicar informació a la fitxa.
@@ -227,7 +235,9 @@ while ( have_posts() ) :
                     ];
                 }
 
-                $extra_ids_raw = (string) get_post_meta( get_the_ID(), 'fcsd_service_technical_extra_images', true );
+                $extra_ids_raw = (string) ( function_exists( 'fcsd_get_meta_i18n' )
+                    ? fcsd_get_meta_i18n( get_the_ID(), 'fcsd_service_technical_extra_images', true )
+                    : get_post_meta( get_the_ID(), 'fcsd_service_technical_extra_images', true ) );
                 $extra_ids     = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', $extra_ids_raw ) ) );
 
                 $extra_items = [];
@@ -279,7 +289,9 @@ while ( have_posts() ) :
 
             <?php
             // Documentació adjunta
-            $document_url = get_post_meta( get_the_ID(), 'documentacio_pdf', true );
+            $document_url = function_exists( 'fcsd_get_meta_i18n' )
+                ? fcsd_get_meta_i18n( get_the_ID(), 'documentacio_pdf', true )
+                : get_post_meta( get_the_ID(), 'documentacio_pdf', true );
 
             if ( ! empty( $document_url ) ) :
                 $filename = basename( $document_url );

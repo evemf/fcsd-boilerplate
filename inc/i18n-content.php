@@ -26,6 +26,39 @@ function fcsd_get_post_i18n(int $post_id, string $field): ?string {
     return null;
 }
 
+/**
+ * Meta i18n (principalmente para CPT "service").
+ *
+ * - En CA se usa el meta "legacy" (la clave original).
+ * - En ES/EN se busca primero en: _fcsd_i18n_meta_{key}_{lang}
+ * - Si no existe, fallback al valor por defecto (clave original).
+ */
+function fcsd_get_meta_i18n( int $post_id, string $key, bool $single = true ) {
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
+
+    // Idioma por defecto: compatibilidad total con el modelo anterior.
+    if ( $lang === FCSD_DEFAULT_LANG ) {
+        return get_post_meta( $post_id, $key, $single );
+    }
+
+    $i18n_key = '_fcsd_i18n_meta_' . $key . '_' . $lang;
+    $v        = get_post_meta( $post_id, $i18n_key, $single );
+
+    // Si hay valor traducido, úsalo.
+    if ( $single ) {
+        if ( is_string( $v ) && trim( $v ) !== '' ) {
+            return $v;
+        }
+    } else {
+        if ( ! empty( $v ) ) {
+            return $v;
+        }
+    }
+
+    // Fallback.
+    return get_post_meta( $post_id, $key, $single );
+}
+
 // Título traducible por meta (_fcsd_i18n_title_es|en)
 add_filter('the_title', function($title, $post_id){
     if ( is_admin() ) return $title;

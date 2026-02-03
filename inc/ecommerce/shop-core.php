@@ -156,6 +156,8 @@ function fcsd_handle_add_to_cart() {
         wp_die( __( 'Producte no vàlid.', 'fcsd' ) );
     }
 
+    $has_variants = (int) get_post_meta( $product_id, '_fcsd_has_variants', true );
+
     // Metas de colors i talles (com a single-product.php)
     $colors_meta = get_post_meta( $product_id, '_fcsd_product_colors', true );
     $sizes_meta  = get_post_meta( $product_id, '_fcsd_product_sizes', true );
@@ -164,6 +166,13 @@ function fcsd_handle_add_to_cart() {
     $size_options  = is_array( $sizes_meta )  ? $sizes_meta  : [];
 
     $attributes = [];
+
+    // Si el producte NO té variants, ignorem color/talla (encara que estiguin definits com a opcions visuals).
+    if ( ! $has_variants ) {
+        $color_options = [];
+        $size_options  = [];
+    }
+
 
     // 1) Valors enviats explícitament des del formulari
     $color = isset( $_POST['fcsd_color'] ) ? sanitize_text_field( wp_unslash( $_POST['fcsd_color'] ) ) : '';
@@ -312,6 +321,13 @@ function fcsd_ajax_add_to_cart() {
 
     // Construir atributs
     $attributes = [];
+
+    // Si el producte NO té variants, ignorem color/talla (encara que estiguin definits com a opcions visuals).
+    if ( ! $has_variants ) {
+        $color_options = [];
+        $size_options  = [];
+    }
+
     if ( ! empty( $color ) ) {
         $attributes['color'] = $color;
     }

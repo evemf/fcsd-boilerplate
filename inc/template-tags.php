@@ -175,17 +175,21 @@ function fcsd_render_service_info_footer( $post_id = 0, $compact = false ) {
         return;
     }
 
-    $phone   = get_post_meta( $post_id, 'fcsd_service_contact_phone', true );
-    $email   = get_post_meta( $post_id, 'fcsd_service_contact_email', true );
-    $hours   = get_post_meta( $post_id, 'fcsd_service_hours', true );
-    $address = get_post_meta( $post_id, 'fcsd_service_address', true );
+    $get_meta = function_exists( 'fcsd_get_meta_i18n' )
+        ? 'fcsd_get_meta_i18n'
+        : null;
+
+    $phone   = $get_meta ? $get_meta( $post_id, 'fcsd_service_contact_phone', true ) : get_post_meta( $post_id, 'fcsd_service_contact_phone', true );
+    $email   = $get_meta ? $get_meta( $post_id, 'fcsd_service_contact_email', true ) : get_post_meta( $post_id, 'fcsd_service_contact_email', true );
+    $hours   = $get_meta ? $get_meta( $post_id, 'fcsd_service_hours', true ) : get_post_meta( $post_id, 'fcsd_service_hours', true );
+    $address = $get_meta ? $get_meta( $post_id, 'fcsd_service_address', true ) : get_post_meta( $post_id, 'fcsd_service_address', true );
 
     // Target ("Adreçat a") reutilitza camp existent.
-    $audience = get_post_meta( $post_id, 'a_quien_s_adreca', true );
+    $audience = $get_meta ? $get_meta( $post_id, 'a_quien_s_adreca', true ) : get_post_meta( $post_id, 'a_quien_s_adreca', true );
 
     // Fallback bàsic si encara s'està usant el camp legacy "adreca_i_contacte".
     if ( ( ! $phone || ! $email || ! $address ) ) {
-        $legacy = (string) get_post_meta( $post_id, 'adreca_i_contacte', true );
+        $legacy = (string) ( $get_meta ? $get_meta( $post_id, 'adreca_i_contacte', true ) : get_post_meta( $post_id, 'adreca_i_contacte', true ) );
         if ( $legacy ) {
             if ( ! $email && preg_match( '/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i', $legacy, $m ) ) {
                 $email = $m[0];
@@ -199,12 +203,12 @@ function fcsd_render_service_info_footer( $post_id = 0, $compact = false ) {
         }
     }
 
-    $support_ids_raw = (string) get_post_meta( $post_id, 'fcsd_service_support_images', true );
+    $support_ids_raw = (string) ( $get_meta ? $get_meta( $post_id, 'fcsd_service_support_images', true ) : get_post_meta( $post_id, 'fcsd_service_support_images', true ) );
     $support_ids     = array_filter( array_map( 'absint', preg_split( '/\s*,\s*/', $support_ids_raw ) ) );
 
     // Conveni amb / Col·laboració amb (JSON: [{label, url}])
-    $conveni_json = (string) get_post_meta( $post_id, 'fcsd_service_conveni_items', true );
-    $collab_json  = (string) get_post_meta( $post_id, 'fcsd_service_collaboracio_items', true );
+    $conveni_json = (string) ( $get_meta ? $get_meta( $post_id, 'fcsd_service_conveni_items', true ) : get_post_meta( $post_id, 'fcsd_service_conveni_items', true ) );
+    $collab_json  = (string) ( $get_meta ? $get_meta( $post_id, 'fcsd_service_collaboracio_items', true ) : get_post_meta( $post_id, 'fcsd_service_collaboracio_items', true ) );
 
     $conveni_items = [];
     if ( $conveni_json ) {

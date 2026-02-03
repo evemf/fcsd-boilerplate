@@ -10,12 +10,12 @@ get_header();
       <?php while ( have_posts() ) : the_post(); ?>
 
         <?php
-        $areas        = get_the_terms( get_the_ID(), 'service_area' );
-        $primary_area = ( ! empty( $areas ) && ! is_wp_error( $areas ) ) ? $areas[0] : null;
-
         $area_data = function_exists( 'fcsd_get_service_area_for_post' )
           ? fcsd_get_service_area_for_post( get_the_ID() )
           : null;
+
+        // Etiqueta de ámbito: usar config (traducible) en lugar del nombre del término (normalmente CA).
+        $area_label = $area_data && ! empty( $area_data['name'] ) ? (string) $area_data['name'] : '';
 
         $header_style = '';
         if ( $area_data && ! empty( $area_data['hero_images'] ) && is_array( $area_data['hero_images'] ) ) {
@@ -36,9 +36,9 @@ get_header();
           <article id="post-<?php the_ID(); ?>" <?php post_class( 'card h-100 service-card' ); ?>>
 
             <div class="service-card__header"<?php echo $header_style ? ' style="' . esc_attr( $header_style ) . '"' : ''; ?>>
-              <?php if ( $primary_area ) : ?>
+              <?php if ( $area_label ) : ?>
                 <span class="service-card__area">
-                  <?php echo esc_html( $primary_area->name ); ?>
+                  <?php echo esc_html( $area_label ); ?>
                 </span>
               <?php endif; ?>
 

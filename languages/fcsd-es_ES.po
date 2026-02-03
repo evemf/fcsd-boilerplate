@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: FCSD Theme\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/theme/fcsd-boilerplate\n"
 "POT-Creation-Date: 2026-01-27 13:40+0000\n"
-"PO-Revision-Date: 2026-01-29 14:10+0100\n"
+"PO-Revision-Date: 2026-02-03 11:57+0100\n"
 "Last-Translator: \n"
 "Language-Team: es_ES <LL@li.org>\n"
 "Language: es_ES\n"
@@ -516,7 +516,7 @@ msgstr ""
 
 #: single-fcsd_product.php:171 single-product.php:171
 msgid "Categories:"
-msgstr ""
+msgstr "Categorías:"
 
 #: inc/ecommerce/shop-core.php:63
 msgid "Categoría de producto"
@@ -593,16 +593,16 @@ msgstr ""
 
 #: inc/ecommerce/orders.php:24
 msgid "Comanda"
-msgstr ""
+msgstr "Pedido"
 
 #: inc/ecommerce/orders.php:306
 #, python-format, php-format
 msgid "Comanda %s - %s"
-msgstr ""
+msgstr "Pedido %s - %s"
 
 #: inc/ecommerce/orders.php:23 inc/ecommerce/orders.php:25
 msgid "Comandes"
-msgstr ""
+msgstr "Pedidos"
 
 #: page-profile.php:312
 msgid "Comandes i facturació"
@@ -623,7 +623,7 @@ msgstr ""
 #: single-fcsd_product.php:202 single-fcsd_product.php:203 single-fcsd_product.php:206
 #: single-product.php:202 single-product.php:203 single-product.php:206
 msgid "Compartir per Facebook"
-msgstr ""
+msgstr "Compartir por Facebook"
 
 #: single-fcsd_product.php:213 single-fcsd_product.php:214 single-fcsd_product.php:217
 #: single-product.php:213 single-product.php:214 single-product.php:217
@@ -633,7 +633,7 @@ msgstr ""
 #: single-fcsd_product.php:224 single-fcsd_product.php:225 single-fcsd_product.php:228
 #: single-product.php:224 single-product.php:225 single-product.php:228
 msgid "Compartir per TikTok"
-msgstr ""
+msgstr "Compartir por TikTok"
 
 #: single-fcsd_product.php:191 single-fcsd_product.php:192 single-fcsd_product.php:195
 #: single-product.php:191 single-product.php:192 single-product.php:195

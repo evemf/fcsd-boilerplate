@@ -1,18 +1,18 @@
-
 msgid ""
 msgstr ""
-"Project-Id-Version:  fcsd\n"
+"Project-Id-Version: fcsd\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-01-27 13:40+0000\n"
-"PO-Revision-Date: 2026-01-27 00:00+0000\n"
+"PO-Revision-Date: 2026-02-03 11:45+0100\n"
 "Last-Translator: \n"
-"Language: en_US\n"
 "Language-Team: \n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.17.0\n"
+"X-Generator: Poedit 3.6\n"
 
 #: page-cart.php:21
 #, python-format
@@ -33,18 +33,16 @@ msgid "3 punts clau diferencials"
 msgstr ""
 
 #: calendar-actes.php:51 calendar-work.php:85 inc/actes.php:583 inc/actes.php:1262
-#, fuzzy
 msgid "Abril"
-msgstr "Email"
+msgstr "April"
 
 #: inc/auth.php:1368
 msgid "Accedir a la intranet"
 msgstr ""
 
 #: inc/actes.php:1566 inc/auth.php:1212 page-my-account.php:35
-#, fuzzy
 msgid "Accions"
-msgstr "Registrations"
+msgstr "Actions"
 
 #: inc/actes.php:1533 inc/actes.php:1535
 msgid "Accions massives"
@@ -52,33 +50,30 @@ msgstr ""
 
 #: front-page.php:54
 msgid ""
-"Acompanyem a persones amb SD a construir una vida més autònoma, plena i "
-"connectada."
+"Acompanyem a persones amb SD a construir una vida més autònoma, plena i connectada."
 msgstr ""
-"We support people with Down syndrome in building a more independent, "
-"fulfilling, and connected life."
+"We support people with Down syndrome in building a more independent, fulfilling, "
+"and connected life."
 
 #: calendar-actes.php:99 calendar-work.php:133 inc/actes.php:22
-#, fuzzy
 msgid "Acte"
-msgstr "Active"
+msgstr "Event"
 
 #: inc/actes.php:118
 msgid "Acte general (visible per tothom)"
-msgstr ""
+msgstr "General event"
 
 #: inc/actes.php:121
 msgid "Acte laboral (només treballadors @fcsd.org)"
-msgstr ""
+msgstr "Work event"
 
 #: inc/actes.php:1818
 msgid "Acte no vàlid."
 msgstr ""
 
 #: inc/actes.php:21 inc/actes.php:31 inc/actes.php:35
-#, fuzzy
 msgid "Actes"
-msgstr "All"
+msgstr "Events"
 
 #: calendar-actes.php:516 calendar-work.php:612
 msgid "Actes del dia"
@@ -98,9 +93,8 @@ msgid "Actiu"
 msgstr "Active"
 
 #: inc/template-tags.php:11
-#, fuzzy
 msgid "Actualitat"
-msgstr "Quantity"
+msgstr "Current affairs"
 
 #: inc/ecommerce/shop-core.php:67
 #, fuzzy
@@ -124,8 +118,8 @@ msgstr ""
 msgid "Adreces"
 msgstr "Address"
 
-#: inc/auth.php:1126 inc/auth.php:1306 inc/service-meta.php:173
-#: page-profile.php:352 page-profile.php:421 page-profile.php:435
+#: inc/auth.php:1126 inc/auth.php:1306 inc/service-meta.php:173 page-profile.php:352
+#: page-profile.php:421 page-profile.php:435
 msgid "Adreça"
 msgstr "Address"
 
@@ -159,13 +153,12 @@ msgstr ""
 msgid "Afegeix un o més textos (opcionalment amb enllaç)."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:105 single-fcsd_product.php:311
-#: single-product.php:311
+#: inc/ecommerce/shop-core.php:105 single-fcsd_product.php:311 single-product.php:311
 msgid "Afegint..."
 msgstr ""
 
-#: inc/ecommerce/shop-core.php:107 single-fcsd_product.php:312
-#: single-product.php:312 template-parts/product-card.php:158
+#: inc/ecommerce/shop-core.php:107 single-fcsd_product.php:312 single-product.php:312
+#: template-parts/product-card.php:158
 msgid "Afegir a la cistella"
 msgstr ""
 
@@ -297,8 +290,8 @@ msgstr ""
 
 #: inc/transparency-meta.php:100
 msgid ""
-"Any = un registre per any amb auditoria i memòria. Recuadre únic = un box "
-"rosa amb un sol PDF. Desplegable = usa el títol i el contingut del post."
+"Any = un registre per any amb auditoria i memòria. Recuadre únic = un box rosa amb "
+"un sol PDF. Desplegable = usa el títol i el contingut del post."
 msgstr ""
 
 #: single-service.php:188
@@ -337,8 +330,8 @@ msgstr "Apply filters"
 
 #: calendar-work.php:46
 msgid ""
-"Aquest calendari només és accessible per a persones treballadores de la "
-"Fundació (correu @fcsd.org)."
+"Aquest calendari només és accessible per a persones treballadores de la Fundació "
+"(correu @fcsd.org)."
 msgstr ""
 
 #: inc/auth.php:1014
@@ -351,8 +344,8 @@ msgstr ""
 
 #: inc/auth.php:1277
 msgid ""
-"Aquestes dades provenen de SinergiaCRM (mòdul Contacts). Per modificar-les de"
-" manera oficial, cal fer-ho des de Sinergia."
+"Aquestes dades provenen de SinergiaCRM (mòdul Contacts). Per modificar-les de "
+"manera oficial, cal fer-ho des de Sinergia."
 msgstr ""
 
 #: inc/ecommerce/template-tags-shop.php:61
@@ -370,7 +363,7 @@ msgstr ""
 
 #: inc/services-areas.php:87
 msgid "Assemblea DH"
-msgstr ""
+msgstr "HR Assembly"
 
 #: archive-transparency.php:108
 #, python-format
@@ -492,9 +485,8 @@ msgid "Calendari d'actes"
 msgstr ""
 
 #: page-intranet.php:46
-#, fuzzy
 msgid "Calendari laboral"
-msgstr "Go to the shop"
+msgstr "Work calendar"
 
 #: inc/auth.php:1247
 msgid "Cancel·lada"
@@ -542,9 +534,8 @@ msgid "Categoria del dia (calendari laboral)"
 msgstr ""
 
 #: single-fcsd_product.php:171 single-product.php:171
-#, fuzzy
 msgid "Categories:"
-msgstr "Category"
+msgstr "Categories:"
 
 #: inc/ecommerce/shop-core.php:63
 msgid "Categoría de producto"
@@ -567,19 +558,16 @@ msgid "Cerca productes…"
 msgstr "Search products…"
 
 #: inc/actes.php:28
-#, fuzzy
 msgid "Cercar actes"
-msgstr "Search products…"
+msgstr "Search products"
 
 #: inc/ecommerce/orders.php:31
-#, fuzzy
 msgid "Cercar comandes"
-msgstr "Search products…"
+msgstr "Search order"
 
 #: inc/cpts.php:141
-#, fuzzy
 msgid "Cercar esdeveniments"
-msgstr "Event status"
+msgstr "Search events"
 
 #: header.php:186 inc/ecommerce/template-tags-shop.php:79 page-cart.php:34
 msgid "Cistella"
@@ -651,27 +639,23 @@ msgstr ""
 msgid "Compartir"
 msgstr ""
 
-#: single-fcsd_product.php:202 single-fcsd_product.php:203
-#: single-fcsd_product.php:206 single-product.php:202 single-product.php:203
-#: single-product.php:206
+#: single-fcsd_product.php:202 single-fcsd_product.php:203 single-fcsd_product.php:206
+#: single-product.php:202 single-product.php:203 single-product.php:206
 msgid "Compartir per Facebook"
 msgstr ""
 
-#: single-fcsd_product.php:213 single-fcsd_product.php:214
-#: single-fcsd_product.php:217 single-product.php:213 single-product.php:214
-#: single-product.php:217
+#: single-fcsd_product.php:213 single-fcsd_product.php:214 single-fcsd_product.php:217
+#: single-product.php:213 single-product.php:214 single-product.php:217
 msgid "Compartir per Instagram"
 msgstr ""
 
-#: single-fcsd_product.php:224 single-fcsd_product.php:225
-#: single-fcsd_product.php:228 single-product.php:224 single-product.php:225
-#: single-product.php:228
+#: single-fcsd_product.php:224 single-fcsd_product.php:225 single-fcsd_product.php:228
+#: single-product.php:224 single-product.php:225 single-product.php:228
 msgid "Compartir per TikTok"
 msgstr ""
 
-#: single-fcsd_product.php:191 single-fcsd_product.php:192
-#: single-fcsd_product.php:195 single-product.php:191 single-product.php:192
-#: single-product.php:195
+#: single-fcsd_product.php:191 single-fcsd_product.php:192 single-fcsd_product.php:195
+#: single-product.php:191 single-product.php:192 single-product.php:195
 msgid "Compartir per WhatsApp"
 msgstr ""
 
@@ -773,9 +757,8 @@ msgstr ""
 msgid "Cookies – Títol"
 msgstr ""
 
-#: single-fcsd_product.php:235 single-fcsd_product.php:236
-#: single-fcsd_product.php:239 single-product.php:235 single-product.php:236
-#: single-product.php:239
+#: single-fcsd_product.php:235 single-fcsd_product.php:236 single-fcsd_product.php:239
+#: single-product.php:235 single-product.php:236 single-product.php:239
 msgid "Copiar enllaç"
 msgstr ""
 
@@ -1083,14 +1066,14 @@ msgstr ""
 
 #: page-profile.php:627
 msgid ""
-"El teu usuari no està sincronitzat amb SinergiaCRM. Si creus que això és un "
-"error, contacta amb suport."
+"El teu usuari no està sincronitzat amb SinergiaCRM. Si creus que això és un error, "
+"contacta amb suport."
 msgstr ""
 
 #: inc/actes.php:229
 msgid ""
-"El títol, la descripció i la imatge destacada es gestionen amb els camps "
-"estàndard de WordPress."
+"El títol, la descripció i la imatge destacada es gestionen amb els camps estàndard "
+"de WordPress."
 msgstr ""
 
 #: inc/service-meta.php:330
@@ -1150,8 +1133,7 @@ msgstr "You haven’t made any purchases yet."
 
 #: inc/timeline-admin.php:238
 msgid ""
-"Encara no hi ha cap any a la cronologia. Genera els anys amb el formulari "
-"anterior."
+"Encara no hi ha cap any a la cronologia. Genera els anys amb el formulari anterior."
 msgstr ""
 
 #: inc/timeline-admin.php:299
@@ -1179,9 +1161,8 @@ msgstr ""
 
 #: inc/service-meta.php:269
 msgid ""
-"Enganxa aquí l’URL d’un vídeo de YouTube (p. ex. "
-"https://www.youtube.com/watch?v=...). Es mostrarà automàticament a la pàgina "
-"del servei."
+"Enganxa aquí l’URL d’un vídeo de YouTube (p. ex. https://www.youtube.com/watch?"
+"v=...). Es mostrarà automàticament a la pàgina del servei."
 msgstr ""
 
 #: inc/cpts.php:266
@@ -1260,8 +1241,8 @@ msgstr ""
 
 #: inc/service-meta.php:224
 msgid ""
-"Es guardaran com a IDs separats per comes i es mostraran com a “cajitas” dins"
-" la fitxa tècnica."
+"Es guardaran com a IDs separats per comes i es mostraran com a “cajitas” dins la "
+"fitxa tècnica."
 msgstr ""
 
 #: inc/transparency-meta.php:136
@@ -1357,8 +1338,8 @@ msgstr ""
 
 #: inc/timeline-admin.php:240
 msgid ""
-"Fes servir els formularis següents per afegir o eliminar esdeveniments "
-"ràpidament i desa-ho tot amb un sol botó per les altes."
+"Fes servir els formularis següents per afegir o eliminar esdeveniments ràpidament i "
+"desa-ho tot amb un sol botó per les altes."
 msgstr ""
 
 #: calendar-actes.php:89 calendar-work.php:123 inc/actes.php:135
@@ -1615,8 +1596,8 @@ msgstr ""
 
 #: inc/news-sync-exit21.php:697
 msgid ""
-"Importa el feed completo de exit21.org extrayendo todo el contenido "
-"disponible de cada artículo."
+"Importa el feed completo de exit21.org extrayendo todo el contenido disponible de "
+"cada artículo."
 msgstr ""
 
 #: inc/news-sync-exit21.php:689
@@ -1684,8 +1665,8 @@ msgstr "Intranet"
 
 #: inc/timeline-admin.php:201
 msgid ""
-"Introdueix l'any inicial i es crearan tots els anys fins a l'any actual. Els "
-"anys que ja existeixin no es duplicaran."
+"Introdueix l'any inicial i es crearan tots els anys fins a l'any actual. Els anys "
+"que ja existeixin no es duplicaran."
 msgstr ""
 
 #: inc/auth.php:176
@@ -1933,8 +1914,7 @@ msgstr "There are no news items."
 msgid "No hi ha productes associats a aquesta comanda."
 msgstr ""
 
-#: archive-fcsd_product.php:35 archive-product.php:35
-#: taxonomy-fcsd_product_cat.php:35
+#: archive-fcsd_product.php:35 archive-product.php:35 taxonomy-fcsd_product_cat.php:35
 msgid "No hi ha productes disponibles."
 msgstr ""
 
@@ -2135,14 +2115,13 @@ msgstr ""
 
 #: inc/ecommerce/product-meta.php:127
 msgid ""
-"Opcional. Només informatiu, la lògica de control d'estoc es pot afegir més "
-"endavant."
+"Opcional. Només informatiu, la lògica de control d'estoc es pot afegir més endavant."
 msgstr ""
 
 #: inc/ecommerce/product-meta.php:84
 msgid ""
-"Opcional. Si hi ha sessió iniciada i aquest preu és > 0, s'utilitza en lloc "
-"del preu base/rebaixat."
+"Opcional. Si hi ha sessió iniciada i aquest preu és > 0, s'utilitza en lloc del "
+"preu base/rebaixat."
 msgstr ""
 
 #: inc/ecommerce/product-meta.php:77
@@ -2210,8 +2189,8 @@ msgstr ""
 
 #: inc/transparency-meta.php:183
 msgid ""
-"Per als elements de tipus \"Apartat desplegable\" utilitza el títol i "
-"l’editor de continguts del post."
+"Per als elements de tipus \"Apartat desplegable\" utilitza el títol i l’editor de "
+"continguts del post."
 msgstr ""
 
 #: inc/auth.php:1094
@@ -2508,8 +2487,8 @@ msgstr "Sign up or log in to get exclusive discounts."
 
 #: inc/i18n-admin.php:41
 msgid ""
-"Rellena sólo los idiomas que quieras. Si un campo está vacío, se usa el "
-"contenido por defecto."
+"Rellena sólo los idiomas que quieras. Si un campo está vacío, se usa el contenido "
+"por defecto."
 msgstr ""
 
 #: inc/auth.php:803
@@ -2617,7 +2596,7 @@ msgstr "Skip to content"
 
 #: inc/services-areas.php:63
 msgid "Salut"
-msgstr ""
+msgstr "Health"
 
 #: inc/ecommerce/shop-core.php:409
 #, fuzzy
@@ -2699,9 +2678,8 @@ msgid "Seleccionar imatge"
 msgstr ""
 
 #: inc/actes.php:204
-#, fuzzy
 msgid "Sense especificar"
-msgstr "Pending"
+msgstr "Unspecified"
 
 #: inc/cpts.php:11
 msgid "Servei"
@@ -2719,7 +2697,7 @@ msgstr ""
 
 #: inc/cpts.php:8 inc/cpts.php:10 inc/template-tags.php:7
 msgid "Serveis"
-msgstr ""
+msgstr "Services"
 
 #: inc/services-areas.php:48
 msgid "Serveis de formació, capacitació i aprenentatge."
@@ -2764,7 +2742,7 @@ msgstr ""
 
 #: calendar-actes.php:56 calendar-work.php:90 inc/actes.php:588 inc/actes.php:1267
 msgid "Setembre"
-msgstr ""
+msgstr "September"
 
 #: inc/customizer.php:96
 msgid "Show Contrast Button"
@@ -2802,7 +2780,7 @@ msgstr ""
 
 #: inc/auth.php:1081
 msgid "Sobre mi"
-msgstr ""
+msgstr "About me"
 
 #: inc/customizer.php:160
 msgid "Social Links (Top Right)"
@@ -2843,7 +2821,7 @@ msgstr "Cart"
 
 #: inc/ecommerce/product-meta.php:310
 msgid "Tallas disponibles"
-msgstr ""
+msgstr "Available sizes"
 
 #: page-profile.php:318
 msgid "Tanca sessió"
@@ -2958,9 +2936,8 @@ msgid "Traducciones (FCSD)"
 msgstr ""
 
 #: inc/cpts.php:46
-#, fuzzy
 msgid "Transparency"
-msgstr "Password"
+msgstr "Transparency"
 
 #: inc/template-tags.php:10
 msgid "Transparència"
@@ -2968,7 +2945,7 @@ msgstr ""
 
 #: inc/services-areas.php:39
 msgid "Treball"
-msgstr ""
+msgstr "Work"
 
 #: footer.php:15 inc/customizer.php:225
 msgid "Treballem per la plena inclusió i igualtat de drets."
@@ -2980,9 +2957,8 @@ msgid "Tu número de pedido es #%d."
 msgstr ""
 
 #: inc/actes.php:1561 inc/auth.php:1209
-#, fuzzy
 msgid "Títol"
-msgstr "Total"
+msgstr "Title"
 
 #: inc/i18n-menu-admin.php:22
 #, python-format
@@ -2990,9 +2966,8 @@ msgid "Títol (%s)"
 msgstr ""
 
 #: inc/timeline-admin.php:310
-#, fuzzy
 msgid "Títol de l'esdeveniment"
-msgstr "Event status"
+msgstr "Event title"
 
 #: inc/i18n-admin.php:56
 msgid "Título"
@@ -3027,27 +3002,24 @@ msgid "Usuari sincronitzat amb SinergiaCRM."
 msgstr "User synced with SinergiaCRM."
 
 #: inc/intranet.php:81
-#, fuzzy
 msgid "Usuario no válido."
-msgstr "The email is not valid."
+msgstr "Not a valid user."
 
 #: calendar-actes.php:90 calendar-work.php:124 inc/actes.php:138
 msgid "Vacances"
 msgstr ""
 
 #: inc/intranet.php:191
-#, fuzzy
 msgid "Ver aviso"
-msgstr "Save changes"
+msgstr "View notice"
 
 #: inc/news-sync-exit21.php:950
 msgid "Ver original"
 msgstr ""
 
 #: inc/ecommerce/shop-core.php:30
-#, fuzzy
 msgid "Ver producto"
-msgstr "Search products…"
+msgstr "View product"
 
 #: inc/ecommerce/shop-core.php:569
 msgid "Verd"
@@ -3070,23 +3042,20 @@ msgid "Veure comanda"
 msgstr ""
 
 #: inc/auth.php:1258
-#, fuzzy
 msgid "Veure detall"
-msgstr "Red"
+msgstr "View detail"
 
 #: inc/cpts.php:140
-#, fuzzy
 msgid "Veure esdeveniment"
-msgstr "Event status"
+msgstr "View event"
 
 #: inc/news-sync-exit21.php:789
 msgid "Veure origen"
 msgstr ""
 
 #: inc/services-areas.php:31
-#, fuzzy
 msgid "Vida independent"
-msgstr "Pending"
+msgstr "Independent living"
 
 #: inc/template-tags.php:280
 msgid "Visites concertades"
@@ -3101,18 +3070,16 @@ msgid "Vista anual"
 msgstr ""
 
 #: inc/actes.php:1386
-#, fuzzy
 msgid "Vista en llista"
-msgstr "Cart"
+msgstr "List view"
 
 #: calendar-work.php:215 inc/actes.php:639 inc/actes.php:1380
 msgid "Vista mensual"
-msgstr ""
+msgstr "Month view"
 
 #: inc/services-areas.php:95 inc/template-tags.php:45
-#, fuzzy
 msgid "Voluntariat"
-msgstr "Contrast"
+msgstr "Volunteering"
 
 #: inc/page-order-success.php:31
 msgid "Volver a la tienda"
@@ -3171,18 +3138,16 @@ msgid "Àmbit"
 msgstr "Areas"
 
 #: inc/cpts.php:28
-#, fuzzy
 msgid "Àmbit de servei"
-msgstr "Areas of work"
+msgstr "Areas of service"
 
 #: front-page.php:135
 msgid "Àmbits"
 msgstr "Areas"
 
 #: inc/cpts.php:25 inc/cpts.php:27
-#, fuzzy
 msgid "Àmbits de servei"
-msgstr "Areas of work"
+msgstr "Areas of service"
 
 #: front-page.php:136
 msgid "Àmbits de treball"
@@ -3207,4 +3172,3 @@ msgstr ""
 #: inc/cpts.php:195
 msgid "— Sense any —"
 msgstr ""
-

@@ -12,6 +12,22 @@ if ( ! defined( 'FCSD_VERSION' ) ) {
     define( 'FCSD_VERSION', $theme->get( 'Version' ) ?: '1.0.0' );
 }
 
+// -----------------------------------------------------------------------------
+// Flush rewrites on theme update (one-time)
+// -----------------------------------------------------------------------------
+// Las reglas i18n añaden bases traducidas para archives/singles. Si el tema se
+// actualiza sobre una instalación existente, after_switch_theme no se ejecuta y
+// las nuevas reglas pueden no estar activas hasta guardar Permalinks.
+// Hacemos un flush seguro (solo 1 vez por versión de reglas) en admin.
+add_action( 'admin_init', function(){
+    $key     = 'fcsd_rewrite_rules_version';
+    $version = '2026-02-03-services-single-i18n';
+    if ( get_option( $key ) !== $version ) {
+        flush_rewrite_rules();
+        update_option( $key, $version );
+    }
+} );
+
 if ( ! defined( 'FCSD_THEME_DIR' ) ) {
     // Usa la carpeta del tema activo (soporta tema hijo sin romper rutas).
     define( 'FCSD_THEME_DIR', get_stylesheet_directory() );
@@ -138,6 +154,154 @@ function fcsd_widgets_init() {
     ] );
 }
 add_action( 'widgets_init', 'fcsd_widgets_init' );
+
+// --------------------------------------------------
+// Helpers de idioma (ca|es|en) para textos legales del footer
+// --------------------------------------------------
+
+/**
+ * Devuelve el código de idioma actual (ca|es|en).
+ *
+ * Compatibilidad:
+ * - Polylang: pll_current_language('slug')
+ * - WPML: ICL_LANGUAGE_CODE
+ * - WordPress: get_locale()
+ */
+function fcsd_get_current_lang_code() {
+    // Polylang.
+    if ( function_exists( 'pll_current_language' ) ) {
+        $slug = pll_current_language( 'slug' );
+        if ( is_string( $slug ) && $slug ) {
+            $slug = strtolower( $slug );
+            if ( in_array( $slug, [ 'ca', 'es', 'en' ], true ) ) {
+                return $slug;
+            }
+        }
+    }
+
+    // WPML.
+    if ( defined( 'ICL_LANGUAGE_CODE' ) && is_string( ICL_LANGUAGE_CODE ) && ICL_LANGUAGE_CODE ) {
+        $code = strtolower( ICL_LANGUAGE_CODE );
+        if ( in_array( $code, [ 'ca', 'es', 'en' ], true ) ) {
+            return $code;
+        }
+    }
+
+    // Locale de WordPress.
+    $locale = function_exists( 'determine_locale' ) ? determine_locale() : get_locale();
+    $locale = is_string( $locale ) ? strtolower( $locale ) : '';
+
+    if ( 0 === strpos( $locale, 'es' ) ) {
+        return 'es';
+    }
+    if ( 0 === strpos( $locale, 'en' ) ) {
+        return 'en';
+    }
+    return 'ca';
+}
+
+/**
+ * Obtiene un theme_mod legal por idioma.
+ *
+ * Reglas de fallback:
+ * - Si el valor del idioma actual NO existe o está vacío, intenta con catalán (_ca) y después con legacy (sin sufijo).
+ * - Si todo está vacío, devuelve $default.
+ */
+function fcsd_get_legal_mod( $base_key, $lang, $default = '' ) {
+    $lang = in_array( $lang, [ 'ca', 'es', 'en' ], true ) ? $lang : 'ca';
+
+    // Helper: distinguir entre "no configurado" y "configurado como string vacío".
+    $raw_get = static function ( $key ) {
+        $sentinel = '__FCSD_NOT_SET__';
+        $v        = get_theme_mod( $key, $sentinel );
+        return ( $sentinel === $v ) ? null : $v;
+    };
+
+    $is_non_empty = static function ( $v ) {
+        if ( null === $v ) {
+            return false;
+        }
+        if ( is_string( $v ) ) {
+            return '' !== trim( $v );
+        }
+        return ! empty( $v );
+    };
+
+    // 1) Intentar el valor del idioma actual.
+    $value = $raw_get( $base_key . '_' . $lang );
+    if ( $is_non_empty( $value ) ) {
+        return $value;
+    }
+
+    // 2) Fallback a catalán si estamos en ES/EN.
+    if ( 'ca' !== $lang ) {
+        $ca_value = $raw_get( $base_key . '_ca' );
+        if ( $is_non_empty( $ca_value ) ) {
+            return $ca_value;
+        }
+    }
+
+    // 3) Fallback a legacy (sin sufijo) (sirve tanto para CA como para ES/EN si venimos sin datos).
+    $legacy = $raw_get( $base_key );
+    if ( $is_non_empty( $legacy ) ) {
+        return $legacy;
+    }
+
+    return $default;
+}
+
+/**
+ * Devuelve los textos legales (title/content) en el idioma actual.
+ */
+function fcsd_get_legal_texts() {
+    $lang = fcsd_get_current_lang_code();
+
+    $defaults = [
+        'ca' => [
+            'privacy_title'   => 'Política de privacitat',
+            'cookies_title'   => 'Política de cookies',
+            'notice_title'    => 'Avís legal',
+            'copyright_title' => 'Copyright',
+            'close_text'      => 'Tancar',
+        ],
+        'es' => [
+            'privacy_title'   => 'Política de privacidad',
+            'cookies_title'   => 'Política de cookies',
+            'notice_title'    => 'Aviso legal',
+            'copyright_title' => 'Copyright',
+            'close_text'      => 'Cerrar',
+        ],
+        'en' => [
+            'privacy_title'   => 'Privacy policy',
+            'cookies_title'   => 'Cookies policy',
+            'notice_title'    => 'Legal notice',
+            'copyright_title' => 'Copyright',
+            'close_text'      => 'Close',
+        ],
+    ];
+
+    $d = $defaults[ $lang ] ?? $defaults['ca'];
+
+    return [
+        'privacy'   => [
+            'title'   => fcsd_get_legal_mod( 'fcsd_legal_privacy_title', $lang, $d['privacy_title'] ),
+            'content' => wp_kses_post( fcsd_get_legal_mod( 'fcsd_legal_privacy_content', $lang, '' ) ),
+        ],
+        'cookies'   => [
+            'title'   => fcsd_get_legal_mod( 'fcsd_legal_cookies_title', $lang, $d['cookies_title'] ),
+            'content' => wp_kses_post( fcsd_get_legal_mod( 'fcsd_legal_cookies_content', $lang, '' ) ),
+        ],
+        'legal'     => [
+            'title'   => fcsd_get_legal_mod( 'fcsd_legal_notice_title', $lang, $d['notice_title'] ),
+            'content' => wp_kses_post( fcsd_get_legal_mod( 'fcsd_legal_notice_content', $lang, '' ) ),
+        ],
+        'copyright' => [
+            'title'   => fcsd_get_legal_mod( 'fcsd_legal_copyright_title', $lang, $d['copyright_title'] ),
+            'content' => wp_kses_post( fcsd_get_legal_mod( 'fcsd_legal_copyright_content', $lang, '' ) ),
+        ],
+        'closeText' => $d['close_text'],
+    ];
+}
 
 // --------------------------------------------------
 // Encolar scripts y estilos
@@ -295,28 +459,8 @@ function fcsd_enqueue_assets() {
         );
     }
 
-    // ----- Pasar los textos legales del Customizer al JS -----
-    $legal_data = [
-        'privacy'   => [
-            'title'   => get_theme_mod( 'fcsd_legal_privacy_title', __( 'Política de privacitat', 'fcsd' ) ),
-            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_privacy_content', '' ) ),
-        ],
-        'cookies'   => [
-            'title'   => get_theme_mod( 'fcsd_legal_cookies_title', __( 'Política de cookies', 'fcsd' ) ),
-            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_cookies_content', '' ) ),
-        ],
-        // En el Customizer este bloque se llama "notice" (Avís legal),
-        // pero en el footer se usa data-legal-key="legal".
-        'legal'     => [
-            'title'   => get_theme_mod( 'fcsd_legal_notice_title', __( 'Avís legal', 'fcsd' ) ),
-            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_notice_content', '' ) ),
-        ],
-        'copyright' => [
-            'title'   => get_theme_mod( 'fcsd_legal_copyright_title', __( 'Copyright', 'fcsd' ) ),
-            'content' => wp_kses_post( get_theme_mod( 'fcsd_legal_copyright_content', '' ) ),
-        ],
-        'closeText' => __( 'Tancar', 'fcsd' ),
-    ];
+    // ----- Pasar los textos legales (por idioma) del Customizer al JS -----
+    $legal_data = fcsd_get_legal_texts();
 
     wp_localize_script( 'fcsd-legal-modal', 'fcsdLegalData', $legal_data );
 }

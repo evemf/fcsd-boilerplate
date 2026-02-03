@@ -77,12 +77,32 @@ function fcsd_render_service_metabox( $post ) {
         'fcsd_service_technical_extra_images',
     ];
 
-    // Valors actuals
+    // Valors actuals (CA) + valors traduïbles (ES/EN)
     $values = [];
     foreach ( $fields as $f ) {
         $values[ $f ] = get_post_meta( $post->ID, $f, true );
+
+        // Càrrega de traduccions (metes: _fcsd_i18n_meta_{key}_{lang})
+        if ( defined( 'FCSD_LANGUAGES' ) && defined( 'FCSD_DEFAULT_LANG' ) ) {
+            foreach ( array_keys( FCSD_LANGUAGES ) as $lng ) {
+                if ( $lng === FCSD_DEFAULT_LANG ) {
+                    continue;
+                }
+                $tkey                   = '_fcsd_i18n_meta_' . $f . '_' . $lng;
+                $values[ $f . '__' . $lng ] = get_post_meta( $post->ID, $tkey, true );
+            }
+        }
     }
+
     $document_url = get_post_meta( $post->ID, 'documentacio_pdf', true );
+    if ( defined( 'FCSD_LANGUAGES' ) && defined( 'FCSD_DEFAULT_LANG' ) ) {
+        foreach ( array_keys( FCSD_LANGUAGES ) as $lng ) {
+            if ( $lng === FCSD_DEFAULT_LANG ) {
+                continue;
+            }
+            $values[ 'documentacio_pdf__' . $lng ] = get_post_meta( $post->ID, '_fcsd_i18n_meta_documentacio_pdf_' . $lng, true );
+        }
+    }
 
     // Enqueue del media frame, per si de cas
     if ( function_exists( 'wp_enqueue_media' ) ) {
@@ -102,11 +122,25 @@ function fcsd_render_service_metabox( $post ) {
 
     echo '<div class="servei-grid">';
 
-    // Camp per al document adjunt
+    // Camp per al document adjunt (CA) + opcions per idioma
     echo '<div class="servei-col">';
     echo '<label for="documentacio_pdf">' . esc_html__( 'Documentació adjunta (PDF, DOC...)', 'fcsd' ) . '</label>';
     echo '<input type="text" id="documentacio_pdf" name="documentacio_pdf" value="' . esc_attr( $document_url ) . '" />';
     echo '<input type="button" class="button" value="' . esc_attr__( 'Puja o selecciona un arxiu', 'fcsd' ) . '" id="upload_pdf_button" />';
+
+    // Versions ES/EN (mateix document o documents diferents si cal)
+    if ( defined( 'FCSD_LANGUAGES' ) && defined( 'FCSD_DEFAULT_LANG' ) ) {
+        foreach ( array_keys( FCSD_LANGUAGES ) as $lng ) {
+            if ( $lng === FCSD_DEFAULT_LANG ) {
+                continue;
+            }
+            $fname = 'documentacio_pdf__' . $lng;
+            $val   = isset( $values[ $fname ] ) ? (string) $values[ $fname ] : '';
+            echo '<p style="margin:10px 0 6px"><label for="' . esc_attr( $fname ) . '"><strong>' . esc_html( sprintf( __( 'Document (%s)', 'fcsd' ), strtoupper( $lng ) ) ) . '</strong></label></p>';
+            echo '<input type="text" id="' . esc_attr( $fname ) . '" name="' . esc_attr( $fname ) . '" value="' . esc_attr( $val ) . '" />';
+        }
+    }
+
     echo '</div>';
 
     ?>
@@ -270,6 +304,53 @@ function fcsd_render_service_metabox( $post ) {
         }
     }
 
+    // --------------------------------------------------
+    // Traduccions ES/EN dels camps del servei (opcionals)
+    // --------------------------------------------------
+    if ( defined( 'FCSD_LANGUAGES' ) && defined( 'FCSD_DEFAULT_LANG' ) ) {
+        foreach ( array_keys( FCSD_LANGUAGES ) as $lng ) {
+            if ( $lng === FCSD_DEFAULT_LANG ) {
+                continue;
+            }
+            echo '<div style="flex-basis:100%;margin-top:18px;">';
+            echo '<details style="background:#fff;border:1px solid #e5e5e5;border-radius:8px;padding:10px;">';
+            echo '<summary style="cursor:pointer;font-weight:600;">' . esc_html( sprintf( __( 'Traducció de camps (%s)', 'fcsd' ), strtoupper( $lng ) ) ) . '</summary>';
+            echo '<p class="description" style="margin:10px 0 0;">' . esc_html__( 'Omple només els camps que vulguis traduir. Si deixes un camp buit, es mostrarà el valor de CA.', 'fcsd' ) . '</p>';
+
+            // Camps (incloent els de footer i partners): guardem a _fcsd_i18n_meta_{key}_{lang}.
+            foreach ( $fields as $key ) {
+                $field_name = $key . '__' . $lng;
+
+                if ( 'youtube_video_url' === $key ) {
+                    $label = __( 'Vídeo de YouTube (URL)', 'fcsd' );
+                    $type  = 'url';
+                } elseif ( 'videos' === $key ) {
+                    $label = __( 'Vídeos o testimonis', 'fcsd' );
+                    $type  = in_array( $key, $textarea_fields, true ) ? 'textarea' : 'text';
+                } elseif ( 0 === strpos( $key, 'fcsd_service_' ) ) {
+                    // Labels ya existen arriba (footer/partners/extra images). Usamos una etiqueta fija por clave.
+                    $label_raw = str_replace( '_', ' ', ucfirst( $key ) );
+                    $label     = __( $label_raw, 'fcsd' );
+                    $type      = in_array( $key, $textarea_fields, true ) ? 'textarea' : 'text';
+                } else {
+                    $label_raw = str_replace( '_', ' ', ucfirst( $key ) );
+                    $label     = __( $label_raw, 'fcsd' );
+                    $type      = in_array( $key, $textarea_fields, true ) ? 'textarea' : 'text';
+                }
+
+                // Repetibles JSON: mantener input oculto pero editable como texto.
+                if ( in_array( $key, [ 'fcsd_service_conveni_items', 'fcsd_service_collaboracio_items' ], true ) ) {
+                    $type = 'textarea';
+                }
+
+                fcsd_render_service_field( $label, $key, $values, $type, $field_name, $field_name );
+            }
+
+            echo '</details>';
+            echo '</div>';
+        }
+    }
+
     echo '</div>';
 
     // Media frame per seleccionar logos (multi)
@@ -418,16 +499,18 @@ function fcsd_render_service_metabox( $post ) {
  * @param array  $values
  * @param string $type
  */
-function fcsd_render_service_field( $label, $key, $values, $type = 'text' ) {
-    $value = isset( $values[ $key ] ) ? $values[ $key ] : '';
+function fcsd_render_service_field( $label, $key, $values, $type = 'text', $field_name = null, $field_id = null ) {
+    $name  = $field_name ? (string) $field_name : (string) $key;
+    $id    = $field_id ? (string) $field_id : $name;
+    $value = isset( $values[ $name ] ) ? $values[ $name ] : ( isset( $values[ $key ] ) ? $values[ $key ] : '' );
 
     echo '<div class="servei-col">';
-    echo '<label for="' . esc_attr( $key ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label for="' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
 
     if ( 'textarea' === $type ) {
-        echo '<textarea id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '">' . esc_textarea( $value ) . '</textarea>';
+        echo '<textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">' . esc_textarea( $value ) . '</textarea>';
     } else {
-        echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $key ) . '" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
+        echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '" />';
     }
 
     echo '</div>';
@@ -586,6 +669,60 @@ function fcsd_save_service_meta( $post_id ) {
                 delete_post_meta( $post_id, $f );
             } else {
                 update_post_meta( $post_id, $f, $san );
+            }
+        }
+    }
+
+    // Guardat de traduccions ES/EN (meta: _fcsd_i18n_meta_{key}_{lang})
+    if ( defined( 'FCSD_LANGUAGES' ) && defined( 'FCSD_DEFAULT_LANG' ) ) {
+        foreach ( array_keys( FCSD_LANGUAGES ) as $lng ) {
+            if ( $lng === FCSD_DEFAULT_LANG ) {
+                continue;
+            }
+
+            foreach ( $fields as $f ) {
+                $post_key = $f . '__' . $lng;
+                if ( ! array_key_exists( $post_key, $_POST ) ) {
+                    continue;
+                }
+
+                $raw = wp_unslash( $_POST[ $post_key ] );
+                $raw = is_string( $raw ) ? $raw : '';
+
+                // Sanitització coherent amb el guardat principal.
+                if ( 'youtube_video_url' === $f || 'documentacio_pdf' === $f ) {
+                    $san = esc_url_raw( (string) $raw );
+                } elseif ( in_array( $f, [ 'fcsd_service_conveni_items', 'fcsd_service_collaboracio_items' ], true ) ) {
+                    $decoded = json_decode( (string) $raw, true );
+                    if ( ! is_array( $decoded ) ) {
+                        $decoded = [];
+                    }
+                    $clean = [];
+                    foreach ( $decoded as $it ) {
+                        if ( ! is_array( $it ) ) {
+                            continue;
+                        }
+                        $label = isset( $it['label'] ) ? sanitize_text_field( (string) $it['label'] ) : '';
+                        $url   = isset( $it['url'] ) ? esc_url_raw( (string) $it['url'] ) : '';
+                        if ( '' === trim( $label ) && '' === trim( $url ) ) {
+                            continue;
+                        }
+                        $clean[] = [
+                            'label' => $label,
+                            'url'   => $url,
+                        ];
+                    }
+                    $san = wp_json_encode( $clean );
+                } else {
+                    $san = in_array( $f, $textarea_fields, true ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
+                }
+
+                $meta_key = '_fcsd_i18n_meta_' . $f . '_' . $lng;
+                if ( '' === (string) $san ) {
+                    delete_post_meta( $post_id, $meta_key );
+                } else {
+                    update_post_meta( $post_id, $meta_key, $san );
+                }
             }
         }
     }

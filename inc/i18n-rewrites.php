@@ -61,6 +61,19 @@ add_filter('rewrite_rules_array', function (array $rules): array {
             $lang . '/' . fcsd_slug('services', $lang) . '/?$'
         ] = 'index.php?post_type=service&fcsd_lang=' . $lang;
 
+        // Services (single) – base traducida
+        // El CPT tiene rewrite slug fijo (ca) = /serveis/.
+        // Sin esta regla, /es/servicios/<slug>/ no casará (solo existiría /es/serveis/<slug>/
+        // por el duplicado genérico de reglas).
+        $prefixed[
+            $lang . '/' . fcsd_slug('services', $lang) . '/([^/]+)/?$'
+        ] = 'index.php?post_type=service&name=$matches[1]&fcsd_lang=' . $lang;
+
+        // Services (archive pagination) – base traducida
+        $prefixed[
+            $lang . '/' . fcsd_slug('services', $lang) . '/page/([0-9]{1,})/?$'
+        ] = 'index.php?post_type=service&paged=$matches[1]&fcsd_lang=' . $lang;
+
         // News
         $prefixed[
             $lang . '/' . fcsd_slug('news', $lang) . '/?$'

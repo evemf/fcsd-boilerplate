@@ -167,6 +167,9 @@ add_filter('request', function($qv){
     if ($pn === '' && $req_slug !== '') $pn = $req_slug;
 
     if ($pn !== '' && function_exists('fcsd_slug')) {
+        // $pid solo se define cuando el sistema mapea a una página real.
+        // En rutas tipo /en/shop/ (archive) puede no existir y evitamos warnings.
+        $pid = 0;
         foreach ($system as $key => $tpl) {
             $slugs = array_unique(array_filter([
                 fcsd_slug($key, $lang),

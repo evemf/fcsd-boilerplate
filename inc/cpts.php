@@ -639,3 +639,45 @@ function fcsd_backfill_news_language() {
 }
 add_action( 'current_screen', 'fcsd_backfill_news_language' );
 
+/**
+ * Backfill del ámbito por defecto (service_area = Institucional) para noticias EXIT21
+ * que no tengan ningún ámbito asignado.
+ *
+ * Motivación: la importación asíncrona (cron) no dispara save_post con un usuario,
+ * por lo que las noticias pueden quedar sin términos. Esto corrige contenido legado
+ * (especialmente el feed en español).
+ */
+function fcsd_backfill_news_default_service_area() {
+    if ( ! is_admin() ) return;
+
+    $screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+    if ( ! $screen || $screen->id !== 'edit-news' ) return;
+
+    // Procesar en lotes pequeños para evitar timeouts.
+    $ids = get_posts([
+        'post_type'      => 'news',
+        'posts_per_page' => 50,
+        'fields'         => 'ids',
+        'meta_query'     => [
+            [ 'key' => 'news_source', 'value' => 'exit21', 'compare' => '=' ],
+        ],
+        'tax_query'      => [
+            [
+                'taxonomy' => 'service_area',
+                'operator' => 'NOT EXISTS',
+            ],
+        ],
+    ]);
+
+    if ( empty( $ids ) ) return;
+
+    foreach ( $ids as $post_id ) {
+        if ( function_exists( 'fcsd_news_ensure_default_area' ) ) {
+            fcsd_news_ensure_default_area( (int) $post_id );
+        }
+    }
+}
+add_action( 'current_screen', 'fcsd_backfill_news_default_service_area' );
+
+
+

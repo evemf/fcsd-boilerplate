@@ -45,6 +45,7 @@ function fcsd_render_product_data_metabox( $post ) {
 
     $sku           = get_post_meta( $post->ID, '_fcsd_sku', true );
     $stock         = get_post_meta( $post->ID, '_fcsd_stock', true );
+    $has_variants  = (int) get_post_meta( $post->ID, '_fcsd_has_variants', true );
     ?>
 
     <div class="fcsd-product-meta">
@@ -121,12 +122,33 @@ function fcsd_render_product_data_metabox( $post ) {
                 </div>
 
                 <div class="field-group">
-                    <label for="fcsd_stock"><?php esc_html_e( 'Estoc', 'fcsd' ); ?></label>
-                    <input type="number" id="fcsd_stock" name="fcsd_stock" min="0"
-                           value="<?php echo esc_attr( $stock ); ?>">
-                    <small><?php esc_html_e( 'Opcional. Només informatiu, la lògica de control d\'estoc es pot afegir més endavant.', 'fcsd' ); ?></small>
-                </div>
-            </div>
+    <label>
+        <input type="checkbox" name="fcsd_has_variants" value="1" <?php checked( $has_variants, 1 ); ?> />
+        <?php esc_html_e( 'Aquest producte té variants (talla/color)', 'fcsd' ); ?>
+    </label>
+    <small><?php esc_html_e( 'Si està marcat, l\'estoc es controla per cada variant segons les talles i/o colors disponibles.', 'fcsd' ); ?></small>
+</div>
+
+<div class="field-group">
+    <label for="fcsd_stock"><?php esc_html_e( 'Estoc (genèric / total)', 'fcsd' ); ?></label>
+    <input type="number" id="fcsd_stock" name="fcsd_stock" min="0" value="<?php echo esc_attr( $stock ); ?>" <?php echo $has_variants ? 'readonly' : ''; ?> />
+    <small><?php esc_html_e( 'Si NO hi ha variants, aquest camp és el que controla l\'estoc. Si hi ha variants, es calcula automàticament com a suma de l\'estoc per variant.', 'fcsd' ); ?></small>
+</div>
+
+<script>
+    (function(){
+        const cb = document.querySelector('input[name="fcsd_has_variants"]');
+        const stock = document.getElementById('fcsd_stock');
+        if(!cb || !stock) return;
+        function sync(){
+            if(cb.checked){ stock.setAttribute('readonly','readonly'); }
+            else { stock.removeAttribute('readonly'); }
+        }
+        cb.addEventListener('change', sync);
+        sync();
+    })();
+</script>
+</div>
         </div>
     </div>
 
@@ -150,14 +172,14 @@ add_action( 'save_post_fcsd_product', function ( $post_id ) {
         return;
     }
 
-    $fields = [
-        'fcsd_price_regular' => '_fcsd_price_regular',
-        'fcsd_price_sale'    => '_fcsd_price_sale',
-        'fcsd_price_member'  => '_fcsd_price_member',
-        'fcsd_product_type'  => '_fcsd_product_type',
-        'fcsd_sku'           => '_fcsd_sku',
-        'fcsd_stock'         => '_fcsd_stock',
-    ];
+    
+$fields = [
+    'fcsd_price_regular' => '_fcsd_price_regular',
+    'fcsd_price_sale'    => '_fcsd_price_sale',
+    'fcsd_price_member'  => '_fcsd_price_member',
+    'fcsd_product_type'  => '_fcsd_product_type',
+    'fcsd_sku'           => '_fcsd_sku',
+];
 
     foreach ( $fields as $form_key => $meta_key ) {
         if ( isset( $_POST[ $form_key ] ) ) {
@@ -166,14 +188,62 @@ add_action( 'save_post_fcsd_product', function ( $post_id ) {
             if ( in_array( $form_key, [ 'fcsd_price_regular', 'fcsd_price_sale', 'fcsd_price_member' ], true ) ) {
                 $value = str_replace( ',', '.', $value );
                 $value = $value !== '' ? (float) $value : '';
-            } elseif ( 'fcsd_stock' === $form_key ) {
-                $value = (int) $value;
             } else {
                 $value = sanitize_text_field( $value );
             }
 
             update_post_meta( $post_id, $meta_key, $value );
         }
+    }
+
+    // Variants & stock
+    $has_variants = isset( $_POST['fcsd_has_variants'] ) ? 1 : 0;
+    update_post_meta( $post_id, '_fcsd_has_variants', $has_variants );
+
+    // If product has variants: save per-variant stock and set total stock as sum.
+    // If product has no variants: save only generic stock and clear variants.
+    if ( $has_variants ) {
+        $variant_stock = [];
+        $total = 0;
+
+        // Expect posted structure: fcsd_stock_variant[color][size]
+        if ( isset( $_POST['fcsd_stock_variant'] ) && is_array( $_POST['fcsd_stock_variant'] ) ) {
+            foreach ( $_POST['fcsd_stock_variant'] as $color_key => $sizes ) {
+                $color_key = sanitize_text_field( wp_unslash( $color_key ) );
+                if ( ! is_array( $sizes ) ) {
+                    $sizes = [ '' => $sizes ];
+                }
+                foreach ( $sizes as $size_key => $qty ) {
+                    $size_key = sanitize_text_field( wp_unslash( $size_key ) );
+                    $qty = (int) $qty;
+                    if ( $qty < 0 ) {
+                        $qty = 0;
+                    }
+
+                    // Normalize color to #RRGGBB (or empty)
+                    $norm_color = trim( $color_key );
+                    if ( $norm_color !== '' && $norm_color[0] !== '#' ) {
+                        $norm_color = '#' . $norm_color;
+                    }
+
+                    $key = 'color=' . $norm_color . ';size=' . $size_key;
+                    $variant_stock[ $key ] = $qty;
+                    $total += $qty;
+                }
+            }
+        }
+
+        update_post_meta( $post_id, '_fcsd_stock_variants', $variant_stock );
+        update_post_meta( $post_id, '_fcsd_stock', $total );
+
+    } else {
+        // Save generic stock
+        $generic = isset( $_POST['fcsd_stock'] ) ? (int) $_POST['fcsd_stock'] : 0;
+        if ( $generic < 0 ) {
+            $generic = 0;
+        }
+        update_post_meta( $post_id, '_fcsd_stock', $generic );
+        delete_post_meta( $post_id, '_fcsd_stock_variants' );
     }
 
     // Mantener compatibilidad con el meta _price usado por el carrito actual
@@ -183,6 +253,118 @@ add_action( 'save_post_fcsd_product', function ( $post_id ) {
     }
 } );
 
+
+// ========================================================================
+//  METABOX: ESTOC PER VARIANTS (segons colors i/o talles disponibles)
+// ========================================================================
+add_action( 'add_meta_boxes', function() {
+    add_meta_box(
+        'fcsd_product_variant_stock',
+        __( 'Estoc per variants', 'fcsd' ),
+        'fcsd_product_variant_stock_metabox',
+        'fcsd_product',
+        'normal',
+        'default'
+    );
+} );
+
+function fcsd_product_variant_stock_metabox( $post ) {
+    $has_variants = (int) get_post_meta( $post->ID, '_fcsd_has_variants', true );
+    $colors = get_post_meta( $post->ID, '_fcsd_product_colors', true );
+    $sizes  = get_post_meta( $post->ID, '_fcsd_product_sizes', true );
+    $colors = is_array( $colors ) ? $colors : [];
+    $sizes  = is_array( $sizes ) ? $sizes : [];
+
+    $variant_stock = get_post_meta( $post->ID, '_fcsd_stock_variants', true );
+    $variant_stock = is_array( $variant_stock ) ? $variant_stock : [];
+
+    echo '<p>';
+    esc_html_e( 'Defineix primer els colors i/o talles als metaboxes laterals. Si el producte està marcat com a "té variants", aquí podràs posar l\'estoc per cada opció o combinació.', 'fcsd' );
+    echo '</p>';
+
+    // Render the table markup even if the meta hasn't been saved yet.
+    // Gutenberg sometimes delays meta persistence; a small JS toggle makes the UI reliable.
+    $wrap_style = $has_variants ? '' : 'style="display:none"';
+    if ( ! $has_variants ) {
+        echo '<p class="fcsd-variant-hint"><em>';
+        esc_html_e( 'Ara mateix el producte està marcat com a "sense variants". Marca "té variants" (a Dades del producte) per gestionar estoc per talla/color.', 'fcsd' );
+        echo '</em></p>';
+    }
+
+    echo '<div id="fcsd-variant-stock-fields" ' . $wrap_style . '>';
+
+    // If no colors & no sizes, show a hint
+    if ( empty( $colors ) && empty( $sizes ) ) {
+        echo '<p><em>';
+        esc_html_e( 'No hi ha colors ni talles definits. Afegeix-ne almenys un per poder gestionar variants.', 'fcsd' );
+        echo '</em></p>';
+        echo '</div>';
+        echo '<script>(function(){var cb=document.querySelector("input[name=\"fcsd_has_variants\"]");var box=document.getElementById("fcsd-variant-stock-fields");if(!cb||!box)return;function sync(){box.style.display=cb.checked?"block":"none";}cb.addEventListener("change",sync);sync();})();</script>';
+        return;
+    }
+
+    // Helper to get stock value
+    $get_qty = function( $color, $size ) use ( $variant_stock ) {
+        $key = 'color=' . $color . ';size=' . $size;
+        return isset( $variant_stock[ $key ] ) ? (int) $variant_stock[ $key ] : 0;
+    };
+
+    echo '<style>.fcsd-variant-stock-table{border-collapse:collapse;width:100%;max-width:900px}.fcsd-variant-stock-table th,.fcsd-variant-stock-table td{border:1px solid #ddd;padding:8px;text-align:left}.fcsd-variant-stock-table input[type=number]{width:100px}.fcsd-variant-hint{margin-top:6px}</style>';
+
+    echo '<table class="fcsd-variant-stock-table">';
+
+    // Three cases:
+    // 1) colors + sizes => grid
+    // 2) only colors => list
+    // 3) only sizes => list
+    if ( ! empty( $colors ) && ! empty( $sizes ) ) {
+        echo '<thead><tr><th>' . esc_html__( 'Color / Talla', 'fcsd' ) . '</th>';
+        foreach ( $sizes as $size ) {
+            echo '<th>' . esc_html( $size ) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+
+        foreach ( $colors as $color ) {
+            $color = trim( $color );
+            echo '<tr>';
+            echo '<td><span style="display:inline-block;width:14px;height:14px;border:1px solid #999;background:' . esc_attr( $color ) . ';vertical-align:middle;margin-right:6px"></span>' . esc_html( $color ) . '</td>';
+            foreach ( $sizes as $size ) {
+                $qty = $get_qty( $color, $size );
+                echo '<td><input type="number" min="0" name="fcsd_stock_variant[' . esc_attr( $color ) . '][' . esc_attr( $size ) . ']" value="' . esc_attr( $qty ) . '" /></td>';
+            }
+            echo '</tr>';
+        }
+
+        echo '</tbody>';
+
+    } elseif ( ! empty( $colors ) ) {
+        echo '<thead><tr><th>' . esc_html__( 'Color', 'fcsd' ) . '</th><th>' . esc_html__( 'Estoc', 'fcsd' ) . '</th></tr></thead><tbody>';
+        foreach ( $colors as $color ) {
+            $color = trim( $color );
+            $qty = $get_qty( $color, '' );
+            echo '<tr>';
+            echo '<td><span style="display:inline-block;width:14px;height:14px;border:1px solid #999;background:' . esc_attr( $color ) . ';vertical-align:middle;margin-right:6px"></span>' . esc_html( $color ) . '</td>';
+            echo '<td><input type="number" min="0" name="fcsd_stock_variant[' . esc_attr( $color ) . '][' . esc_attr( '' ) . ']" value="' . esc_attr( $qty ) . '" /></td>';
+            echo '</tr>';
+        }
+        echo '</tbody>';
+
+    } else {
+        echo '<thead><tr><th>' . esc_html__( 'Talla', 'fcsd' ) . '</th><th>' . esc_html__( 'Estoc', 'fcsd' ) . '</th></tr></thead><tbody>';
+        foreach ( $sizes as $size ) {
+            $qty = $get_qty( '', $size );
+            echo '<tr>';
+            echo '<td>' . esc_html( $size ) . '</td>';
+            echo '<td><input type="number" min="0" name="fcsd_stock_variant[' . esc_attr( '' ) . '][' . esc_attr( $size ) . ']" value="' . esc_attr( $qty ) . '" /></td>';
+            echo '</tr>';
+        }
+        echo '</tbody>';
+    }
+
+    echo '</table>';
+    echo '</div>';
+    echo '<script>(function(){var cb=document.querySelector("input[name=\"fcsd_has_variants\"]");var box=document.getElementById("fcsd-variant-stock-fields");if(!cb||!box)return;function sync(){box.style.display=cb.checked?"block":"none";}cb.addEventListener("change",sync);sync();})();</script>';
+}
 
 // ========================================================================
 //  METABOX LATERAL: COLORES DISPONIBLES (array de hex con colorpicker)

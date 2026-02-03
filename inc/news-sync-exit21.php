@@ -1034,6 +1034,10 @@ function fcsd_exit21_process_one_item( array $payload ): bool {
     $lang = $feed_lang ?: ( ( $permalink && ( strpos( $permalink, '/es/' ) !== false || preg_match( '~//[^/]+/es(/|$)~', $permalink ) ) ) ? 'es' : 'ca' );
     update_post_meta( $post_id, 'news_language', $lang );
 
+    // Ámbito por defecto: Institucional (si no tiene ninguno asignado)
+    // En modo asíncrono (cron) NO se ejecuta save_post con usuario, así que lo forzamos aquí.
+    fcsd_news_ensure_default_area( $post_id );
+
     // Autores
     $author_raw = '';
     $author_obj = $target->get_author();

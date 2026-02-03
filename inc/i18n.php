@@ -72,6 +72,40 @@ function fcsd_current_locale(): string {
     return FCSD_LANGUAGES[$lang] ?? FCSD_LANGUAGES[FCSD_DEFAULT_LANG];
 }
 
+
+/**
+ * Corrige "mojibake" típico (p.ej. "CategorÃ­a") cuando una cadena UTF-8
+ * se ha interpretado como ISO-8859-1 y luego se vuelve a imprimir como UTF-8.
+ *
+ * Solo se aplica si detectamos patrones comunes (Ã / Â) y si la conversión
+ * produce una cadena UTF-8 válida.
+ */
+function fcsd_fix_mojibake( $str ) {
+    if ( ! is_string( $str ) || $str === '' ) {
+        return $str;
+    }
+
+    // Patrones habituales cuando UTF-8 se muestra como Latin-1/Windows-1252.
+    if ( strpos( $str, 'Ã' ) === false && strpos( $str, 'Â' ) === false ) {
+        return $str;
+    }
+
+    // Intento de reparación: tratar la cadena actual como ISO-8859-1 y convertir a UTF-8.
+    $fixed = function_exists( 'iconv' ) ? @iconv( 'ISO-8859-1', 'UTF-8//IGNORE', $str ) : $str;
+
+    if ( is_string( $fixed ) && $fixed != '' && preg_match( '//u', $fixed ) ) {
+        // Si parece mejorar (menos mojibake), nos quedamos con el fix.
+        $before = substr_count( $str, 'Ã' ) + substr_count( $str, 'Â' );
+        $after  = substr_count( $fixed, 'Ã' ) + substr_count( $fixed, 'Â' );
+        if ( $after < $before ) {
+            return $fixed;
+        }
+    }
+
+    return $str;
+}
+
+
 /**
  * Fuerza el locale del request a partir del prefijo de URL.
  *
@@ -102,7 +136,7 @@ function fcsd_gettext_no_empty_translation( $translation, $text, $domain ) {
 
     // 1) Si la traducción está vacía pero el texto original no lo está, fallback.
     if ( $translation === '' && $text !== '' ) {
-        return $text;
+        return fcsd_fix_mojibake( $text );
     }
 
     // 2) Salvaguarda i18n (sin depender del locale/.mo):
@@ -133,6 +167,19 @@ function fcsd_gettext_no_empty_translation( $translation, $text, $domain ) {
                     'Contrast' => 'Contraste',
                     'Donar' => 'Donar',
                     'Treballem per la plena inclusió i igualtat de drets.' => 'Trabajamos por la plena inclusión e igualdad de derechos.',
+
+                    // Shop (navbar-filters.php)
+                    'Mostrar filtres' => 'Mostrar filtros',
+                    'Filtres' => 'Filtros',
+                    'Buscar' => 'Buscar',
+                    'Cerca productes…' => 'Buscar productos…',
+                    'Categoria' => 'Categoría',
+                    'Totes' => 'Todas',
+                    'Qualsevol' => 'Cualquiera',
+                    'Preu mín.' => 'Precio mín.',
+                    'Preu màx.' => 'Precio máx.',
+                    'Aplicar filtres' => 'Aplicar filtros',
+                    'Netejar' => 'Limpiar',
                 ),
                 'en' => array(
                     'Àmbits de treball' => 'Areas of work',
@@ -152,16 +199,29 @@ function fcsd_gettext_no_empty_translation( $translation, $text, $domain ) {
                     'Contrast' => 'Contrast',
                     'Donar' => 'Donate',
                     'Treballem per la plena inclusió i igualtat de drets.' => 'We work for full inclusion and equal rights.',
+
+                    // Shop (navbar-filters.php)
+                    'Mostrar filtres' => 'Show filters',
+                    'Filtres' => 'Filters',
+                    'Buscar' => 'Search',
+                    'Cerca productes…' => 'Search products…',
+                    'Categoria' => 'Category',
+                    'Totes' => 'All',
+                    'Qualsevol' => 'Any',
+                    'Preu mín.' => 'Min. price',
+                    'Preu màx.' => 'Max. price',
+                    'Aplicar filtres' => 'Apply filters',
+                    'Netejar' => 'Clear',
                 ),
             );
 
             if ( isset( $map[ $lang ][ $text ] ) ) {
-                return $map[ $lang ][ $text ];
+                return fcsd_fix_mojibake( $map[ $lang ][ $text ] );
             }
         }
     }
 
-    return $translation;
+    return fcsd_fix_mojibake( $translation );
 }
 add_filter( 'gettext', 'fcsd_gettext_no_empty_translation', 10, 3 );
 add_filter( 'gettext_with_context', 'fcsd_gettext_no_empty_translation', 10, 3 );
@@ -213,19 +273,17 @@ function fcsd_apply_frontend_locale(): void {
 }
 
 
-// Aún más temprano: antes de que otros componentes (CPTs, plantillas, etc.) lean strings.
-// - plugins_loaded: casi lo primero tras cargar plugins/tema
-// - setup_theme: antes de after_setup_theme
-add_action('plugins_loaded', 'fcsd_apply_frontend_locale', 0);
-add_action('setup_theme', 'fcsd_apply_frontend_locale', 0);
+// Nota: el tema se carga DESPUÉS de `plugins_loaded` y `setup_theme`, así que
+// engancharse ahí desde functions.php no garantiza ejecución en la misma request.
+// Para que las traducciones estén listas antes de registrar CPTs/taxonomías
+// (que suele ocurrir en `init`), forzamos el locale/textdomain en `after_setup_theme`
+// con prioridad 0 y repetimos en `init` con prioridad 0.
 
-// Recarga del locale/textdomain lo antes posible en el frontend.
-// after_setup_theme asegura que el locale efectivo ya está determinado y que,
-// si el tema se usa como hijo, la ruta a /languages es la correcta.
-add_action('after_setup_theme', 'fcsd_apply_frontend_locale', 1);
+// Lo antes posible en el frontend.
+add_action('after_setup_theme', 'fcsd_apply_frontend_locale', 0);
 
-// Salvaguarda adicional (algunas instalaciones cargan traducciones tardías).
-add_action('init', 'fcsd_apply_frontend_locale', 1);
+// Antes de que otros componentes en `init` registren labels.
+add_action('init', 'fcsd_apply_frontend_locale', 0);
 
 // Punto “seguro”: aquí ya han corrido las rewrites y el router (parse_request)
 // y `fcsd_lang` está fijado. Esto evita el caso en el que el frontend usa
