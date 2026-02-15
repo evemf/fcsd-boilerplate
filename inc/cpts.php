@@ -40,12 +40,26 @@ add_action('init', function(){
         'menu_position' => 8,
         'menu_icon' => 'dashicons-megaphone',
         'supports' => ['title','editor','thumbnail','excerpt','page-attributes'],
-        'has_archive' => true,
+        // Categorías y etiquetas para noticias internas/importadas + EXIT21.
+        // (si no se registran aquí, wp_set_object_terms() funciona pero el admin
+        // no las muestra/edita correctamente y las columnas quedan vacías.)
+        'taxonomies' => [ 'category', 'post_tag', 'service_area' ],
+        'show_in_rest' => true,
+        // El listado vive en una página (page-news.php) con slug traducible.
+        // Así evitamos duplicidades (/noticies/ vs /actualitat/...) y mantenemos
+        // un único punto de configuración del filtro por categorías.
+        'has_archive' => false,
         'rewrite' => ['slug' => 'noticies']
     ]);
 
+    // Asegurar que las taxonomías nativas se comportan correctamente en el CPT.
+    // (especialmente relevante para importaciones vía XML/WXR y para que las columnas
+    // del admin puedan leer términos sin problemas).
+    register_taxonomy_for_object_type( 'category', 'news' );
+    register_taxonomy_for_object_type( 'post_tag', 'news' );
+
     register_post_type('transparency', [
-        'label' => __('Transparency', 'fcsd'),
+        'label' => __('Transparència', 'fcsd'),
         'public' => true,
         'menu_position' => 9,
         'menu_icon' => 'dashicons-visibility',
@@ -67,7 +81,8 @@ add_action('init', function(){
         'show_in_menu'  => true,
         'menu_position' => 8,
         'menu_icon'     => 'dashicons-calendar-alt',
-        'supports'      => ['title','editor','excerpt','thumbnail'],
+        'hierarchical'  => true,
+        'supports'      => ['title','editor','excerpt','thumbnail','page-attributes'],
         'has_archive'   => true,
         'rewrite'       => ['slug' => 'formacions-i-events'],
         'show_in_rest'  => true,
@@ -436,14 +451,29 @@ add_action('manage_news_posts_custom_column', function ($column, $post_id) {
     if ($column === 'fcsd_news_lang') {
         $lang = get_post_meta($post_id, 'news_language', true);
         if (!$lang) {
+            // Intentar derivar idioma desde URL de origen (meta del theme), legacy meta, o GUID.
             $url = (string) get_post_meta($post_id, 'news_external_url', true);
+            if (!$url) $url = (string) get_post_meta($post_id, '_fcsd_origin_url', true);
+            if (!$url) $url = (string) get_post_field('guid', $post_id);
+
             if ($url) {
-                $lang = (strpos($url, '/es/') !== false || preg_match('~//[^/]+/es(/|$)~', $url)) ? 'es' : 'ca';
+                // Idiomas soportados: ca (por defecto), es, en. Si la URL no lleva prefijo -> ca.
+                $path = (string) parse_url($url, PHP_URL_PATH);
+                $lang = 'ca';
+                if ($path && preg_match('#^/([a-z]{2})(/|$)#i', $path, $m)) {
+                    $cand = strtolower($m[1]);
+                    if (in_array($cand, ['ca','es','en'], true)) $lang = $cand;
+                } elseif (strpos($url, '/es/') !== false || preg_match('~//[^/]+/es(/|$)~', $url)) {
+                    $lang = 'es';
+                } elseif (strpos($url, '/en/') !== false || preg_match('~//[^/]+/en(/|$)~', $url)) {
+                    $lang = 'en';
+                }
                 update_post_meta($post_id, 'news_language', $lang);
             }
         }
         if ($lang === 'es') { echo 'ES'; }
         elseif ($lang === 'ca') { echo 'CA'; }
+        elseif ($lang === 'en') { echo 'EN'; }
         else { echo '—'; }
         return;
     }
@@ -678,6 +708,5 @@ function fcsd_backfill_news_default_service_area() {
     }
 }
 add_action( 'current_screen', 'fcsd_backfill_news_default_service_area' );
-
 
 

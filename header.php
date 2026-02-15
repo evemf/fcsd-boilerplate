@@ -20,44 +20,81 @@ $logo_dark    = fcsd_get_option( 'fcsd_logo_dark' );
 
 $has_search   = (bool) fcsd_get_option( 'fcsd_enable_search', true );
 $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
+
+// Donate button (per-language)
+$donate_enabled = (bool) fcsd_get_option( 'fcsd_enable_donate', true );
+$donate_label   = fcsd_get_option( 'donate_label', __( 'Dona', 'fcsd' ) );
+$donate_url     = fcsd_get_option( 'donate_url', '' );
+
+// Compat / fallback: si el botón no tiene URL por idioma, reutilizamos el ajuste del footer.
+// Esto evita que el botón desaparezca aunque solo se haya configurado el donativo en "Footer".
+if ( empty( $donate_url ) ) {
+    $donate_url = get_theme_mod( 'fcsd_footer_donate_url', '' );
+}
+if ( empty( $donate_label ) ) {
+    $donate_label = get_theme_mod( 'fcsd_footer_donate_label', __( 'Dona', 'fcsd' ) );
+}
+
+// Último recurso: intenta encontrar una página interna típica.
+if ( empty( $donate_url ) ) {
+    foreach ( array( 'donatiu', 'donatius', 'donativo', 'donativos', 'donate' ) as $slug ) {
+        $page = get_page_by_path( $slug );
+        if ( $page ) {
+            $donate_url = get_permalink( $page );
+            break;
+        }
+    }
+}
 ?>
 
 <header id="site-header" class="site-header" role="banner">
 
 <!-- Top bar -->
 <div class="topbar py-2 small">
-  <div class="container-fluid d-flex align-items-center justify-content-between">
+  <div class="container-fluid topbar__grid">
 
-    <!-- Enlaces de la franja superior -->
-    <ul class="topbar__links list-inline mb-0">
-      <?php
-      wp_nav_menu(
-          array(
-              'theme_location' => 'topbar',
-              'container'      => false,
-              'items_wrap'     => '%3$s',
-              'depth'          => 1,
-              'fallback_cb'    => false,
-          )
-      );
-      ?>
-    </ul>
+    <!-- Left: contrast + languages -->
+    <div class="topbar__left d-flex align-items-center gap-3">
+      <?php if ( $has_contrast ) : ?>
+      <button id="contrastToggle"
+              class="btn btn-outline-accent btn-sm"
+              type="button"
+              aria-pressed="false"
+              aria-label="<?php esc_attr_e( 'Alterna contrast', 'fcsd' ); ?>">
+        <?php _e( 'Contrast', 'fcsd' ); ?>
+      </button>
+      <?php endif; ?>
 
-    <div class="d-flex align-items-center gap-3">
+      <!-- Idiomas -->
+      <nav class="topbar__langs" aria-label="<?php esc_attr_e('Idiomes', 'fcsd'); ?>">
+        <ul class="list-inline mb-0">
+          <?php $fcsd_lang_current = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : substr((string) get_locale(), 0, 2) ); ?>
+          <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'ca' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'ca' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('ca') ); ?>" rel="alternate" hreflang="ca">CA</a></li>
+          <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'es' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'es' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('es') ); ?>" rel="alternate" hreflang="es">ES</a></li>
+          <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'en' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'en' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('en') ); ?>" rel="alternate" hreflang="en">EN</a></li>
+        </ul>
+      </nav>
+    </div>
 
-<!-- Idiomas -->
-<nav class="topbar__langs" aria-label="<?php esc_attr_e('Idiomes', 'fcsd'); ?>">
-  <ul class="list-inline mb-0">
-    <?php $fcsd_lang_current = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : substr((string) get_locale(), 0, 2) ); ?>
-    <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'ca' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'ca' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('ca') ); ?>" rel="alternate" hreflang="ca">CA</a></li>
-    <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'es' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'es' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('es') ); ?>" rel="alternate" hreflang="es">ES</a></li>
-    <li class="list-inline-item"><a class="<?php echo $fcsd_lang_current === 'en' ? 'is-active' : ''; ?>" aria-current="<?php echo $fcsd_lang_current === 'en' ? 'page' : 'false'; ?>" href="<?php echo esc_url( fcsd_switch_lang_url('en') ); ?>" rel="alternate" hreflang="en">EN</a></li>
-  </ul>
-</nav>
+    <!-- Center: top links -->
+    <div class="topbar__center">
+      <ul class="topbar__links list-inline mb-0">
+        <?php
+        wp_nav_menu(
+            array(
+                'theme_location' => 'topbar',
+                'container'      => false,
+                'items_wrap'     => '%3$s',
+                'depth'          => 1,
+                'fallback_cb'    => false,
+            )
+        );
+        ?>
+      </ul>
+    </div>
 
-
-
-      <!-- Redes sociales -->
+    <!-- Right: socials -->
+    <div class="topbar__right d-flex align-items-center gap-3">
       <nav aria-label="<?php esc_attr_e( 'Xarxes socials', 'fcsd' ); ?>">
         <ul class="list-inline mb-0 topbar__social">
           <?php
@@ -83,18 +120,6 @@ $has_contrast = (bool) fcsd_get_option( 'fcsd_enable_contrast', true );
           ?>
         </ul>
       </nav>
-
-      <!-- Botón de contraste -->
-      <?php if ( $has_contrast ) : ?>
-      <button id="contrastToggle"
-              class="btn btn-outline-accent btn-sm"
-              type="button"
-              aria-pressed="false"
-              aria-label="<?php esc_attr_e( 'Alterna contrast', 'fcsd' ); ?>">
-        <?php _e( 'Contrast', 'fcsd' ); ?>
-      </button>
-      <?php endif; ?>
-
     </div>
   </div>
 </div>
@@ -190,6 +215,12 @@ $cart_count = fcsd_Shop_Cart::get_cart_count();
           style="top:-.25rem; left:80%;"><?php echo esc_html( $cart_count ); ?></span>
     <?php endif; ?>
   </a>
+
+  <?php if ( $donate_enabled && ! empty( $donate_url ) ) : ?>
+    <a class="btn btn-donate btn-md" href="<?php echo esc_url( $donate_url ); ?>">
+      <?php echo esc_html( $donate_label ); ?>
+    </a>
+  <?php endif; ?>
 </div>
 
   </div>

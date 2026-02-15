@@ -153,6 +153,66 @@ add_action(
             )
         );
 
+        // ====== Donate button (per-language) ======
+        $wp_customize->add_setting(
+            'fcsd_enable_donate',
+            array(
+                'default'           => true,
+                'sanitize_callback' => 'fcsd_sanitize_bool',
+            )
+        );
+
+        $wp_customize->add_control(
+            'fcsd_enable_donate',
+            array(
+                'label'       => __( 'Show Donate Button', 'fcsd' ),
+                'description' => __( 'Shows a green “Donate” button on the right side of the header (per language label + URL).', 'fcsd' ),
+                'type'        => 'checkbox',
+                'section'     => 'fcsd_header',
+            )
+        );
+
+        $donate_label_defaults = array(
+            'ca' => 'Fes un donatiu',
+            'es' => 'Haz un donativo',
+            'en' => 'Donate',
+        );
+
+        foreach ( array( 'ca', 'es', 'en' ) as $lang ) {
+            $wp_customize->add_setting(
+                'donate_label_' . $lang,
+                array(
+                    'default'           => $donate_label_defaults[ $lang ] ?? '',
+                    'sanitize_callback' => 'sanitize_text_field',
+                )
+            );
+            $wp_customize->add_control(
+                'donate_label_' . $lang,
+                array(
+                    'label'       => sprintf( __( 'Donate button label (%s)', 'fcsd' ), strtoupper( $lang ) ),
+                    'type'        => 'text',
+                    'section'     => 'fcsd_header',
+                )
+            );
+
+            $wp_customize->add_setting(
+                'donate_url_' . $lang,
+                array(
+                    'default'           => '',
+                    'sanitize_callback' => 'esc_url_raw',
+                )
+            );
+            $wp_customize->add_control(
+                'donate_url_' . $lang,
+                array(
+                    'label'       => sprintf( __( 'Donate button URL (%s)', 'fcsd' ), strtoupper( $lang ) ),
+                    'description' => __( 'If empty, the donate button will be hidden for that language.', 'fcsd' ),
+                    'type'        => 'url',
+                    'section'     => 'fcsd_header',
+                )
+            );
+        }
+
         // ====== Social Links (includes TikTok) ======
         $wp_customize->add_section(
             'fcsd_social',
@@ -265,6 +325,70 @@ add_action(
                 )
             );
         }
+
+        // ====== Home news strip (continuous marquee) ======
+        $wp_customize->add_setting(
+            'home_news_marquee_enable',
+            array(
+                'default'           => true,
+                'sanitize_callback' => 'fcsd_sanitize_bool',
+            )
+        );
+
+        $wp_customize->add_control(
+            'home_news_marquee_enable',
+            array(
+                'label'       => __( 'Home: continuous news carousel', 'fcsd' ),
+                'description' => __( 'If enabled, the news strip on the front page auto-scrolls in a continuous loop. If disabled, it becomes a manual horizontal scroll.', 'fcsd' ),
+                'type'        => 'checkbox',
+                'section'     => 'fcsd_home',
+            )
+        );
+
+        $wp_customize->add_setting(
+            'home_news_marquee_speed',
+            array(
+                'default'           => 28,
+                'sanitize_callback' => static function ( $val ) {
+                    $v = (int) $val;
+                    if ( $v < 10 ) { $v = 10; }
+                    if ( $v > 120 ) { $v = 120; }
+                    return $v;
+                },
+            )
+        );
+
+        $wp_customize->add_control(
+            'home_news_marquee_speed',
+            array(
+                'label'       => __( 'Home: news carousel speed (seconds)', 'fcsd' ),
+                'description' => __( 'Lower = faster. Recommended: 20–40.', 'fcsd' ),
+                'type'        => 'number',
+                'section'     => 'fcsd_home',
+                'input_attrs' => array(
+                    'min'  => 10,
+                    'max'  => 120,
+                    'step' => 1,
+                ),
+            )
+        );
+
+        $wp_customize->add_setting(
+            'home_news_marquee_pause',
+            array(
+                'default'           => true,
+                'sanitize_callback' => 'fcsd_sanitize_bool',
+            )
+        );
+
+        $wp_customize->add_control(
+            'home_news_marquee_pause',
+            array(
+                'label'       => __( 'Home: pause on hover/focus', 'fcsd' ),
+                'type'        => 'checkbox',
+                'section'     => 'fcsd_home',
+            )
+        );
 
         $wp_customize->add_setting(
             'fcsd_home_dummy',

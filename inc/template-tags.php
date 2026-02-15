@@ -8,7 +8,12 @@ function fcsd_main_nav_items(){
         ['label' => __('Events','fcsd'),     'url' => get_post_type_archive_link('event')],
         ['label' => __('Botiga','fcsd'),        'url' => get_post_type_archive_link('fcsd_product')],
         ['label' => __('Transparència','fcsd'), 'url' => get_post_type_archive_link('transparency')],
-        ['label' => __('Actualitat','fcsd'),    'url' => get_post_type_archive_link('news')],
+        [
+            'label' => __('Actualitat','fcsd'),
+            'url'   => function_exists('fcsd_default_slug')
+                ? fcsd_get_page_url_by_slug( fcsd_default_slug('news') )
+                : fcsd_get_page_url_by_slug( 'noticies' ),
+        ],
         [
             'label' => __('Contacte','fcsd'),
             'url'   => function_exists('fcsd_default_slug')

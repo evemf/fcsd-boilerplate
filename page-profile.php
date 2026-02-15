@@ -103,8 +103,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['fcsd_profile_nonce'
     $phone_new    = isset($_POST['phone']) ? sanitize_text_field($_POST['phone']) : '';
     $bio_new      = isset($_POST['profile_bio']) ? wp_kses_post($_POST['profile_bio']) : '';
 
-    if ( empty($display_name) ) $profile_errors[] = __( 'El nombre no puede estar vacío.', 'fcsd' );
-    if ( empty($email) || !is_email($email) ) $profile_errors[] = __( 'El email no es válido.', 'fcsd' );
+    if ( empty($display_name) ) $profile_errors[] = __( 'El nombre no pot estar buit.', 'fcsd' );
+    if ( empty($email) || !is_email($email) ) $profile_errors[] = __( 'Aquest email no és vàlid.', 'fcsd' );
 
     $shipping_first_name_new = isset($_POST['shipping_first_name']) ? sanitize_text_field($_POST['shipping_first_name']) : '';
     $shipping_last_name_new  = isset($_POST['shipping_last_name']) ? sanitize_text_field($_POST['shipping_last_name']) : '';
@@ -119,8 +119,8 @@ if ( 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['fcsd_profile_nonce'
     $pass2 = $_POST['pass2'] ?? '';
 
     if ( $pass1 || $pass2 ) {
-      if ( $pass1 !== $pass2 ) $profile_errors[] = __( 'Las contraseñas no coinciden.', 'fcsd' );
-      elseif ( strlen($pass1) < 8 ) $profile_errors[] = __( 'La contraseña debe tener al menos 8 caracteres.', 'fcsd' );
+      if ( $pass1 !== $pass2 ) $profile_errors[] = __( 'Les contrasenyes no coincideixen.', 'fcsd' );
+      elseif ( strlen($pass1) < 8 ) $profile_errors[] = __( 'La contrasenya ha te tenir al menys 8 caracters.', 'fcsd' );
     }
 
     if ( !empty($_FILES['profile_photo']['name']) ) {

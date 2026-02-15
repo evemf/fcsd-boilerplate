@@ -18,22 +18,35 @@ $carousel_news = new WP_Query([
 ?>
 
 <?php if ( $carousel_news->have_posts() ) : ?>
-<section class="fcsd-home-news-strip" aria-label="<?php esc_attr_e( 'Notícies destacades', 'fcsd' ); ?>">
-  <div class="fcsd-home-news-strip__inner">
-    <?php while ( $carousel_news->have_posts() ) : $carousel_news->the_post(); ?>
-      <article class="fcsd-home-news-strip__item">
-        <a class="fcsd-home-news-strip__link" href="<?php the_permalink(); ?>">
-          <div class="fcsd-home-news-strip__thumb">
-            <?php if ( has_post_thumbnail() ) : ?>
-              <?php the_post_thumbnail( 'thumbnail' ); ?>
-            <?php else : ?>
-              <span class="fcsd-home-news-strip__thumb-ph" aria-hidden="true"></span>
-            <?php endif; ?>
-          </div>
-          <h3 class="fcsd-home-news-strip__title"><?php the_title(); ?></h3>
-        </a>
-      </article>
-    <?php endwhile; wp_reset_postdata(); ?>
+<?php
+  $marquee_enabled = (bool) get_theme_mod( 'home_news_marquee_enable', true );
+  $marquee_speed   = (int)  get_theme_mod( 'home_news_marquee_speed', 28 );
+  if ( $marquee_speed < 10 ) { $marquee_speed = 10; }
+  if ( $marquee_speed > 120 ) { $marquee_speed = 120; }
+  $marquee_pause   = (bool) get_theme_mod( 'home_news_marquee_pause', true );
+  $strip_classes   = 'fcsd-home-news-strip' . ( $marquee_enabled ? ' is-marquee' : '' ) . ( $marquee_pause ? ' is-pausable' : '' );
+?>
+<section class="<?php echo esc_attr( $strip_classes ); ?>"
+         aria-label="<?php esc_attr_e( 'Notícies destacades', 'fcsd' ); ?>"
+         data-marquee="<?php echo $marquee_enabled ? '1' : '0'; ?>"
+         data-marquee-speed="<?php echo esc_attr( $marquee_speed ); ?>">
+  <div class="fcsd-home-news-strip__viewport" tabindex="0">
+    <div class="fcsd-home-news-strip__track">
+      <?php while ( $carousel_news->have_posts() ) : $carousel_news->the_post(); ?>
+        <article class="fcsd-home-news-strip__item">
+          <a class="fcsd-home-news-strip__link" href="<?php the_permalink(); ?>">
+            <div class="fcsd-home-news-strip__thumb">
+              <?php if ( has_post_thumbnail() ) : ?>
+                <?php the_post_thumbnail( 'thumbnail' ); ?>
+              <?php else : ?>
+                <span class="fcsd-home-news-strip__thumb-ph" aria-hidden="true"></span>
+              <?php endif; ?>
+            </div>
+            <h3 class="fcsd-home-news-strip__title"><?php the_title(); ?></h3>
+          </a>
+        </article>
+      <?php endwhile; wp_reset_postdata(); ?>
+    </div>
   </div>
 </section>
 <?php endif; ?>

@@ -594,8 +594,13 @@ function fcsd_sync_exit21_news() {
         update_post_meta( $post_id, 'exit21_guid', $guid_key ?: (string) $guid );
         update_post_meta( $post_id, 'news_source', 'exit21' );
         update_post_meta( $post_id, 'news_external_url', $permalink );
-        // Idioma (ES/CA) — preferimos el idioma del feed que estamos procesando.
-        $lang = $feed_lang ?: ( ( strpos( $permalink, '/es/' ) !== false || preg_match('~//[^/]+/es(/|$)~', $permalink ) ) ? 'es' : 'ca' );
+        // Idioma (CA/ES/EN)
+        // - Si el feed ya viene segmentado por idioma, $feed_lang suele ser fiable.
+        // - Pero algunos XML/RSS incluyen items multi-idioma en el mismo feed:
+        //   en ese caso detectamos el idioma por el primer segmento de la URL.
+        //   (ej.: /ca/..., /es/..., /en/...).
+        $detected_lang = $permalink ? fcsd_detect_lang_from_url( $permalink ) : null;
+        $lang = $detected_lang ?: ( $feed_lang ?: 'ca' );
         update_post_meta( $post_id, 'news_language', $lang );
 
         // Ámbito por defecto: Institucional (si no tiene ninguno asignado)
@@ -634,25 +639,79 @@ function fcsd_sync_exit21_news() {
         // CATEGORÍAS
         // ====================================================================
         $cat_names = [];
+        $tag_names = [];
         $cats = $item->get_categories();
         if ( is_array( $cats ) ) {
             foreach ( $cats as $c ) {
                 $label = '';
+                $scheme = '';
                 if ( is_object( $c ) ) {
                     if ( method_exists( $c, 'get_term' ) )  $label = $c->get_term();
                     if ( ! $label && method_exists( $c, 'get_label' ) ) $label = $c->get_label();
+                    if ( method_exists( $c, 'get_scheme' ) ) $scheme = (string) $c->get_scheme();
                 }
-                if ( $label ) $cat_names[] = wp_strip_all_tags( $label );
+                if ( ! $label ) continue;
+
+                $label = wp_strip_all_tags( $label );
+                $scheme = strtolower( trim( $scheme ) );
+
+                // WordPress RSS/WXR suele serializar tags como <category domain="post_tag">...
+                // En SimplePie esto llega como "scheme" = "post_tag".
+                if ( $scheme === 'post_tag' ) {
+                    $tag_names[] = $label;
+                } else {
+                    $cat_names[] = $label;
+                }
             }
         }
 
+        // Fallback: categorías en formato plano.
+        // Si hay atributo domain="post_tag", lo tratamos como etiqueta.
+        // En SimplePie, la estructura de atributos puede variar según el feed.
+        // Por eso, intentamos extraer el valor de forma robusta.
+        $get_attr = static function( array $tag, string $attr ): string {
+            if ( empty( $tag['attribs'] ) || ! is_array( $tag['attribs'] ) ) {
+                return '';
+            }
+            foreach ( $tag['attribs'] as $ns => $attrs ) {
+                if ( ! is_array( $attrs ) ) continue;
+                if ( ! array_key_exists( $attr, $attrs ) ) continue;
+
+                $val = $attrs[ $attr ];
+                // Puede venir como string
+                if ( is_string( $val ) ) return $val;
+                // O como array (a veces con ['data'] o lista)
+                if ( is_array( $val ) ) {
+                    if ( isset( $val['data'] ) && is_string( $val['data'] ) ) return $val['data'];
+                    $first = reset( $val );
+                    if ( is_string( $first ) ) return $first;
+                }
+            }
+            return '';
+        };
+
         foreach ( (array) $item->get_item_tags( '', 'category' ) as $tag ) {
-            if ( ! empty( $tag['data'] ) ) $cat_names[] = wp_strip_all_tags( $tag['data'] );
+            if ( empty( $tag['data'] ) ) continue;
+            $name = wp_strip_all_tags( (string) $tag['data'] );
+            if ( $name === '' ) continue;
+
+            $domain = strtolower( trim( $get_attr( $tag, 'domain' ) ) );
+            // Algunos feeds usan "scheme" en vez de "domain".
+            if ( $domain === '' ) {
+                $domain = strtolower( trim( $get_attr( $tag, 'scheme' ) ) );
+            }
+
+            if ( $domain === 'post_tag' ) {
+                $tag_names[] = $name;
+            } else {
+                $cat_names[] = $name;
+            }
         }
 
+        // Categorías (tax: category)
         $term_ids = [];
         if ( $cat_names ) {
-            $cat_names = array_values( array_unique( $cat_names ) );
+            $cat_names = array_values( array_unique( array_filter( array_map( 'trim', $cat_names ) ) ) );
             update_post_meta( $post_id, 'news_categories_raw', $cat_names );
 
             foreach ( $cat_names as $name ) {
@@ -666,6 +725,27 @@ function fcsd_sync_exit21_news() {
                 }
             }
             if ( $term_ids ) wp_set_post_terms( $post_id, $term_ids, 'category', false );
+        }
+
+        // Etiquetas (tax: post_tag)
+        $tag_ids = [];
+        if ( $tag_names ) {
+            $tag_names = array_values( array_unique( array_filter( array_map( 'trim', $tag_names ) ) ) );
+
+            foreach ( $tag_names as $name ) {
+                $slug  = sanitize_title( $name );
+                $found = term_exists( $slug, 'post_tag' );
+                if ( 0 === $found || null === $found ) {
+                    $created_term = wp_insert_term( $name, 'post_tag', [ 'slug' => $slug ] );
+                    if ( ! is_wp_error( $created_term ) ) $tag_ids[] = (int) $created_term['term_id'];
+                } else {
+                    $tag_ids[] = (int) ( is_array( $found ) ? $found['term_id'] : $found );
+                }
+            }
+
+            if ( $tag_ids ) {
+                wp_set_post_terms( $post_id, $tag_ids, 'post_tag', false );
+            }
         }
 
         // ====================================================================
@@ -768,6 +848,35 @@ function fcsd_exit21_guid_key( string $guid, string $lang = '' ): string {
     $guid = trim( $guid );
     $lang = trim( $lang );
     return ( $guid && $lang ) ? ( $guid . '|' . $lang ) : $guid;
+}
+
+/**
+ * Detecta idioma desde una URL.
+ *
+ * Soporta URLs tipo:
+ * - https://example.com/ca/... (o /es/, /en/)
+ * - https://example.com/es (sin barra final)
+ * - https://example.com/noticies/... (sin prefijo) => null
+ */
+function fcsd_detect_lang_from_url( string $url ): ?string {
+    $url = trim( $url );
+    if ( $url === '' ) return null;
+
+    $path = (string) parse_url( $url, PHP_URL_PATH );
+    $path = strtolower( trim( $path ) );
+    if ( $path === '' ) return null;
+
+    // Normaliza múltiples barras y recorta.
+    $path = preg_replace( '~/{2,}~', '/', $path );
+    $path = ltrim( $path, '/' );
+    if ( $path === '' ) return null;
+
+    $seg = strtok( $path, '/' );
+    if ( in_array( $seg, [ 'ca', 'es', 'en' ], true ) ) {
+        return $seg;
+    }
+
+    return null;
 }
 const FCSD_EXIT21_HISTORY_OPTION = 'fcsd_exit21_sync_history';
 const FCSD_EXIT21_ACTIVE_OPTION  = 'fcsd_exit21_sync_active_run';
@@ -1285,11 +1394,11 @@ function fcsd_render_exit21_sync_page() {
                 <table class="widefat striped">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Inicio', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Fin', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Estado', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Procesadas', 'fcsd' ); ?></th>
-                            <th><?php esc_html_e( 'Errores', 'fcsd' ); ?></th>
+                            <th><?php esc_html_e( 'Inici', 'fcsd' ); ?></th>
+                            <th><?php esc_html_e( 'Fi', 'fcsd' ); ?></th>
+                            <th><?php esc_html_e( 'Estat', 'fcsd' ); ?></th>
+                            <th><?php esc_html_e( 'Processades', 'fcsd' ); ?></th>
+                            <th><?php esc_html_e( 'Errors', 'fcsd' ); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1419,6 +1528,7 @@ add_filter( 'manage_news_posts_columns', function ( $columns ) {
             $new['news_category']     = __( 'Categoria', 'fcsd' );
             $new['news_author']       = __( 'Autor(s)', 'fcsd' );
             $new['news_external_url'] = __( 'URL origen', 'fcsd' );
+            $new['news_tags']         = __( 'Etiquetes', 'fcsd' );
         }
     }
     return $new;
@@ -1482,6 +1592,16 @@ add_action( 'manage_news_posts_custom_column', function ( $column, $post_id ) {
         } else {
             $author = get_post_meta( $post_id, 'news_author', true );
             echo $author ? '<strong>' . esc_html( $author ) . '</strong>' : '&#8212;';
+        }
+        return;
+    }
+
+    if ( 'news_tags' === $column ) {
+        $tags = get_the_terms( $post_id, 'post_tag' );
+        if ( $tags && ! is_wp_error( $tags ) ) {
+            echo esc_html( implode( ', ', wp_list_pluck( $tags, 'name' ) ) );
+        } else {
+            echo '&#8212;';
         }
         return;
     }

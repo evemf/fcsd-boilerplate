@@ -70,7 +70,11 @@ function fcsd_extract_vc_column_text( string $raw ): string {
  * @return string
  */
 function fcsd_get_product_card_preview( int $product_id, int $words = 18 ): string {
-    $raw = (string) get_post_field( 'post_content', $product_id );
+    // IMPORTANT: soportar contenido traducido (meta _fcsd_i18n_content_{lang}).
+    $raw = function_exists('fcsd_get_post_i18n') ? ( fcsd_get_post_i18n( $product_id, 'content' ) ?? '' ) : '';
+    if ( $raw === '' ) {
+        $raw = (string) get_post_field( 'post_content', $product_id );
+    }
     $text = fcsd_extract_vc_column_text( $raw );
 
     if ( $text === '' ) {
@@ -106,7 +110,11 @@ function fcsd_get_product_description_html( int $product_id ): string {
         return (string) $meta;
     }
 
-    $raw = (string) get_post_field( 'post_content', $product_id );
+    // IMPORTANT: soportar contenido traducido (meta _fcsd_i18n_content_{lang}).
+    $raw = function_exists('fcsd_get_post_i18n') ? ( fcsd_get_post_i18n( $product_id, 'content' ) ?? '' ) : '';
+    if ( $raw === '' ) {
+        $raw = (string) get_post_field( 'post_content', $product_id );
+    }
     if ( $raw === '' ) {
         return '';
     }

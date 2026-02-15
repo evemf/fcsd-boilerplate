@@ -79,10 +79,24 @@ function fcsd_slug_map(): array {
             'es' => 'noticias',
             'en' => 'news',
         ],
+        'events' => [
+            'ca' => 'formacions-i-esdeveniments',
+            'es' => 'formaciones-y-eventos',
+            'en' => 'training-and-events',
+        ],
         'shop' => [
             'ca' => 'botiga',
             'es' => 'tienda',
             'en' => 'shop',
+        ],
+        // Segment "product" dins de la botiga (single product):
+        //   /botiga/producte/<slug>/
+        //   /es/tienda/producto/<slug>/
+        //   /en/shop/product/<slug>/
+        'shop_product' => [
+            'ca' => 'producte',
+            'es' => 'producto',
+            'en' => 'product',
         ],
         'cart' => [
             'ca' => 'cistella',
@@ -120,11 +134,8 @@ function fcsd_slug_map(): array {
             'es' => 'contacto',
             'en' => 'contact',
         ],
-        'news_page' => [
-            'ca' => 'actualitat',
-            'es' => 'actualidad',
-            'en' => 'news',
-        ],
+        // Nota: NO existe una página separada "Actualitat/Actualidad/Current-affairs".
+        // El listado de noticias vive en la sección "news" (slug traducible: noticies/noticias/news).
     ];
 }
 

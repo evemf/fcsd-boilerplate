@@ -24,6 +24,32 @@ function fcsd_find_page_by_slug(string $slug): int {
 }
 
 /**
+ * Devuelve el ID de la primera página que use un template concreto.
+ *
+ * WordPress guarda el template asignado en el meta `_wp_page_template`.
+ * Lo usamos para reutilizar páginas de sistema si ya existen.
+ */
+function fcsd_get_page_id_by_template(string $template): int {
+    if ( $template === '' ) return 0;
+
+    $q = new WP_Query([
+        'post_type'      => 'page',
+        'post_status'    => ['publish', 'private', 'draft'],
+        'fields'         => 'ids',
+        'posts_per_page' => 1,
+        'no_found_rows'  => true,
+        'meta_query'     => [
+            [
+                'key'   => '_wp_page_template',
+                'value' => $template,
+            ],
+        ],
+    ]);
+
+    return ! empty($q->posts) ? (int) $q->posts[0] : 0;
+}
+
+/**
  * Crea una página si no existe.
  *
  * @param string $slug_ca Slug canónico (ca)
@@ -92,6 +118,9 @@ function fcsd_on_theme_activation(): void {
         'calendar_actes' => [ 'calendar-actes.php','Calendari',               'Calendario',               'Calendar' ],
         'calendar_work'  => [ 'calendar-work.php', 'Calendari laboral',       'Calendario laboral',       'Work calendar' ],
 
+        // Listado de noticias (una única página con slugs traducidos: noticies/noticias/news)
+        'news'           => [ 'page-news.php',      'Notícies',               'Noticias',                 'News' ],
+
         // Sistema
         'login'          => [ 'page-login.php',      'Iniciar sessió',          'Iniciar sesión',           'Login' ],
         'register'       => [ 'page-register.php',   'Registre',                'Registro',                 'Register' ],
@@ -127,6 +156,10 @@ function fcsd_on_theme_activation(): void {
             '_fcsd_i18n_content_en' => '',
         ]);
     }
+
+    // Nota: el tema ya no crea ni usa páginas "Actualitat/Actualidad/Current-affairs".
+    // Si existen en la instalación, se consideran contenido editorial del sitio.
+    // Por tanto, NO se borran automáticamente al activar el tema.
 
     // ---------------------------------------------------------------------
     // Menús base (un menú por ubicación + títulos traducidos por metadatos)
@@ -196,7 +229,7 @@ function fcsd_on_theme_activation(): void {
         [
             [ 'type' => 'page', 'key' => 'about',    'label_ca' => 'Qui som',     'label_es' => 'Quiénes somos', 'label_en' => 'About' ],
             [ 'type' => 'custom', 'url' => get_post_type_archive_link('service') ?: home_url('/'), 'label_ca' => 'Serveis', 'label_es' => 'Servicios', 'label_en' => 'Services' ],
-            [ 'type' => 'custom', 'url' => get_post_type_archive_link('news') ?: home_url('/'),    'label_ca' => 'Actualitat', 'label_es' => 'Actualidad', 'label_en' => 'News' ],
+            [ 'type' => 'page', 'key' => 'news',     'label_ca' => 'Notícies',   'label_es' => 'Noticias', 'label_en' => 'News' ],
             [ 'type' => 'custom', 'url' => get_post_type_archive_link('fcsd_product') ?: home_url('/'), 'label_ca' => 'Botiga',   'label_es' => 'Tienda', 'label_en' => 'Shop' ],
             [ 'type' => 'page', 'key' => 'contact',  'label_ca' => 'Contacte',   'label_es' => 'Contacto', 'label_en' => 'Contact' ],
         ]

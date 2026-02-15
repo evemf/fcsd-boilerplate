@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header(); ?>
 
-<div class="single-product container">
+<div class="single-product container py-4">
     <?php if ( have_posts() ) : while ( have_posts() ) : the_post(); ?>
 
         <?php

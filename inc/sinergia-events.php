@@ -128,3 +128,152 @@ function fcsd_sinergia_get_grouped_events( $post_id ) {
 
     return $q->posts;
 }
+
+
+// -----------------------------------------------------------------------------
+// Admin UX: columna ID Sinergia + badges Pare/Fill + Quick Edit (post_parent)
+// -----------------------------------------------------------------------------
+
+/**
+ * Columnas del listado del CPT `event`.
+ */
+add_filter('manage_event_posts_columns', function($columns) {
+    // Insertar tras el título
+    $new = [];
+    foreach ($columns as $key => $label) {
+        $new[$key] = $label;
+        if ($key === 'title') {
+            $new['fcsd_event_type']   = __('Tipus', 'fcsd');      // Pare / Fill
+            $new['fcsd_sinergia_id']  = __('ID Sinergia', 'fcsd');
+            $new['fcsd_event_parent'] = __('Pare', 'fcsd');
+        }
+    }
+    return $new;
+}, 20);
+
+/**
+ * Renderizado de columnas custom.
+ */
+add_action('manage_event_posts_custom_column', function($column, $post_id) {
+
+    if ($column === 'fcsd_sinergia_id') {
+        $sin_id = (string) get_post_meta($post_id, 'fcsd_sinergia_event_id', true);
+        echo $sin_id !== '' ? esc_html($sin_id) : '&mdash;';
+        return;
+    }
+
+    if ($column === 'fcsd_event_type') {
+        $is_child = (int) wp_get_post_parent_id($post_id) > 0;
+        $label = $is_child ? __('Fill', 'fcsd') : __('Pare', 'fcsd');
+        $class = $is_child ? 'fcsd-badge fcsd-badge--child' : 'fcsd-badge fcsd-badge--parent';
+        echo '<span class="' . esc_attr($class) . '">' . esc_html($label) . '</span>';
+        return;
+    }
+
+    if ($column === 'fcsd_event_parent') {
+        $parent_id = (int) wp_get_post_parent_id($post_id);
+        if ($parent_id > 0) {
+            $title = get_the_title($parent_id);
+            echo '<span class="fcsd-event-parent-label" data-parent-id="' . esc_attr($parent_id) . '">' . esc_html($title) . '</span>';
+        } else {
+            echo '<span class="fcsd-event-parent-label" data-parent-id="0">&mdash;</span>';
+        }
+        return;
+    }
+
+}, 10, 2);
+
+/**
+ * Quick Edit: selector de post pare.
+ */
+add_action('quick_edit_custom_box', function($column_name, $post_type) {
+    if ($post_type !== 'event' || $column_name !== 'fcsd_event_parent') {
+        return;
+    }
+
+    // Padres: events top-level (post_parent=0)
+    $parents = get_posts([
+        'post_type'      => 'event',
+        'post_status'    => ['publish','draft','pending','private'],
+        'posts_per_page' => -1,
+        'post_parent'    => 0,
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+        'fields'         => 'ids',
+    ]);
+
+    echo '<fieldset class="inline-edit-col-right"><div class="inline-edit-col">';
+    echo '<label class="inline-edit-group">';
+    echo '<span class="title">' . esc_html__('Pare', 'fcsd') . '</span>';
+    echo '<select name="fcsd_event_parent" class="fcsd-event-parent-select">';
+    echo '<option value="0">' . esc_html__('— Cap (és pare) —', 'fcsd') . '</option>';
+    foreach ($parents as $pid) {
+        $t = get_the_title($pid);
+        echo '<option value="' . esc_attr($pid) . '">' . esc_html($t) . '</option>';
+    }
+    echo '</select>';
+    echo '</label>';
+    echo '</div></fieldset>';
+}, 10, 2);
+
+/**
+ * Guardar post_parent desde Quick Edit.
+ */
+add_action('save_post_event', function($post_id) {
+    // Quick edit envía editpost nonce, no nuestro.
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
+    if (!current_user_can('edit_post', $post_id)) return;
+
+    if (!isset($_POST['fcsd_event_parent'])) {
+        return;
+    }
+
+    $parent_id = (int) $_POST['fcsd_event_parent'];
+
+    // Evitar auto-parent (invalido)
+    if ($parent_id === (int) $post_id) {
+        $parent_id = 0;
+    }
+
+    // Solo permitir padres del mismo CPT
+    if ($parent_id > 0) {
+        $p = get_post($parent_id);
+        if (!$p || $p->post_type !== 'event') {
+            $parent_id = 0;
+        }
+    }
+
+    // Solo actualizar si cambió
+    $current = (int) wp_get_post_parent_id($post_id);
+    if ($current !== $parent_id) {
+        wp_update_post([
+            'ID'          => $post_id,
+            'post_parent' => $parent_id,
+        ]);
+    }
+}, 20);
+
+/**
+ * Assets de admin: estilos de badge + JS de Quick Edit.
+ */
+add_action('admin_enqueue_scripts', function($hook) {
+    if ($hook !== 'edit.php') return;
+
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (!$screen || $screen->post_type !== 'event') return;
+
+    wp_enqueue_style(
+        'fcsd-event-admin-badges',
+        get_template_directory_uri() . '/assets/css/admin-event-badges.css',
+        [],
+        defined('FCSD_VERSION') ? FCSD_VERSION : '1.0.0'
+    );
+
+    wp_enqueue_script(
+        'fcsd-event-admin-quickedit',
+        get_template_directory_uri() . '/assets/js/admin-event-quickedit.js',
+        ['jquery', 'inline-edit-post'],
+        defined('FCSD_VERSION') ? FCSD_VERSION : '1.0.0',
+        true
+    );
+});

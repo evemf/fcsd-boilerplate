@@ -28,7 +28,7 @@ $order_id = isset( $_GET['order_id'] ) ? absint( $_GET['order_id'] ) : 0;
 
     <p>
         <a href="<?php echo esc_url( get_post_type_archive_link( 'fcsd_product' ) ); ?>" class="btn btn-primary">
-            <?php esc_html_e( 'Volver a la tienda', 'fcsd' ); ?>
+            <?php esc_html_e( 'Tornar a la botiga', 'fcsd' ); ?>
         </a>
     </p>
 </div>

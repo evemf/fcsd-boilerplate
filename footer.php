@@ -163,6 +163,8 @@
           </p>
 
           <?php get_template_part( 'template-parts/legal' ); ?>
+
+          <?php get_template_part( 'template-parts/shop/cart-choice-modal' ); ?>
         </div>
         <div class="fcsd-chatbot">
           <button class="fcsd-chatbot-toggle">
@@ -170,14 +172,14 @@
           </button>
           <div class="fcsd-chatbot-window">
               <div class="fcsd-chatbot-header d-flex justify-content-between align-items-center">
-                  <span><?php esc_html_e( 'Ayuda rápida', 'fcsd' ); ?></span>
+                  <span><?php esc_html_e( 'Ajuda ràpida', 'fcsd' ); ?></span>
                   <button class="fcsd-chatbot-close btn btn-sm btn-link p-0">
                       <i class="bi bi-x-lg"></i>
                   </button>
               </div>
               <div class="fcsd-chatbot-messages"></div>
               <form class="fcsd-chatbot-form">
-                  <input type="text" class="form-control" placeholder="<?php esc_attr_e( 'Escribe tu pregunta…', 'fcsd' ); ?>">
+                  <input type="text" class="form-control" placeholder="<?php esc_attr_e( 'Escriu la teva pregunta…', 'fcsd' ); ?>">
               </form>
           </div>
       </div>

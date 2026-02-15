@@ -94,4 +94,33 @@
     document.addEventListener("mouseup", pressOff);
   }
 
+  // Home news strip: continuous marquee (optional via Customizer)
+  (function initNewsMarquee() {
+    var strip = document.querySelector(".fcsd-home-news-strip[data-marquee='1']");
+    if (!strip) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var speed = parseInt(strip.getAttribute('data-marquee-speed') || '28', 10);
+    if (isNaN(speed) || speed < 10) speed = 28;
+    if (speed > 120) speed = 120;
+
+    var track = strip.querySelector('.fcsd-home-news-strip__track');
+    if (!track) return;
+
+    // Avoid double-init (Customizer preview can re-run scripts)
+    if (track.getAttribute('data-marquee-initialized') === '1') return;
+    track.setAttribute('data-marquee-initialized', '1');
+
+    // Clone items once to create a seamless loop.
+    var items = Array.prototype.slice.call(track.children);
+    if (items.length < 2) return; // nothing to loop
+
+    items.forEach(function (node) {
+      track.appendChild(node.cloneNode(true));
+    });
+
+    // Set duration via CSS variable.
+    track.style.setProperty('--fcsd-marquee-duration', speed + 's');
+  })();
+
 })();

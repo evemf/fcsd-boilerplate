@@ -189,6 +189,68 @@ body.theme-dark .product-card-price-tag {
 
 .product-card-footer {
   padding: 0 16px 16px;
+  overflow: hidden; /* evita que el CTA “se salga” en layouts estrechos */
+}
+
+/* Etiquetas "Colors disponibles" / "Talles disponibles" dentro de la card */
+.shop-archive .product-card-attr-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+/* En el grid no queremos la separación tipo "form" por encima del CTA */
+.shop-archive .product-card .add-to-cart-form {
+  border-top: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* Acciones: spinner + botón en una misma fila */
+.shop-archive .product-card-actions > .d-flex {
+  width: 100%;
+}
+
+.shop-archive .product-card-actions .fcsd-qty-spinner {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  width: auto;
+}
+
+/* Bootstrap define .input-group { width: 100%; } y en algunos anchos fuerza overflow.
+   En la card queremos que el spinner mida lo justo. */
+.shop-archive .product-card-actions .fcsd-qty-spinner.input-group {
+  width: auto;
+}
+
+.shop-archive .product-card-actions .fcsd-qty-spinner .btn {
+  padding: 0.35rem 0.6rem;
+}
+
+.shop-archive .product-card-actions .fcsd-qty-spinner .form-control {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  width: 50px;
+  flex: 0 0 50px;
+}
+
+/* El botón debe ocupar el resto del ancho disponible sin forzar overflow */
+.shop-archive .product-card-actions .js-add-to-cart-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Bootstrap a veces aplica min-width en .btn dentro de flex */
+.shop-archive .product-card-actions .btn {
+  min-width: 0;
+}
+
+/* Atributos en dos columnas dentro de la card */
+.shop-archive .product-card-attrs {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 /* ==============================

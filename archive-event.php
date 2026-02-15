@@ -9,123 +9,86 @@ get_header();
         </h1>
     </header>
 
-    <?php if ( have_posts() ) : ?>
-        <div class="news-grid events-grid">
-            <?php
-            $shown_formations = [];
+    <?php
+    $formation_terms = get_terms( [
+        'taxonomy'   => 'event_formation',
+        'hide_empty' => true,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+    ] );
+    ?>
 
-            while ( have_posts() ) :
-                the_post();
-
-                $post_id = get_the_ID();
-
-                $terms_ids = wp_get_post_terms( $post_id, 'event_formation', [ 'fields' => 'ids' ] );
-
-                if ( ! empty( $terms_ids ) && ! is_wp_error( $terms_ids ) ) {
-                    $key = 't_' . $terms_ids[0];
-                } else {
-                    $key = 'p_' . $post_id;
-                }
-
-                if ( isset( $shown_formations[ $key ] ) ) {
-                    continue;
-                }
-                $shown_formations[ $key ] = true;
-
-                $event_start = get_post_meta( $post_id, 'fcsd_event_start', true );
-                $event_end   = get_post_meta( $post_id, 'fcsd_event_end', true );
-                $event_price = get_post_meta( $post_id, 'fcsd_event_price', true );
-
-                $formations = wp_get_post_terms( $post_id, 'event_formation' );
-                ?>
-
-                <article <?php post_class( 'news-card event-card' ); ?>>
-                    <a href="<?php the_permalink(); ?>"
-                       class="news-card__thumb"
-                       aria-label="<?php the_title_attribute(); ?>">
-
-                        <div class="news-card__header">
-                            <?php if ( ! empty( $formations ) && ! is_wp_error( $formations ) ) : ?>
-                                <span class="news-card__cat">
-                                    <?php echo esc_html( $formations[0]->name ); ?>
-                                </span>
-                            <?php endif; ?>
-
-                            <h2 class="news-card__title">
-                                <?php the_title(); ?>
-                            </h2>
-                        </div>
-
-                        <?php if ( has_post_thumbnail() ) : ?>
-                            <?php the_post_thumbnail(
-                                'medium_large',
-                                [
-                                    'class'   => 'news-card__img',
-                                    'loading' => 'lazy',
-                                ]
-                            ); ?>
-                        <?php else : ?>
-                            <div class="news-card__img event-card__img--placeholder"></div>
-                        <?php endif; ?>
-                    </a>
-
-                    <div class="news-card__body">
-                        <ul class="event-card__meta">
-                            <?php if ( ! empty( $event_start ) ) : ?>
-                                <li class="event-card__meta-item">
-                                    <span class="event-card__meta-label">
-                                        <?php esc_html_e( 'Data inici', 'fcsd' ); ?>
-                                    </span>
-                                    <span class="event-card__meta-value">
-                                        <?php echo esc_html( $event_start ); ?>
-                                    </span>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php if ( ! empty( $event_end ) ) : ?>
-                                <li class="event-card__meta-item">
-                                    <span class="event-card__meta-label">
-                                        <?php esc_html_e( 'Data fi', 'fcsd' ); ?>
-                                    </span>
-                                    <span class="event-card__meta-value">
-                                        <?php echo esc_html( $event_end ); ?>
-                                    </span>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php if ( ! empty( $event_price ) ) : ?>
-                                <li class="event-card__meta-item">
-                                    <span class="event-card__meta-label">
-                                        <?php esc_html_e( 'Preu', 'fcsd' ); ?>
-                                    </span>
-                                    <span class="event-card__meta-value">
-                                        <?php echo esc_html( $event_price ); ?>
-                                    </span>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-
-                        <div class="news-card__excerpt">
-                            <?php
-                            echo wp_kses_post(
-                                wp_trim_words(
-                                    get_the_excerpt() ?: get_the_content(),
-                                    25
-                                )
-                            );
-                            ?>
-                        </div>
-
-                        <a class="news-card__more event-card__cta" href="<?php the_permalink(); ?>">
-                            <?php esc_html_e( 'Inscriu-te', 'fcsd' ); ?>
-                        </a>
-                    </div>
-                </article>
-
-            <?php endwhile; ?>
+    <section class="events-filters" aria-label="<?php echo esc_attr__( 'Filtres', 'fcsd' ); ?>">
+        <div class="events-filters__row">
+            <div class="events-filters__search">
+                <label class="visually-hidden" for="events-search">
+                    <?php esc_html_e( 'Cerca', 'fcsd' ); ?>
+                </label>
+                <input
+                    id="events-search"
+                    type="search"
+                    inputmode="search"
+                    placeholder="<?php echo esc_attr__( 'Cerca formacions…', 'fcsd' ); ?>"
+                    aria-label="<?php echo esc_attr__( 'Cerca formacions', 'fcsd' ); ?>"
+                    data-events-search
+                />
+            </div>
         </div>
 
-        <div class="mt-4">
+        <div class="events-filters__chips" role="group" aria-label="<?php echo esc_attr__( 'Categories', 'fcsd' ); ?>">
+            <button type="button" class="events-chip events-chip--all is-active" data-events-term="0" aria-pressed="true">
+                <span class="events-chip__circle" aria-hidden="true">
+                    <span class="events-chip__media">
+                        <span class="fcsd-term-icon">•</span>
+                    </span>
+                </span>
+                <p class="events-chip__label"><?php esc_html_e( 'Totes', 'fcsd' ); ?></p>
+            </button>
+
+            <?php if ( ! empty( $formation_terms ) && ! is_wp_error( $formation_terms ) ) : ?>
+                <?php foreach ( $formation_terms as $t ) : ?>
+                    <button type="button" class="events-chip" data-events-term="<?php echo (int) $t->term_id; ?>" aria-pressed="false">
+                        <span class="events-chip__circle" aria-hidden="true">
+                            <span class="events-chip__media">
+                                <?php echo wp_kses_post( fcsd_event_formation_media_html( $t ) ); ?>
+                            </span>
+                        </span>
+                        <p class="events-chip__label">
+                            <?php echo esc_html( fcsd_event_formation_i18n_field( $t, 'name' ) ); ?>
+                        </p>
+                    </button>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <?php if ( have_posts() ) : ?>
+        <div class="news-grid events-grid" data-max-pages="<?php echo (int) $GLOBALS['wp_query']->max_num_pages; ?>">
+            <?php
+            while ( have_posts() ) :
+                the_post();
+                fcsd_render_event_card( get_the_ID() );
+            endwhile;
+            ?>
+        </div>
+
+        <div class="events-empty" style="display:none;">
+            <?php esc_html_e( 'No s\'han trobat resultats amb aquests filtres.', 'fcsd' ); ?>
+        </div>
+
+        <div class="events-loading" aria-live="polite">
+            <?php esc_html_e( 'Carregant…', 'fcsd' ); ?>
+        </div>
+
+        <div class="events-load-more">
+            <button type="button" data-events-load-more>
+                <?php esc_html_e( 'Carregar més', 'fcsd' ); ?>
+            </button>
+        </div>
+
+        <div class="events-sentinel" aria-hidden="true"></div>
+
+        <div class="events-pagination mt-4">
             <?php the_posts_pagination(); ?>
         </div>
 

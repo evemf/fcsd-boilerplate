@@ -4,6 +4,44 @@
  */
 
 jQuery(document).ready(function($) {
+
+    // ------------------------------------------------------------
+    // Quantity spinner (tarjetas de producto en la botiga)
+    // ------------------------------------------------------------
+    $(document).on('click', '.js-qty-minus, .js-qty-plus', function(e) {
+        e.preventDefault();
+
+        const $btn   = $(this);
+        const $wrap  = $btn.closest('.fcsd-qty-spinner');
+        const $input = $wrap.find('.js-qty-input');
+
+        if ( ! $input.length ) {
+            return;
+        }
+
+        let v = parseInt($input.val(), 10);
+        if (isNaN(v) || v < 1) {
+            v = 1;
+        }
+
+        if ($btn.hasClass('js-qty-plus')) {
+            v += 1;
+        } else {
+            v = Math.max(1, v - 1);
+        }
+
+        $input.val(v).trigger('change');
+    });
+
+    // Normalizar ediciones manuales
+    $(document).on('change', '.js-qty-input', function() {
+        const $input = $(this);
+        let v = parseInt($input.val(), 10);
+        if (isNaN(v) || v < 1) {
+            v = 1;
+        }
+        $input.val(v);
+    });
     
     /**
      * AJAX: Añadir producto al carrito desde archive/listado
@@ -19,8 +57,8 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        // Evitar múltiples clics
-        if ($button.hasClass('is-loading') || $button.hasClass('is-added')) {
+        // Evitar múltiples clics mientras está cargando
+        if ($button.hasClass('is-loading')) {
             return;
         }
         
@@ -60,13 +98,18 @@ jQuery(document).ready(function($) {
                     
                     // Actualizar contador del carrito en el header
                     updateCartBadge(response.data.cart_count);
+
+                    // Mostrar modal: ir a la cistella o seguir comprant
+                    if (window.fcsdCartChoiceModal && typeof window.fcsdCartChoiceModal.open === 'function') {
+                        window.fcsdCartChoiceModal.open();
+                    }
                     
-                    // Volver al estado normal después de 2.5 segundos
+                    // Volver al estado normal al cabo de un momento
                     setTimeout(function() {
                         $button.removeClass('is-added')
                                .prop('disabled', false)
                                .text(originalText);
-                    }, 2500);
+                    }, 800);
                     
                 } else {
                     // Error
@@ -150,6 +193,11 @@ jQuery(document).ready(function($) {
                     reloadCartContent();
                     // Actualizar el contador del header
                     updateCartBadge(response.data.cart_count);
+
+                    // Mostrar modal: ir a la cistella o seguir comprant
+                    if (window.fcsdCartChoiceModal && typeof window.fcsdCartChoiceModal.open === 'function') {
+                        window.fcsdCartChoiceModal.open();
+                    }
                 } else {
                     alert(response.data.message || fcsd_shop.i18n.update_error);
                     location.reload();
@@ -183,6 +231,11 @@ jQuery(document).ready(function($) {
                     reloadCartContent();
                     // Actualizar el contador del header
                     updateCartBadge(response.data.cart_count);
+
+                    // Mostrar modal: ir a la cistella o seguir comprant
+                    if (window.fcsdCartChoiceModal && typeof window.fcsdCartChoiceModal.open === 'function') {
+                        window.fcsdCartChoiceModal.open();
+                    }
                     
                     // Mostrar mensaje de éxito
                     showCartMessage(fcsd_shop.i18n.removed_success, 'success');

@@ -367,12 +367,17 @@ function fcsd_product_variant_stock_metabox( $post ) {
 }
 
 // ========================================================================
-//  METABOX LATERAL: COLORES DISPONIBLES (array de hex con colorpicker)
+//  METABOX LATERAL: COLORES DISPONIBLES + COLORES PREDOMINANTES
+//
+//  Reglas:
+//  - Puede ser MULTICOLOR (sin predominantes)
+//  - O puede tener 1, 2 o 3 colores predominantes
+//  - Los "colores disponibles" siguen siendo el array de colores para variantes (talla/color)
 // ========================================================================
 add_action( 'add_meta_boxes', function() {
     add_meta_box(
         'fcsd_product_colors',
-        __( 'Colores disponibles', 'fcsd' ),
+        __( 'Colors disponibles', 'fcsd' ),
         'fcsd_product_colors_metabox',
         'fcsd_product',
         'side',
@@ -383,32 +388,77 @@ add_action( 'add_meta_boxes', function() {
 function fcsd_product_colors_metabox( $post ) {
     wp_nonce_field( 'fcsd_save_product_colors', 'fcsd_product_colors_nonce' );
 
+    // Predominantes + multicolor
+    $is_multicolor = (int) get_post_meta( $post->ID, '_fcsd_product_is_multicolor', true );
+
+    $primary_colors = get_post_meta( $post->ID, '_fcsd_product_primary_colors', true );
+    $primary_colors = is_array( $primary_colors ) ? array_values( $primary_colors ) : [];
+    // Aseguramos exactamente 3 inputs (pueden ir vacíos)
+    $primary_colors = array_pad( $primary_colors, 3, '' );
+
+    // Colores disponibles (para variantes)
     $colors = get_post_meta( $post->ID, '_fcsd_product_colors', true );
-    if ( ! is_array( $colors ) ) {
-        $colors = [];
-    }
+    $colors = is_array( $colors ) ? $colors : [];
     ?>
-    <div id="fcsd-colors-wrapper">
-        <?php if ( empty( $colors ) ) : ?>
-            <div class="fcsd-color-row">
-                <input type="text" class="fcsd-color-field" name="fcsd_product_colors[]" value="#ffffff" />
-                <button type="button" class="button fcsd-remove-color">&times;</button>
+    <div class="fcsd-colors-meta">
+
+        <p style="margin:0 0 10px;">
+            <label>
+                <input type="checkbox" id="fcsd_is_multicolor" name="fcsd_is_multicolor" value="1" <?php checked( $is_multicolor, 1 ); ?> />
+                <?php esc_html_e( 'Peça multicolor', 'fcsd' ); ?>
+            </label>
+            <small style="display:block;color:#666;">
+                <?php esc_html_e( 'Si està marcada, no guarda colors predominants.', 'fcsd' ); ?>
+            </small>
+        </p>
+
+        <div class="field-group" style="margin:0 0 12px;">
+            <label style="font-weight:600; display:block; margin-bottom:4px;">
+                <?php esc_html_e( 'Colors predominants (1 a 3)', 'fcsd' ); ?>
+            </label>
+
+            <div class="fcsd-primary-colors" style="display:flex; flex-wrap:wrap; gap:6px;">
+                <?php for ( $i = 0; $i < 3; $i++ ) :
+                    $val = trim( (string) $primary_colors[ $i ] );
+                    ?>
+                    <input
+                        type="text"
+                        class="fcsd-color-field fcsd-primary-color"
+                        name="fcsd_product_primary_colors[]"
+                        value="<?php echo esc_attr( $val ); ?>"
+                        placeholder="#000000"
+                        <?php echo $is_multicolor ? 'disabled' : ''; ?>
+                    />
+                <?php endfor; ?>
             </div>
-        <?php else : ?>
-            <?php foreach ( $colors as $color ) : ?>
+        </div>
+
+        <hr style="margin:12px 0;" />
+
+        <p style="margin:0 0 6px;"><strong><?php esc_html_e( 'Colores disponibles (para variantes)', 'fcsd' ); ?></strong></p>
+
+        <div id="fcsd-colors-wrapper">
+            <?php if ( empty( $colors ) ) : ?>
                 <div class="fcsd-color-row">
-                    <input type="text" class="fcsd-color-field" name="fcsd_product_colors[]" value="<?php echo esc_attr( $color ); ?>" />
+                    <input type="text" class="fcsd-color-field" name="fcsd_product_colors[]" value="#ffffff" />
                     <button type="button" class="button fcsd-remove-color">&times;</button>
                 </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+            <?php else : ?>
+                <?php foreach ( $colors as $color ) : ?>
+                    <div class="fcsd-color-row">
+                        <input type="text" class="fcsd-color-field" name="fcsd_product_colors[]" value="<?php echo esc_attr( $color ); ?>" />
+                        <button type="button" class="button fcsd-remove-color">&times;</button>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
 
-    <p>
-        <button type="button" class="button" id="fcsd-add-color">
-            <?php _e( 'Añadir color', 'fcsd' ); ?>
-        </button>
-    </p>
+        <p>
+            <button type="button" class="button" id="fcsd-add-color">
+                <?php _e( 'Afegir color', 'fcsd' ); ?>
+            </button>
+        </p>
+    </div>
 
     <style>
         #fcsd-colors-wrapper .fcsd-color-row {
@@ -427,7 +477,12 @@ function fcsd_product_colors_metabox( $post ) {
             $(document).ready(function(){
 
                 function initColorPickers(context) {
-                    $(context).find('.fcsd-color-field').wpColorPicker();
+                    $(context).find('.fcsd-color-field').each(function(){
+                        // wpColorPicker en disabled a veces falla; lo evitamos
+                        if (this.disabled) return;
+                        if ($(this).data('wpColorPicker')) return;
+                        $(this).wpColorPicker();
+                    });
                 }
 
                 // Inicial
@@ -446,6 +501,20 @@ function fcsd_product_colors_metabox( $post ) {
                 $('#fcsd-colors-wrapper').on('click', '.fcsd-remove-color', function(){
                     $(this).closest('.fcsd-color-row').remove();
                 });
+
+                // Toggle multicolor: desactiva predominantes (no toca colores disponibles)
+                function syncMulticolor(){
+                    var on = $('#fcsd_is_multicolor').is(':checked');
+                    $('.fcsd-primary-color').prop('disabled', on);
+
+                    // Re-inicializa colorpicker de predominantes al re-habilitar
+                    if (!on) {
+                        initColorPickers(document);
+                    }
+                }
+
+                $('#fcsd_is_multicolor').on('change', syncMulticolor);
+                syncMulticolor();
 
             });
         })(jQuery);
@@ -466,16 +535,48 @@ add_action( 'save_post_fcsd_product', function( $post_id ) {
     if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
     if ( ! current_user_can( 'edit_post', $post_id ) ) return;
 
+    // 1) Multicolor (0/1)
+    $is_multicolor = isset( $_POST['fcsd_is_multicolor'] ) ? 1 : 0;
+    update_post_meta( $post_id, '_fcsd_product_is_multicolor', $is_multicolor );
+
+    // 2) Predominantes (1-3) — si es multicolor, se borran
+    if ( $is_multicolor ) {
+        delete_post_meta( $post_id, '_fcsd_product_primary_colors' );
+    } else {
+        $incoming = isset( $_POST['fcsd_product_primary_colors'] ) && is_array( $_POST['fcsd_product_primary_colors'] )
+            ? $_POST['fcsd_product_primary_colors']
+            : [];
+
+        $primary = array_map( function( $c ) {
+            $c = trim( (string) $c );
+            if ( $c !== '' && $c[0] !== '#' ) {
+                $c = '#' . $c;
+            }
+            return sanitize_text_field( $c );
+        }, $incoming );
+
+        // quitar vacíos, normalizar a max 3 y evitar duplicados exactos
+        $primary = array_values( array_unique( array_filter( $primary ) ) );
+        $primary = array_slice( $primary, 0, 3 );
+
+        if ( empty( $primary ) ) {
+            delete_post_meta( $post_id, '_fcsd_product_primary_colors' );
+        } else {
+            update_post_meta( $post_id, '_fcsd_product_primary_colors', $primary );
+        }
+    }
+
+    // 3) Colores disponibles (array) — se guardan siempre (son para variantes/selector)
     if ( isset( $_POST['fcsd_product_colors'] ) && is_array( $_POST['fcsd_product_colors'] ) ) {
         $colors = array_map( function( $c ) {
-            $c = trim( $c );
+            $c = trim( (string) $c );
             if ( $c !== '' && $c[0] !== '#' ) {
                 $c = '#' . $c;
             }
             return sanitize_text_field( $c );
         }, $_POST['fcsd_product_colors'] );
 
-        $colors = array_filter( $colors ); // quitar vacíos
+        $colors = array_values( array_unique( array_filter( $colors ) ) );
         update_post_meta( $post_id, '_fcsd_product_colors', $colors );
     } else {
         delete_post_meta( $post_id, '_fcsd_product_colors' );
@@ -489,7 +590,7 @@ add_action( 'save_post_fcsd_product', function( $post_id ) {
 add_action( 'add_meta_boxes', function() {
     add_meta_box(
         'fcsd_product_sizes',
-        __( 'Tallas disponibles', 'fcsd' ),
+        __( 'Talles disponibles', 'fcsd' ),
         'fcsd_product_sizes_metabox',
         'fcsd_product',
         'side',

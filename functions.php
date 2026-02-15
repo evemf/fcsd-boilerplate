@@ -21,12 +21,73 @@ if ( ! defined( 'FCSD_VERSION' ) ) {
 // Hacemos un flush seguro (solo 1 vez por versión de reglas) en admin.
 add_action( 'admin_init', function(){
     $key     = 'fcsd_rewrite_rules_version';
-    $version = '2026-02-03-services-single-i18n';
+    // Bump cuando cambian las reglas i18n (p.ej. bases de botiga/producte por idioma)
+    $version = '2026-02-12-ca-prefix-all-langs-v3';
     if ( get_option( $key ) !== $version ) {
         flush_rewrite_rules();
         update_option( $key, $version );
     }
 } );
+
+// -----------------------------------------------------------------------------
+// Self-heal rewrites on frontend (one-time)
+// -----------------------------------------------------------------------------
+// En algunos entornos (cache, despliegues por reemplazo de carpeta, etc.)
+// los rewrites nuevos no quedan activos aunque el tema se haya actualizado.
+// Si recibimos una request prefijada (/ca|es|en/...) y no detectamos nuestras
+// reglas clave, hacemos un flush UNA sola vez para auto-reparar.
+add_action('init', function(){
+    if ( is_admin() ) {
+        return;
+    }
+
+    // Throttle: solo 1 vez cada 12h
+    $key = 'fcsd_rewrite_selfheal_ts';
+    $last = (int) get_option($key, 0);
+    if ( $last && ( time() - $last ) < 12 * HOUR_IN_SECONDS ) {
+        return;
+    }
+
+    $path = '';
+    if ( isset($_SERVER['REQUEST_URI']) ) {
+        $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    }
+    $path = trim($path, '/');
+    if ($path === '') return;
+
+    $first = explode('/', $path)[0] ?? '';
+    if ( ! $first || ! defined('FCSD_LANGUAGES') || ! isset(FCSD_LANGUAGES[$first]) ) {
+        return;
+    }
+
+    // Si faltan reglas clave prefijadas, flusheamos.
+    $rules = get_option('rewrite_rules');
+    if ( ! is_array($rules) ) {
+        $rules = [];
+    }
+
+    $must_have = [
+        '^ca/serveis/?$',
+        '^es/servicios/?$',
+        '^en/services/?$',
+        '^es/tienda/?$',
+        '^en/shop/?$',
+        '^es/formaciones-y-eventos/?$',
+        '^en/training-and-events/?$',
+    ];
+
+    foreach ($must_have as $needle) {
+        if ( array_key_exists($needle, $rules) ) {
+            // Si encontramos al menos una, asumimos que ya hay rewrites i18n.
+            update_option($key, time());
+            return;
+        }
+    }
+
+    // No hay rewrites i18n activos → auto-flush.
+    flush_rewrite_rules(false);
+    update_option($key, time());
+}, 20);
 
 if ( ! defined( 'FCSD_THEME_DIR' ) ) {
     // Usa la carpeta del tema activo (soporta tema hijo sin romper rutas).
@@ -437,6 +498,30 @@ function fcsd_enqueue_assets() {
         );
     }
 
+    // Archive: Formacions i esdeveniments (filters + progressive loading)
+    if ( is_post_type_archive( 'event' ) ) {
+        wp_enqueue_style(
+            'fcsd-events-archive',
+            FCSD_THEME_URI . '/assets/css/events-archive.css',
+            [ 'bootstrap', 'fcsd-style' ],
+            FCSD_VERSION
+        );
+
+        wp_enqueue_script(
+            'fcsd-events-archive',
+            FCSD_THEME_URI . '/assets/js/events-archive.js',
+            [],
+            FCSD_VERSION,
+            true
+        );
+
+        wp_localize_script( 'fcsd-events-archive', 'fcsdEventsArchive', [
+            'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+            'nonce'    => wp_create_nonce( 'fcsd_events_archive' ),
+            'perPage'  => 12,
+        ] );
+    }
+
     // Calendari d'actes (frontend): tooltips + modal de consulta per dia.
     if ( is_page_template( 'calendar-actes.php' ) || is_page_template( 'calendar-work.php' ) ) {
         wp_enqueue_script(
@@ -471,6 +556,8 @@ add_action( 'wp_enqueue_scripts', 'fcsd_enqueue_assets' );
 // --------------------------------------------------
 require_once FCSD_THEME_DIR . '/inc/customizer.php';
 require_once FCSD_THEME_DIR . '/inc/cpts.php';
+require_once FCSD_THEME_DIR . '/inc/event-formations.php';
+require_once FCSD_THEME_DIR . '/inc/events-archive.php';
 require_once FCSD_THEME_DIR . '/inc/timeline-admin.php';
 require_once FCSD_THEME_DIR . '/inc/services-areas.php';
 require_once FCSD_THEME_DIR . '/inc/service-meta.php';
@@ -490,6 +577,10 @@ require_once FCSD_THEME_DIR . '/inc/sinergia-form.php';
 if ( is_admin() ) {
   require_once FCSD_THEME_DIR . '/inc/sinergia-admin.php';
 }
+
+// Ajustes de la página/listado de noticias (categorías visibles)
+require_once FCSD_THEME_DIR . '/inc/news-page-settings.php';
+
 require_once FCSD_THEME_DIR . '/inc/external-news.php';
 require_once FCSD_THEME_DIR . '/inc/news-sync-exit21.php';
 require_once FCSD_THEME_DIR . '/inc/ecommerce/helpers.php';
@@ -534,6 +625,11 @@ function fcsd_get_option( $key, $default = '' ) {
             'ca' => 'Qui som',
             'es' => 'Quiénes somos',
             'en' => 'About us',
+        ),
+        'donate_label' => array(
+            'ca' => 'Fes un donatiu',
+            'es' => 'Haz un donativo',
+            'en' => 'Donate',
         ),
     );
 
@@ -684,26 +780,32 @@ function fcsd_filter_news_archive_lang( $query ) {
      *   * ES: mostrar exit21 es
      *   * EN: NO mostrar exit21
      */
-    $meta_query = [
-        'relation' => 'OR',
-        // 1) Internas (sin news_source o distinta de exit21)
+    // 1) Internas (sin news_source o distinta de exit21)
+    //    Regla pedida: solo mostrar internas si "existen" en el idioma actual.
+    //    Interpretación práctica (sin duplicar posts):
+    //      - CA: siempre visibles.
+    //      - ES/EN: visibles si hay al menos título o contenido traducido guardado.
+    $internal_clause = [
+        'relation' => 'AND',
         [
             'relation' => 'OR',
-            [
-                'key'     => 'news_source',
-                'compare' => 'NOT EXISTS',
-            ],
-            [
-                'key'     => 'news_source',
-                'value'   => 'exit21',
-                'compare' => '!=',
-            ],
-            [
-                'key'     => 'news_source',
-                'value'   => '',
-                'compare' => '=',
-            ],
+            [ 'key' => 'news_source', 'compare' => 'NOT EXISTS' ],
+            [ 'key' => 'news_source', 'value' => 'exit21', 'compare' => '!=' ],
+            [ 'key' => 'news_source', 'value' => '', 'compare' => '=' ],
         ],
+    ];
+
+    if ( $lang !== 'ca' ) {
+        $internal_clause[] = [
+            'relation' => 'OR',
+            [ 'key' => '_fcsd_i18n_title_' . $lang,   'value' => '', 'compare' => '!=' ],
+            [ 'key' => '_fcsd_i18n_content_' . $lang, 'value' => '', 'compare' => '!=' ],
+        ];
+    }
+
+    $meta_query = [
+        'relation' => 'OR',
+        $internal_clause,
     ];
 
     // 2) Exit21 por idioma (solo CA/ES)
@@ -731,31 +833,4 @@ add_action( 'pre_get_posts', 'fcsd_filter_news_archive_lang' );
 
 
 
-/**
- * Redirects legacy news URLs to the canonical translated slugs.
- * - /actualitat -> /noticies
- * - /es/actualidad -> /es/noticias
- * - /en/actualidad or /en/actualitat -> /en/news (if someone linked it)
- */
-add_action('template_redirect', function () {
-    if ( is_admin() ) return;
 
-    $path = isset($_SERVER['REQUEST_URI']) ? (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
-    $path = '/' . trim($path, '/');
-
-    $lang = function_exists('fcsd_lang') ? fcsd_lang() : ( defined('FCSD_LANG') ? FCSD_LANG : 'ca' );
-
-    // Only redirect exact legacy archives (avoid breaking singles).
-    if ( preg_match('#^/actualitat/?$#', $path) ) {
-        wp_redirect( home_url('/' . fcsd_slug('news', 'ca') . '/') , 301 );
-        exit;
-    }
-    if ( preg_match('#^/es/actualidad/?$#', $path) ) {
-        wp_redirect( home_url('/es/' . fcsd_slug('news', 'es') . '/') , 301 );
-        exit;
-    }
-    if ( preg_match('#^/en/(actualidad|actualitat)/?$#', $path) ) {
-        wp_redirect( home_url('/en/' . fcsd_slug('news', 'en') . '/') , 301 );
-        exit;
-    }
-});

@@ -15,6 +15,12 @@ require get_template_directory() . '/inc/ecommerce/class-shop-orders.php';
 require get_template_directory() . '/inc/ecommerce/class-shop-account.php';
 require get_template_directory() . '/inc/ecommerce/class-shop-discounts.php';
 require get_template_directory() . '/inc/ecommerce/template-tags-shop.php';
+require get_template_directory() . '/inc/ecommerce/shop-taxonomy-i18n.php';
+
+// Admin UI for translating product categories (term meta: _fcsd_i18n_*).
+if ( is_admin() ) {
+    require get_template_directory() . '/inc/ecommerce/shop-taxonomy-i18n-admin.php';
+}
 
 /**
  * Registrar Custom Post Type: fcsd_product
@@ -37,14 +43,22 @@ function fcsd_register_product_cpt() {
         'label'         => __( 'Productes', 'fcsd' ),
         'labels'        => $labels,
         'public'        => true,
-        'has_archive'   => true,
+        // Queremos que las categorías vivan en:
+        //   /botiga/<categoria>/
+        // Para evitar conflicto con el single del producto, el single pasa a:
+        //   /botiga/producte/<slug>/
+        // y el archivo (archive) se mantiene en /botiga/.
+        'has_archive'   => function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga',
         // IMPORTANT:
         // - Els rewrites del CPT han d'usar l'slug canònic (idioma per defecte).
         // - L'encaminador i18n del tema s'encarrega de:
         //     /es/tienda  -> /botiga
         //     /en/shop    -> /botiga
         // Així evitem duplicar plantilles (archive-product-es.php, etc.)
-        'rewrite'       => [ 'slug' => function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga' ],
+        'rewrite'       => [
+            'slug'       => ( function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga' ) . '/producte',
+            'with_front' => false,
+        ],
         'supports'      => [ 'title', 'editor', 'thumbnail' ],
         'show_in_rest'  => true,
         'menu_icon'     => 'dashicons-cart',
@@ -73,11 +87,57 @@ function fcsd_register_product_taxonomy() {
         'labels'       => $labels,
         'public'       => true,
         'hierarchical' => true,
-        'rewrite'      => [ 'slug' => 'categoria-producte' ],
+        // Categories sota la mateixa base de botiga: /botiga/<categoria>/
+        // (i18n sense plugins via router: /es/tienda/ -> /botiga/ i /en/shop/ -> /botiga/)
+        'rewrite'      => [ 'slug' => ( function_exists('fcsd_default_slug') ? fcsd_default_slug('shop') : 'botiga' ), 'with_front' => false ],
         'show_in_rest' => true,
     ] );
 }
 add_action( 'init', 'fcsd_register_product_taxonomy' );
+
+/**
+ * Forçar plantilles de botiga
+ *
+ * En entorns amb routing i18n virtual (sense plugins) hi pot haver casos on,
+ * depenent de com s'hagin resolt els query_vars, WordPress acabi caient a
+ * single.php o page.php. Això fa que el "layout" del producte no sigui el de
+ * la botiga.
+ *
+ * Aquesta assegurança garanteix:
+ * - Single de producte: single-fcsd_product.php
+ * - Categories: taxonomy-fcsd_product_cat.php
+ */
+add_filter( 'template_include', function( $template ) {
+    if ( is_admin() ) return $template;
+
+    global $wp_query;
+
+    // Determinación robusta: en algunos casos (routing virtual / query vars)
+    // is_singular()/is_tax() pueden no reflejar correctamente el objeto final.
+    $qo = $wp_query ? $wp_query->get_queried_object() : null;
+
+    // Single product
+    if (
+        ( function_exists('is_singular') && is_singular('fcsd_product') )
+        || ( $qo instanceof WP_Post && $qo->post_type === 'fcsd_product' )
+        || ( $wp_query && $wp_query->get('post_type') === 'fcsd_product' && $wp_query->get('p') )
+    ) {
+        $t = locate_template( 'single-fcsd_product.php' );
+        return $t ?: $template;
+    }
+
+    // Product category archive
+    if (
+        ( function_exists('is_tax') && is_tax('fcsd_product_cat') )
+        || ( $qo instanceof WP_Term && $qo->taxonomy === 'fcsd_product_cat' )
+        || ( $wp_query && $wp_query->get('taxonomy') === 'fcsd_product_cat' )
+    ) {
+        $t = locate_template( 'taxonomy-fcsd_product_cat.php' );
+        return $t ?: $template;
+    }
+
+    return $template;
+}, 50 );
 
 /**
  * Crear taules de comandes en activar el tema
@@ -117,6 +177,24 @@ function fcsd_shop_assets() {
             'close'             => __( 'Tancar', 'fcsd' ),
         ],
     ] );
+
+    // Modal post "Afegir a la cistella" (reutilitza el modal legal del footer)
+    wp_enqueue_script(
+        'fcsd-cart-choice-modal',
+        get_template_directory_uri() . '/assets/js/cart-choice-modal.js',
+        [ 'fcsd-shop' ],
+        '1.0.0',
+        true
+    );
+
+    $cart_url = function_exists('fcsd_get_system_page_url')
+        ? fcsd_get_system_page_url('cart')
+        : home_url('/' . ( function_exists('fcsd_default_slug') ? fcsd_default_slug('cart') : 'cistella' ) . '/');
+
+    wp_localize_script('fcsd-cart-choice-modal', 'fcsdCartChoiceData', [
+        'cartUrl'    => $cart_url,
+        'isCartPage' => (bool) is_page_template('page-cart.php'),
+    ]);
 }
 add_action( 'wp_enqueue_scripts', 'fcsd_shop_assets' );
 
@@ -135,6 +213,8 @@ add_action( 'init', function () {
  * Colors i talles:
  * - Configurats via metas:
  *   - _fcsd_product_colors => array de colors (hex)
+ *   - _fcsd_product_is_multicolor => 0/1 (si és multicolor, no hi ha predominants)
+ *   - _fcsd_product_primary_colors => array (1..3) de colors predominants (hex)
  *   - _fcsd_product_sizes  => array de talles
  * - Si no arriben en POST, s'usa el primer valor disponible com a per defecte.
  */
@@ -363,7 +443,7 @@ function fcsd_ajax_update_cart_item() {
 
     if ( $updated ) {
         wp_send_json_success( array(
-            'message'    => __( 'Carret actualitzat', 'fcsd' ),
+            'message'    => __( 'Cistella actualitzada', 'fcsd' ),
             'cart_count' => fcsd_Shop_Cart::get_cart_count()
         ) );
     } else {

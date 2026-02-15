@@ -39,7 +39,7 @@ $email_domain_access = (bool) preg_match( '/@fcsd\.org$/i', (string) $user->user
 if ( empty( $has_access ) && ! $email_domain_access ) {
     ?>
     <div class="container py-5">
-        <p><?php esc_html_e( 'No tienes acceso a la intranet.', 'fcsd' ); ?></p>
+        <p><?php esc_html_e( 'No tens accés a la intranet.', 'fcsd' ); ?></p>
     </div>
     <?php
     get_footer();

@@ -63,7 +63,11 @@ if ( function_exists( 'fcsd_get_shop_colors' ) ) {
                         $terms = get_terms(
                             [
                                 'taxonomy'   => 'fcsd_product_cat',
-                                'hide_empty' => true,
+                                // Mostrar també categories buides.
+                                // En catàlegs multi-idioma és freqüent tenir
+                                // categories definides encara que no tinguin
+                                // productes assignats en un entorn concret.
+                                'hide_empty' => false,
                             ]
                         );
                         if ( ! is_wp_error( $terms ) ) :

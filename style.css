@@ -633,6 +633,11 @@ body.theme-dark .nav-tabs {
    LAYOUT: HEADER/TOPBAR/MIDDLEBAR/NAVBAR/FOOTER
    ============================== */
 
+main,
+.site-main {
+    padding-top: 48px;
+}
+
 .topbar, .middlebar, .navbar.mainnav, footer {
   background-color: var(--panel);
   color: var(--bs-body-color);
@@ -665,6 +670,18 @@ body.theme-dark .middlebar {
 }
 
 /* === TOPBAR === */
+.topbar__grid{
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-md);
+}
+.topbar__center{ justify-self: center; }
+.topbar__left{ justify-self: start; }
+.topbar__right{ justify-self: end; }
+
+.topbar__links{ justify-content: center; }
+
 .topbar .nav,
 .topbar .nav.flex-column,
 .topbar nav ul,
@@ -677,6 +694,22 @@ body.theme-dark .middlebar {
   list-style: none;
   padding-left: 0;
   margin: 0;
+}
+
+/* Donate button */
+:root{ --fcsd-donate: #16d355; }
+.btn.btn-donate{
+  background: var(--fcsd-donate);
+  border-color: var(--fcsd-donate);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: .35rem .75rem;
+}
+.btn.btn-donate:hover,
+.btn.btn-donate:focus{
+  color: #fff;
+  background-color: #0abd45;
 }
 
 .topbar .nav li,
@@ -723,6 +756,22 @@ body.theme-dark .fcsd-logo-dark {
 
 body .fcsd-logo-light {
   margin-bottom: 10px;
+}
+
+/* Donate button */
+:root{ --fcsd-donate: #2CA055; }
+.btn.btn-donate{
+  background: var(--fcsd-donate);
+  border-color: var(--fcsd-donate);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: .35rem .75rem;
+}
+.btn.btn-donate:hover,
+.btn.btn-donate:focus{
+  color: #fff;
+  background-color: #0abd45;
 }
 
 /* === CONTADOR CARRITO === */
@@ -1380,15 +1429,26 @@ body.legal-modal-open {
   background-color: #f3f3f3;
 }
 
+/* Noticias internas importadas vía XML: la imagen ya incluye cabecera visual. */
+.news-card--xml-import .news-card__img {
+  height: 365px;
+  object-fit: contain;
+  object-position: top center;
+}
+
 @media (min-width: 992px) {
   .news-card__img {
     height: 240px;
+  }
+
+  .news-card--xml-import .news-card__img {
+    height: 365px;
   }
 }
 
 .news-card__header {
   inset: 0;
-  padding: 1.1rem 1.3rem 1.35rem;
+  padding: 1.1rem 1.2rem 1.1rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1404,6 +1464,14 @@ body.legal-modal-open {
   z-index: 1;
 }
 
+.news-card__title {
+  color: #000000;
+}
+
+.training.news-card__title {
+  color: #ffffff;
+}
+
 .news-card__cat {
   display: inline-flex;
   align-items: center;
@@ -1411,12 +1479,49 @@ body.legal-modal-open {
   padding: 0.25rem 0.7rem;
   margin-bottom: 0.35rem;
   border-radius: var(--radius-pill);
-  background-color: rgba(0, 0, 0, 0.45);
+  background-color: rgba(255, 255, 255, 0.45);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  white-space: nowrap;
+  color: #333333;
+}
+
+.theme-dark span.news-card__cat {
+  background-color: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+}
+
+/* --- Event formations: icon (small) / image (large) --- */
+.news-card__cat .fcsd-term-icon,
+.news-card__cat .fcsd-term-image {
+  margin-right: 0.35rem;
+}
+
+.news-card__cat .fcsd-term-icon {
+  display: inline-flex;
+  line-height: 1;
+}
+
+.news-card__cat .fcsd-term-icon--dashicons {
+  font-size: 1.05em;
+}
+
+.news-card__cat .fcsd-term-image {
+  display: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+@media (min-width: 992px) {
+  .news-card__cat .fcsd-term-icon {
+    display: none;
+  }
+  .news-card__cat .fcsd-term-image {
+    display: inline-block;
+  }
 }
 
 .news-card__title {
@@ -4178,21 +4283,25 @@ body.theme-dark .actes-calendar__event-excerpt {
 
 
 .fcsd-home-news-strip{ background-color: var(--panel-light); }
-.theme-dark .fcsd-home-news-strip{ background-color: var(--panel-border); } 
-.fcsd-home-news-strip__inner{
-      display:flex;
-      gap:28px;
-      align-items:flex-start;
-      padding: 8px 22px;
-      overflow-x:auto;
-      scroll-snap-type:x mandatory;
-      -webkit-overflow-scrolling:touch;
-    }
-    .fcsd-home-news-strip__item{
-      flex:0 0 auto;
-      min-width:280px;
-      scroll-snap-align:start;
-    }
+.theme-dark .fcsd-home-news-strip{ background-color: var(--panel-border); }
+
+/* Default: manual horizontal scroll */
+.fcsd-home-news-strip__viewport{
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.fcsd-home-news-strip__track{
+  display:flex;
+  gap:28px;
+  align-items:flex-start;
+  padding: 8px 22px;
+  scroll-snap-type:x mandatory;
+}
+.fcsd-home-news-strip__item{
+  flex:0 0 auto;
+  min-width:280px;
+  scroll-snap-align:start;
+}
     .fcsd-home-news-strip__link{
       display:flex;
       gap:12px;
@@ -4226,9 +4335,41 @@ body.theme-dark .actes-calendar__event-excerpt {
     }
 
     /* scrollbar discreta */
-    .fcsd-home-news-strip__inner::-webkit-scrollbar{ height:8px; }
+    .fcsd-home-news-strip__viewport::-webkit-scrollbar{ height:8px; }
     /* En tema claro, un gris limpio usando tokens ya definidos */
-    .fcsd-home-news-strip__inner::-webkit-scrollbar-thumb{ background:var(--panel-border); border-radius:999px; }
+    .fcsd-home-news-strip__viewport::-webkit-scrollbar-thumb{ background:var(--panel-border); border-radius:999px; }
     /* En tema oscuro, mantenemos un thumb más contrastado */
-    body.theme-dark .fcsd-home-news-strip__inner::-webkit-scrollbar-thumb{ background:var(--panel-border-strong); }
+    body.theme-dark .fcsd-home-news-strip__viewport::-webkit-scrollbar-thumb{ background:var(--panel-border-strong); }
 
+/* Continuous marquee (optional via Customizer) */
+.fcsd-home-news-strip.is-marquee .fcsd-home-news-strip__viewport{
+  overflow: hidden;
+}
+.fcsd-home-news-strip.is-marquee .fcsd-home-news-strip__track{
+  width: max-content;
+  scroll-snap-type: none;
+  will-change: transform;
+  animation: fcsd-news-marquee var(--fcsd-marquee-duration, 28s) linear infinite;
+}
+.fcsd-home-news-strip.is-marquee .fcsd-home-news-strip__item{
+  scroll-snap-align: unset;
+}
+.fcsd-home-news-strip.is-marquee.is-pausable .fcsd-home-news-strip__viewport:hover .fcsd-home-news-strip__track,
+.fcsd-home-news-strip.is-marquee.is-pausable .fcsd-home-news-strip__viewport:focus-within .fcsd-home-news-strip__track{
+  animation-play-state: paused;
+}
+
+@keyframes fcsd-news-marquee{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .fcsd-home-news-strip.is-marquee .fcsd-home-news-strip__viewport{ overflow-x:auto; }
+  .fcsd-home-news-strip.is-marquee .fcsd-home-news-strip__track{ animation: none; }
+}
+
+
+
+/* Shop: modal after add-to-cart (reutiliza modal legal) */
+.fcsd-cart-choice-actions{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px;}

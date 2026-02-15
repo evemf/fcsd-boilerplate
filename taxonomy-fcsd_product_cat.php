@@ -1,5 +1,6 @@
 <?php
-// archive-product.php
+// taxonomy-fcsd_product_cat.php
+// NOTE: Filters intentionally removed on category pages.
 
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
@@ -9,13 +10,8 @@ get_header(); ?>
 
 <div class="shop-archive container">
     <h1 class="shop-title">
-        <?php post_type_archive_title(); ?>
-    </h1>
-
-      <?php
-    get_template_part( 'template-parts/shop/navbar', 'filters' );
-    ?>
-
+        <?php single_term_title(); ?>
+    </h1> 
     <div class="shop-grid row">
         <?php if ( have_posts() ) : ?>
             <?php while ( have_posts() ) : the_post(); ?>

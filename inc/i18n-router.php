@@ -1,270 +1,410 @@
 <?php
 /**
- * FCSD i18n router
- * - Quita el prefijo de idioma del request antes de que WP resuelva rewrites
- * - Traduce slugs entrantes (es/en) al slug canónico (ca) para que los rewrites funcionen
+ * FCSD i18n router (sin plugins) – versión limpia
+ *
+ * Principios:
+ * - NO modificamos $wp->request en parse_request (eso rompe el matcher de rewrites).
+ * - El idioma se determina por:
+ *   1) query var fcsd_lang (puesta por rewrites)
+ *   2) prefijo /ca|es|en/ en la URL (fallback)
+ * - Para slugs traducidos (name / term / pagename), convertimos a slug canónico (CA)
+ *   usando metadatos:
+ *     - posts/pages: _fcsd_i18n_slug_{lang}
+ *     - terms:       _fcsd_i18n_slug_{lang}
+ *
+ * Con esto, los templates funcionan igual en todos los idiomas porque WP siempre
+ * acaba consultando el mismo contenido (slug canónico).
  */
 defined('ABSPATH') || exit;
 
-add_filter('query_vars', function($vars){
+add_filter('query_vars', function(array $vars): array {
     $vars[] = 'fcsd_lang';
     return $vars;
 });
 
-
 /**
- * Devuelve el ID de la primera página publicada que use un template concreto.
+ * Busca un post ID por slug traducido guardado en meta.
  */
-function fcsd_get_page_id_by_template(string $template): int {
+function fcsd_find_post_id_by_translated_slug(string $post_type, string $lang, string $translated_slug): int {
+    $translated_slug = sanitize_title($translated_slug);
+    if ($translated_slug === '') return 0;
+
     $found = get_posts([
-        'post_type'      => 'page',
+        'post_type'      => $post_type,
         'post_status'    => 'publish',
-        'meta_key'       => '_wp_page_template',
-        'meta_value'     => $template,
+        'meta_key'       => '_fcsd_i18n_slug_' . $lang,
+        'meta_value'     => $translated_slug,
         'fields'         => 'ids',
         'posts_per_page' => 1,
         'no_found_rows'  => true,
     ]);
-    return !empty($found[0]) ? (int)$found[0] : 0;
+    return !empty($found[0]) ? (int) $found[0] : 0;
 }
 
 /**
- * Devuelve el ID “real” de una página de sistema.
- *
- * En instalaciones que vienen de versiones anteriores del tema, el slug canónico
- * puede no coincidir con el mapa actual (p.ej. `perfil-usuari`). Además, puede
- * faltar el meta _fcsd_i18n_slug_{lang} si no se ejecutó el hook de activación.
+ * Busca un término por slug traducido guardado en meta.
  */
-function fcsd_get_system_page_id(string $key, string $template): int {
-    $pid = fcsd_get_page_id_by_template($template);
-    if ($pid) return $pid;
+function fcsd_find_term_by_translated_slug(string $taxonomy, string $lang, string $translated_slug): ?WP_Term {
+    $translated_slug = sanitize_title($translated_slug);
+    if ($translated_slug === '') return null;
 
-    // Fallback: slug canónico (ca) según mapa.
-    if (function_exists('fcsd_default_slug')) {
-        $slug_ca = fcsd_default_slug($key);
-        $p = get_page_by_path($slug_ca, OBJECT, 'page');
-        if ($p instanceof WP_Post) return (int) $p->ID;
-    }
-
-    // Legacy conocidos.
-    $legacy = [];
-    if ($key === 'profile')  $legacy = ['perfil-usuari','perfil-usuario'];
-    if ($key === 'login')    $legacy = ['iniciar-sessio','iniciar-sesion'];
-    if ($key === 'register') $legacy = ['registrar'];
-    foreach ($legacy as $ls) {
-        $p = get_page_by_path($ls, OBJECT, 'page');
-        if ($p instanceof WP_Post) return (int) $p->ID;
-    }
-
-    return 0;
+    $terms = get_terms([
+        'taxonomy'   => $taxonomy,
+        'hide_empty' => false,
+        'number'     => 1,
+        'meta_query' => [
+            [
+                'key'   => '_fcsd_i18n_slug_' . $lang,
+                'value' => $translated_slug,
+            ],
+        ],
+    ]);
+    if (is_wp_error($terms) || empty($terms[0]) || !($terms[0] instanceof WP_Term)) return null;
+    return $terms[0];
 }
-add_action('parse_request', function($wp){
+
+/**
+ * Normaliza query vars para que:
+ * - Los slugs en ES/EN apunten al contenido canónico (CA).
+ * - Los archives/listados funcionen igual en todos los idiomas.
+ */
+
+/**
+ * Virtual router: interpreta rutas /{lang}/... aunque las rewrite rules no estén flushed
+ * o aunque WP haya resuelto la URL como pagename genérico.
+ *
+ * Objetivo: que /es/servicios, /en/services, /es/tienda, /en/shop, etc. carguen el
+ * contenido correcto SIN redirecciones.
+ */
+function fcsd_virtual_route_parse_request(\WP $wp): void {
     if ( is_admin() ) return;
 
-    $req = ltrim((string) $wp->request, '/'); // p.ej: "es/noticias/foo"
-    if ($req === '') return;
-
-    $parts = explode('/', $req);
-    $lang = $parts[0] ?? '';
-    if ( ! $lang || ! isset(FCSD_LANGUAGES[$lang]) ) return;
-
-    // Guardamos el idioma para lecturas posteriores
-    $wp->query_vars['fcsd_lang'] = $lang;
-
-    // Quitamos el prefijo de idioma del request
-    array_shift($parts);
-
-    // Si el primer slug tras el idioma es una traducción, lo mapeamos al slug canónico (ca)
-    if ( ! empty($parts[0]) ) {
-        $maybe = $parts[0];
-        $key = fcsd_slug_key_from_translated($maybe);
-        if ( $key ) {
-            $parts[0] = fcsd_default_slug($key);
-        }
-    }
-
-    $wp->request = implode('/', array_filter($parts, fn($p)=>$p!=='' ));
-}, 0);
-
-
-add_filter('request', function($qv){
-    if ( is_admin() ) return $qv;
-    $lang = function_exists('fcsd_lang') ? fcsd_lang() : FCSD_LANG;
-    if ( $lang === FCSD_DEFAULT_LANG ) return $qv;
-
-    /**
-     * Normalización crítica del routing.
-     *
-     * WordPress resuelve rewrites ANTES de disparar el action `parse_request`.
-     * Para URLs tipo `/es/` o `/en/`, WP suele interpretar el request como un
-     * `pagename`/`name` igual al propio código de idioma ("es"/"en").
-     *
-     * Si no existe una página/post con ese slug, WP acaba en 404 y puede
-     * ejecutar `redirect_guess_404_permalink()`, provocando redirecciones
-     * “raras” hacia cualquier contenido existente.
-     *
-     * Aquí corregimos el query vars para que `/es/` y `/en/` sean HOME real y
-     * para que `/es/algo` se resuelva como `algo`.
-     */
-    $path = '/';
-    if ( isset($_SERVER['REQUEST_URI']) ) {
-        $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    }
+    $uri = $_SERVER['REQUEST_URI'] ?? '/';
+    $path = (string) parse_url($uri, PHP_URL_PATH);
     $path = trim($path, '/');
 
-    // Caso exacto: /es o /en -> HOME (sin query vars)
-    if ( $path === $lang ) {
-        return [];
+    if ($path === '') {
+        return;
     }
 
-    // Caso: WP ha resuelto pagename/name incluyendo el prefijo (es/foo)
-    // o el propio idioma (es). Lo limpiamos.
-    foreach (['pagename','name'] as $k) {
-        if ( ! empty($qv[$k]) && is_string($qv[$k]) ) {
-            if ( $qv[$k] === $lang ) {
-                unset($qv[$k]);
-                continue;
-            }
-            $prefix = $lang . '/';
-            if ( $prefix !== '' && strpos($qv[$k], $prefix) === 0 ) {
-                $qv[$k] = substr($qv[$k], strlen($prefix));
-            }
+    $parts = explode('/', $path);
+    $lang  = $parts[0] ?? '';
+    if ( ! $lang || ! defined('FCSD_LANGUAGES') || ! isset(FCSD_LANGUAGES[$lang]) ) {
+        return; // sin prefijo de idioma => no tocamos
+    }
+
+    // Fijamos idioma siempre que haya prefijo
+    $wp->query_vars['fcsd_lang'] = $lang;
+
+    $rest = array_slice($parts, 1);
+    // /{lang}/
+    if (empty($rest)) {
+        // Home por idioma: limpiamos posibles pagename=lang
+        unset($wp->query_vars['pagename'], $wp->query_vars['name']);
+        return;
+    }
+
+    // Helpers de slugs base
+    $services = trim((string) (function_exists('fcsd_slug') ? fcsd_slug('services', $lang) : ''), '/');
+    $events   = trim((string) (function_exists('fcsd_slug') ? fcsd_slug('events', $lang) : ''), '/');
+    $news     = trim((string) (function_exists('fcsd_slug') ? fcsd_slug('news', $lang) : ''), '/');
+    $shop     = trim((string) (function_exists('fcsd_slug') ? fcsd_slug('shop', $lang) : ''), '/');
+    $product  = trim((string) (function_exists('fcsd_slug') ? fcsd_slug('shop_product', $lang) : ''), '/');
+
+    $seg0 = $rest[0] ?? '';
+
+    // -------------------------
+    // Services: /{lang}/{services}/[page/N]|[single]
+    // -------------------------
+    if ($seg0 === $services && $services !== '') {
+        // reset posibles vars de página
+        unset($wp->query_vars['pagename'], $wp->query_vars['name']);
+
+        $wp->query_vars['post_type'] = 'service';
+
+        // paginación
+        if (isset($rest[1]) && $rest[1] === 'page' && isset($rest[2]) && preg_match('/^\d+$/', $rest[2])) {
+            $wp->query_vars['paged'] = (int) $rest[2];
+            return;
         }
-    }
 
-    
-    // ------------------------------------------------------------------
-    // Páginas de sistema (perfil/login/registro)
-    // ------------------------------------------------------------------
-    // Garantiza que las URLs públicas (/es/registro, /en/register, etc.)
-    // resuelvan al template correcto aunque:
-    // - el slug real en BD sea distinto (legacy)
-    // - falten los metadatos i18n
-    // - WP haya resuelto mal el pagename
-    $system = [
-        'profile'  => 'page-profile.php',
-        'login'    => 'page-login.php',
-        'register' => 'page-register.php',
-        // Ecommerce
-        'cart'     => 'page-cart.php',
-        'checkout' => 'page-checkout.php',
-        'shop'     => 'archive-fcsd_product.php',
-    ];
-
-    // Detectar slug del request sin prefijo idioma
-    $req_slug = '';
-    if (isset($_SERVER['REQUEST_URI'])) {
-        $p = trim((string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-        $parts = $p === '' ? [] : explode('/', $p);
-        if (!empty($parts[0]) && isset(FCSD_LANGUAGES[$parts[0]])) {
-            array_shift($parts);
+        // single
+        if (isset($rest[1]) && $rest[1] !== '' && $rest[1] !== 'page') {
+            $wp->query_vars['name'] = sanitize_title($rest[1]);
+            return;
         }
-        $req_slug = $parts[0] ?? '';
+        return;
     }
 
-    $pn = '';
-    if (!empty($qv['pagename']) && is_string($qv['pagename'])) $pn = $qv['pagename'];
-    if ($pn === '' && $req_slug !== '') $pn = $req_slug;
+    // -------------------------
+    // Events: /{lang}/{events}/[page/N]|[single]
+    // -------------------------
+    if ($seg0 === $events && $events !== '') {
+        unset($wp->query_vars['pagename'], $wp->query_vars['name']);
 
-    if ($pn !== '' && function_exists('fcsd_slug')) {
-        // $pid solo se define cuando el sistema mapea a una página real.
-        // En rutas tipo /en/shop/ (archive) puede no existir y evitamos warnings.
-        $pid = 0;
-        foreach ($system as $key => $tpl) {
-            $slugs = array_unique(array_filter([
-                fcsd_slug($key, $lang),
-                fcsd_default_slug($key),
-                // Legacy perfil
-                ($key==='profile' ? 'perfil-usuari' : ''),
-                ($key==='profile' ? 'perfil-usuario' : ''),
-            ]));
+        $wp->query_vars['post_type'] = 'event';
 
-            if (in_array($pn, $slugs, true)) {
-                // Para templates no-page (archive), solo reescribimos el pagename.
-                if (strpos($tpl, 'page-') === 0) {
-                    $pid = fcsd_get_system_page_id($key, $tpl);
-                    if ($pid) {
-                        $qv['page_id'] = $pid;
-                        unset($qv['pagename'], $qv['name']);
-                    }
+        if (isset($rest[1]) && $rest[1] === 'page' && isset($rest[2]) && preg_match('/^\d+$/', $rest[2])) {
+            $wp->query_vars['paged'] = (int) $rest[2];
+            return;
+        }
+
+        if (isset($rest[1]) && $rest[1] !== '' && $rest[1] !== 'page') {
+            $wp->query_vars['name'] = sanitize_title($rest[1]);
+            return;
+        }
+        return;
+    }
+
+    // -------------------------
+    // News:
+    // - listado: /{lang}/{news}/[page/N] => página canónica (ca) con template page-news.php
+    // - single:  /{lang}/{news}/{slug}   => CPT news
+    // -------------------------
+    if ($seg0 === $news && $news !== '') {
+        unset($wp->query_vars['pagename'], $wp->query_vars['name'], $wp->query_vars['post_type']);
+
+        if (isset($rest[1]) && $rest[1] !== '' && $rest[1] !== 'page') {
+            $wp->query_vars['post_type'] = 'news';
+            $wp->query_vars['name']      = sanitize_title($rest[1]);
+            return;
+        }
+
+        // listado: pagename = slug canónico de la página "news" (en CA)
+        $news_page_slug = function_exists('fcsd_default_slug') ? fcsd_default_slug('news') : 'noticies';
+        $wp->query_vars['pagename'] = $news_page_slug;
+
+        if (isset($rest[1]) && $rest[1] === 'page' && isset($rest[2]) && preg_match('/^\d+$/', $rest[2])) {
+            $wp->query_vars['paged'] = (int) $rest[2];
+        }
+        return;
+    }
+
+    // -------------------------
+    // Shop:
+    // - archive: /{lang}/{shop}/
+    // - single:  /{lang}/{shop}/{product}/{slug}
+    // - cat:     /{lang}/{shop}/{cat}/[page/N]
+    // -------------------------
+    if ($seg0 === $shop && $shop !== '') {
+        unset($wp->query_vars['pagename'], $wp->query_vars['name'], $wp->query_vars['post_type']);
+
+        $seg1 = $rest[1] ?? '';
+        $seg2 = $rest[2] ?? '';
+        $seg3 = $rest[3] ?? '';
+
+        // Slug canónico del segmento "product" (siempre en idioma por defecto)
+        $product_canonical = function_exists('fcsd_default_slug') ? fcsd_default_slug('shop_product') : 'producte';
+
+        // 1) Single producto con segmento explícito (traducido o canónico)
+        //    /{lang}/{shop}/{product}/{slug}
+        if ($seg1 !== '' && ($seg1 === $product || $seg1 === $product_canonical) && $seg2 !== '') {
+            $maybe = sanitize_title($seg2);
+
+            // Primero probamos slug canónico (post_name)
+            $p = get_page_by_path($maybe, OBJECT, 'fcsd_product');
+            if ($p instanceof \WP_Post) {
+                $wp->query_vars['post_type'] = 'fcsd_product';
+                $wp->query_vars['name']      = $maybe;
+                return;
+            }
+
+            // Si no existe como post_name, probamos slug traducido guardado en meta
+            $pid = fcsd_find_post_id_by_translated_slug('fcsd_product', $lang, $maybe);
+            if ($pid) {
+                $canonical = (string) get_post_field('post_name', $pid);
+                $wp->query_vars['post_type'] = 'fcsd_product';
+                $wp->query_vars['p']         = (int) $pid;
+                if ($canonical !== '') {
+                    $wp->query_vars['name'] = $canonical;
                 } else {
-                    // shop archive
-                    if ($key === 'shop') {
-                        $qv['post_type'] = 'fcsd_product';
-                        unset($qv['pagename'], $qv['name']);
+                    unset($wp->query_vars['name']);
+                }
+                return;
+            }
+
+            // Fallback: deja que WP resuelva (no content si no existe)
+            $wp->query_vars['post_type'] = 'fcsd_product';
+            $wp->query_vars['name']      = $maybe;
+            return;
+        }
+
+        // 2) Categoría (si existe el término; evita confundirlo con un producto)
+        //    /{lang}/{shop}/{cat}/[page/N]
+        if ($seg1 !== '' && $seg1 !== 'page') {
+            $maybe_term_slug = sanitize_title($seg1);
+            $term = get_term_by('slug', $maybe_term_slug, 'fcsd_product_cat');
+            if (!($term instanceof \WP_Term)) {
+                $term = fcsd_find_term_by_translated_slug('fcsd_product_cat', $lang, $maybe_term_slug);
+            }
+            if ($term instanceof \WP_Term) {
+                $wp->query_vars['fcsd_product_cat'] = $term->slug;
+                $wp->query_vars['taxonomy']         = 'fcsd_product_cat';
+                $wp->query_vars['term']             = $term->slug;
+                if ($seg2 === 'page' && $seg3 !== '' && preg_match('/^\d+$/', $seg3)) {
+                    $wp->query_vars['paged'] = (int) $seg3;
+                }
+                return;
+            }
+        }
+
+        // 3) Single producto sin segmento "product" (compat / enlaces antiguos)
+        //    /{lang}/{shop}/{slug}
+        if ($seg1 !== '' && $seg1 !== 'page') {
+            $maybe_product = sanitize_title($seg1);
+            $p = get_page_by_path($maybe_product, OBJECT, 'fcsd_product');
+            if (!($p instanceof \WP_Post)) {
+                $pid = fcsd_find_post_id_by_translated_slug('fcsd_product', $lang, $maybe_product);
+                if ($pid) {
+                    $canonical = (string) get_post_field('post_name', $pid);
+                    if ($canonical !== '') {
+                        $maybe_product = $canonical;
+                        $p = get_page_by_path($maybe_product, OBJECT, 'fcsd_product');
                     }
                 }
-                if ($pid) {
-                    $qv['page_id'] = $pid;
-                    unset($qv['pagename'], $qv['name']);
-                }
-                break;
+            }
+            if ($p instanceof \WP_Post) {
+                $wp->query_vars['post_type'] = 'fcsd_product';
+                $wp->query_vars['name']      = $maybe_product;
+                return;
+            }
+        }
+
+        // archive
+        $wp->query_vars['post_type'] = 'fcsd_product';
+        return;
+    }
+
+    // -------------------------
+    // Páginas genéricas traducidas por meta _fcsd_i18n_slug_{lang}
+    // Soporta páginas jerárquicas /a/b/c (busca por la parte final).
+    // -------------------------
+    $candidate = end($rest);
+    $candidate = is_string($candidate) ? sanitize_title($candidate) : '';
+    if ($candidate !== '' && function_exists('fcsd_find_post_id_by_translated_slug')) {
+        $pid = fcsd_find_post_id_by_translated_slug('page', $lang, $candidate);
+        if ($pid) {
+            $canonical = (string) get_post_field('post_name', $pid);
+            if ($canonical !== '') {
+                unset($wp->query_vars['post_type'], $wp->query_vars['name']);
+                $wp->query_vars['pagename'] = $canonical;
+                return;
             }
         }
     }
 
-// Páginas: pagename
-    if ( ! empty($qv['pagename']) && is_string($qv['pagename']) ) {
-        $slug = $qv['pagename'];
-        $found = get_posts([
-            'post_type'   => 'page',
-            'post_status' => 'publish',
-            'meta_key'    => '_fcsd_i18n_slug_' . $lang,
-            'meta_value'  => $slug,
-            'fields'      => 'ids',
-            'numberposts' => 1,
-        ]);
-        if ( ! empty($found[0]) ) {
-            $canonical = get_post_field('post_name', (int)$found[0]);
-            if ( $canonical ) $qv['pagename'] = $canonical;
+    // Si el slug pertenece al mapa central (system pages), normalizamos a su canónico.
+    if (function_exists('fcsd_slug_key_from_translated') && function_exists('fcsd_default_slug')) {
+        $key = fcsd_slug_key_from_translated($seg0);
+        if ($key) {
+            $wp->query_vars['pagename'] = fcsd_default_slug($key);
+            return;
+        }
+    }
+}
+add_action('parse_request', 'fcsd_virtual_route_parse_request', 1);
+
+add_filter('request', function(array $qv): array {
+    if (is_admin()) return $qv;
+
+    $lang = function_exists('fcsd_lang') ? fcsd_lang() : (defined('FCSD_DEFAULT_LANG') ? FCSD_DEFAULT_LANG : 'ca');
+    $is_non_default = defined('FCSD_DEFAULT_LANG') ? ($lang !== FCSD_DEFAULT_LANG) : ($lang !== 'ca');
+
+    // HOME por idioma: si alguien resuelve /ca/ como pagename=ca, limpiamos.
+    foreach (['pagename', 'name'] as $k) {
+        if (!empty($qv[$k]) && is_string($qv[$k]) && $qv[$k] === $lang) {
+            unset($qv[$k]);
         }
     }
 
-    // Entradas/CPT: name
-    if ( ! empty($qv['name']) && is_string($qv['name']) ) {
-        $slug = $qv['name'];
-        $found = get_posts([
-            'post_type'   => 'any',
-            'post_status' => 'publish',
-            'meta_key'    => '_fcsd_i18n_slug_' . $lang,
-            'meta_value'  => $slug,
-            'fields'      => 'ids',
-            'numberposts' => 1,
-        ]);
-        if ( ! empty($found[0]) ) {
-            $canonical = get_post_field('post_name', (int)$found[0]);
-            if ( $canonical ) $qv['name'] = $canonical;
+    if (!$is_non_default) {
+        return $qv;
+    }
+
+    // -------------------------
+    // CPT singles: service, event, news, fcsd_product
+    // -------------------------
+    $cpt_types = ['service','event','news','fcsd_product'];
+    if (!empty($qv['post_type']) && is_string($qv['post_type']) && in_array($qv['post_type'], $cpt_types, true)) {
+        $pt = $qv['post_type'];
+
+        if (!empty($qv['name']) && is_string($qv['name'])) {
+            $incoming = sanitize_title($qv['name']);
+
+            // Si ya existe como post_name, no tocamos.
+            $p = get_page_by_path($incoming, OBJECT, $pt);
+            if (!($p instanceof WP_Post)) {
+                // Buscar por meta traducida y convertir a canónico.
+                $pid = fcsd_find_post_id_by_translated_slug($pt, $lang, $incoming);
+                if ($pid) {
+                    $canonical = (string) get_post_field('post_name', $pid);
+                    if ($canonical !== '') {
+                        $qv['name'] = $canonical;
+                    }
+                }
+            }
+        }
+    }
+
+    // -------------------------
+    // Pages: traducidas por meta _fcsd_i18n_slug_{lang}
+    // -------------------------
+    if (!empty($qv['pagename']) && is_string($qv['pagename'])) {
+        $incoming = trim($qv['pagename'], '/');
+        $incoming = sanitize_title($incoming);
+
+        // Si WP ya encuentra página por slug, ok.
+        $p = get_page_by_path($incoming, OBJECT, 'page');
+        if (!($p instanceof WP_Post)) {
+            $pid = fcsd_find_post_id_by_translated_slug('page', $lang, $incoming);
+            if ($pid) {
+                $canonical = (string) get_post_field('post_name', $pid);
+                if ($canonical !== '') {
+                    $qv['pagename'] = $canonical;
+                }
+            } else {
+                // Si es un slug de sistema definido en el mapa, lo normalizamos.
+                if (function_exists('fcsd_slug_key_from_translated') && function_exists('fcsd_default_slug')) {
+                    $key = fcsd_slug_key_from_translated($incoming);
+                    if ($key) {
+                        $qv['pagename'] = fcsd_default_slug($key);
+                    }
+                }
+            }
+        }
+    }
+
+    // -------------------------
+    // Taxonomía de categorías de producto (shop)
+    // -------------------------
+    if (!empty($qv['fcsd_product_cat']) && is_string($qv['fcsd_product_cat'])) {
+        $incoming = sanitize_title($qv['fcsd_product_cat']);
+        $term = get_term_by('slug', $incoming, 'fcsd_product_cat');
+        if (!($term instanceof WP_Term)) {
+            $term = fcsd_find_term_by_translated_slug('fcsd_product_cat', $lang, $incoming);
+            if ($term) {
+                $qv['fcsd_product_cat'] = $term->slug;
+            }
         }
     }
 
     return $qv;
-}, 20);
-
+}, 10, 1);
 
 /**
- * Redirects 301 de slugs legacy (p.ej. /perfil-usuari/) a la URL pública traducida.
+ * Evitar que WP "adivine" permalinks y redirija a contenido equivocado en ES/EN.
  */
-add_action('template_redirect', function(){
-    if ( is_admin() || wp_doing_ajax() ) return;
-    $path = isset($_SERVER['REQUEST_URI']) ? (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) : '';
+add_filter('redirect_guess_404_permalink', function($link) {
+    $path = '';
+    if (!empty($_SERVER['REQUEST_URI'])) {
+        $path = (string) parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    }
     $path = trim($path, '/');
-    if ($path === '') return;
+    if ($path === '') return $link;
 
-    $parts = explode('/', $path);
-    $lang = FCSD_DEFAULT_LANG;
-    if (!empty($parts[0]) && isset(FCSD_LANGUAGES[$parts[0]])) {
-        $lang = $parts[0];
-        array_shift($parts);
+    $first = explode('/', $path)[0] ?? '';
+    if ($first && defined('FCSD_LANGUAGES') && isset(FCSD_LANGUAGES[$first])) {
+        return false;
     }
-    $first = $parts[0] ?? '';
-    if ($first === '') return;
-
-    $legacy = ['perfil-usuari','perfil-usuario'];
-    if (in_array($first, $legacy, true)) {
-        $target = fcsd_slug('profile', $lang);
-        $home = rtrim((string) get_option('home'), '/');
-        $to = $home . ($lang===FCSD_DEFAULT_LANG ? '' : '/' . $lang) . '/' . $target . '/';
-        wp_safe_redirect($to, 301);
-        exit;
-    }
+    return $link;
 });
